@@ -7,8 +7,8 @@ import java.util.Objects;
 
 //DONT FORGET TO WRITE DOCUMENTATION!
 public class PieceMovesCalculator {
-    List<ChessMove> possibleMoves = new ArrayList<>();
-    boolean hasCapturedPiece = false;
+    private final List<ChessMove> possibleMoves = new ArrayList<>();
+    private boolean hasCapturedPiece = false;
 
     public PieceMovesCalculator(ChessBoard board, ChessPosition position) {
         ChessPiece piece = board.getPiece(position);
@@ -22,6 +22,8 @@ public class PieceMovesCalculator {
         } else if (piece.getPieceType()==ChessPiece.PieceType.QUEEN) {
             new RookMovesCalculator(board,piece,position);
             new BishopMovesCalculator(board,piece,position);
+        } else if (piece.getPieceType()==ChessPiece.PieceType.KNIGHT) {
+            new KnightMovesCalculator(board,piece,position);
         }
     }
 
@@ -145,6 +147,79 @@ public class PieceMovesCalculator {
                 nextPosition=new ChessPosition(nextPosition.getRow()-1,nextPosition.getColumn()-1);
             }
         }
+    }
+
+    public class KnightMovesCalculator {
+
+        public KnightMovesCalculator(ChessBoard board, ChessPiece piece, ChessPosition startPosition) {
+            /*"""
+            | | | | | | | | |
+            | | | |*| |*| | |
+            | | |*| | | |*| |
+            | | | | |N| | | |
+            | | |*| | | |*| |
+            | | | |*| |*| | |
+            | | | | | | | | |
+            | | | | | | | | |
+                        """*/
+            String[] directions = {"NWW","NNW","NNE","NEE","SEE","SSE","SSW","SWW"};
+            for (String direction: directions){
+                moveIfPossible(board,startPosition,direction,piece.getTeamColor());
+            }
+        }
+        public void moveIfPossible(ChessBoard board, ChessPosition startPosition, String direction, ChessGame.TeamColor color){
+            ChessPosition potentialPosition = getDesiredPosition(startPosition,direction);
+            if (potentialPosition!=null){
+                ChessPiece potentialCapture = board.getPiece(potentialPosition);
+                if (potentialCapture!=null){
+                    if(potentialCapture.getTeamColor()!=color){
+                        possibleMoves.add(new ChessMove(startPosition,potentialPosition,null));
+                    }
+                } else{
+                    possibleMoves.add(new ChessMove(startPosition,potentialPosition,null));
+                }
+            }
+        }
+
+        public ChessPosition getDesiredPosition (ChessPosition startPosition,String direction){
+            int startCol = startPosition.getColumn();
+            int startRow = startPosition.getRow();
+            if (Objects.equals(direction, "NWW")){
+                if (startRow!=8 && startCol>2){
+                    return new ChessPosition(startRow+1,startCol-2);
+                }
+            } else if (Objects.equals(direction, "NNW")) {
+                if (startRow<7 && startCol!=1){
+                    return new ChessPosition(startRow+2,startCol-1);
+                }
+            } else if (Objects.equals(direction, "NNE")) {
+                if (startRow<7 && startCol!=8){
+                    return new ChessPosition(startRow+2,startCol+1);
+                }
+            } else if (Objects.equals(direction, "NEE")) {
+                if (startRow!=8 && startCol<7) {
+                    return new ChessPosition(startRow+1, startCol + 2);
+                }
+            } else if (Objects.equals(direction, "SEE")) {
+                if (startRow!=1 && startCol<7){
+                    return new ChessPosition(startRow-1,startCol+2);
+                }
+            } else if (Objects.equals(direction, "SSE")) {
+                if (startRow>2 && startCol!=8){
+                    return new ChessPosition(startRow-2,startCol+1);
+                }
+            } else if (Objects.equals(direction, "SSW")) {
+                if (startRow>2 && startCol!=1){
+                    return new ChessPosition(startRow-2,startCol-1);
+                }
+            } else if (Objects.equals(direction, "SWW")) {
+                if (startRow!=1 && startCol>2){
+                    return new ChessPosition(startRow-1, startCol-2);
+                }
+            }
+            return null;
+        }
+
 
 
     }
