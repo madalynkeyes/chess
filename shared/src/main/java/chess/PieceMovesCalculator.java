@@ -13,12 +13,15 @@ public class PieceMovesCalculator {
     public PieceMovesCalculator(ChessBoard board, ChessPosition position) {
         ChessPiece piece = board.getPiece(position);
         if (piece.getPieceType()== ChessPiece.PieceType.KING){
-            KingMovesCalculator kingCalculator = new KingMovesCalculator(board,piece,position);
+            new KingMovesCalculator(board,piece,position);
         }
         else if (piece.getPieceType()==ChessPiece.PieceType.ROOK) {
-            RookMovesCalculator rookCalculator = new RookMovesCalculator(board,piece,position);
+            new RookMovesCalculator(board,piece,position);
         } else if (piece.getPieceType()==ChessPiece.PieceType.BISHOP) {
-            BishopMovesCalculator bishopCalculator = new BishopMovesCalculator(board,piece,position);
+            new BishopMovesCalculator(board,piece,position);
+        } else if (piece.getPieceType()==ChessPiece.PieceType.QUEEN) {
+            new RookMovesCalculator(board,piece,position);
+            new BishopMovesCalculator(board,piece,position);
         }
     }
 
