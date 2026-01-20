@@ -8,33 +8,39 @@ import java.util.Objects;
 //DONT FORGET TO WRITE DOCUMENTATION!
 public class PieceMovesCalculator {
     List<ChessMove> possibleMoves = new ArrayList<>();
+    boolean hasCapturedPiece = false;
 
     public PieceMovesCalculator(ChessBoard board, ChessPosition position) {
         ChessPiece piece = board.getPiece(position);
         if (piece.getPieceType()== ChessPiece.PieceType.KING){
             KingMovesCalculator kingCalculator = new KingMovesCalculator(board,piece,position);
         }
-        //else if (piece.getPieceType()==ChessPiece.PieceType.ROOK) {
-
-        //}
+        else if (piece.getPieceType()==ChessPiece.PieceType.ROOK) {
+            RookMovesCalculator rookCalculator = new RookMovesCalculator(board,piece,position);
+        }
     }
 
     public Collection<ChessMove> getPossibleMoves(){
         return possibleMoves;
     }
 
-    public void moveIfPossible(ChessBoard board,ChessPosition position, String direction, ChessGame.TeamColor color){
-        ChessPosition potentialPosition = getDesiredPosition(position,direction);
+    public boolean moveIfPossible(ChessBoard board, ChessPosition startPosition, ChessPosition nextPosition,String direction, ChessGame.TeamColor color){
+        hasCapturedPiece = false;
+        ChessPosition potentialPosition = getDesiredPosition(nextPosition,direction);
         if (potentialPosition!=null){
             ChessPiece potentialCapture = board.getPiece(potentialPosition);
             if (potentialCapture!=null){
                 if(potentialCapture.getTeamColor()!=color){
-                    possibleMoves.add(new ChessMove(position,potentialPosition,null));
+                    hasCapturedPiece = true;
+                    possibleMoves.add(new ChessMove(startPosition,potentialPosition,null));
+                    return true;
                 }
             } else{
-                possibleMoves.add(new ChessMove(position,potentialPosition,null));
+                possibleMoves.add(new ChessMove(startPosition,potentialPosition,null));
+                return true;
             }
         }
+        return false;
     }
 
     public ChessPosition getDesiredPosition (ChessPosition startPosition,String direction){
@@ -82,8 +88,34 @@ public class PieceMovesCalculator {
         public KingMovesCalculator(ChessBoard board,ChessPiece piece,ChessPosition startPosition){
             String[] directions = {"northwest","north","northeast","east","southeast","south","southwest","west"};
             for (String direction: directions){
-                moveIfPossible(board,startPosition,direction,piece.getTeamColor());
+                moveIfPossible(board,startPosition,startPosition,direction,piece.getTeamColor());
             }
+        }
+    }
+
+    public class RookMovesCalculator{
+
+        public RookMovesCalculator(ChessBoard board,ChessPiece piece,ChessPosition startPosition) {
+            ChessPosition nextPosition = startPosition;
+            int row = nextPosition.getRow();
+            int col = nextPosition.getColumn();
+
+            while (moveIfPossible(board,startPosition,nextPosition,"north",piece.getTeamColor()) && nextPosition.getRow()!=8 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(nextPosition.getRow()+1,col);
+            }
+            nextPosition = startPosition;
+            while (moveIfPossible(board,startPosition,nextPosition,"south",piece.getTeamColor()) && nextPosition.getRow()!=1 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(nextPosition.getRow()-1,col);
+            }
+            nextPosition = startPosition;
+            while (moveIfPossible(board,startPosition,nextPosition,"east",piece.getTeamColor()) && nextPosition.getColumn()!=8 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(row,nextPosition.getColumn()+1);
+            }
+            nextPosition = startPosition;
+            while (moveIfPossible(board,startPosition,nextPosition,"west",piece.getTeamColor()) && nextPosition.getColumn()!=1 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(row,nextPosition.getColumn()-1);
+            }
+
         }
     }
 }
