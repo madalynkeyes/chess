@@ -14,8 +14,7 @@ public class PieceMovesCalculator {
         ChessPiece piece = board.getPiece(position);
         if (piece.getPieceType()== ChessPiece.PieceType.KING){
             new KingMovesCalculator(board,piece,position);
-        }
-        else if (piece.getPieceType()==ChessPiece.PieceType.ROOK) {
+        } else if (piece.getPieceType()==ChessPiece.PieceType.ROOK) {
             new RookMovesCalculator(board,piece,position);
         } else if (piece.getPieceType()==ChessPiece.PieceType.BISHOP) {
             new BishopMovesCalculator(board,piece,position);
@@ -24,6 +23,8 @@ public class PieceMovesCalculator {
             new BishopMovesCalculator(board,piece,position);
         } else if (piece.getPieceType()==ChessPiece.PieceType.KNIGHT) {
             new KnightMovesCalculator(board,piece,position);
+        } else if (piece.getPieceType()==ChessPiece.PieceType.PAWN) {
+            new PawnMovesCalculator(board,piece,position);
         }
     }
 
@@ -167,7 +168,7 @@ public class PieceMovesCalculator {
                 moveIfPossible(board,startPosition,direction,piece.getTeamColor());
             }
         }
-        public void moveIfPossible(ChessBoard board, ChessPosition startPosition, String direction, ChessGame.TeamColor color){
+        private void moveIfPossible(ChessBoard board, ChessPosition startPosition, String direction, ChessGame.TeamColor color){
             ChessPosition potentialPosition = getDesiredPosition(startPosition,direction);
             if (potentialPosition!=null){
                 ChessPiece potentialCapture = board.getPiece(potentialPosition);
@@ -181,7 +182,7 @@ public class PieceMovesCalculator {
             }
         }
 
-        public ChessPosition getDesiredPosition (ChessPosition startPosition,String direction){
+        private ChessPosition getDesiredPosition (ChessPosition startPosition,String direction){
             int startCol = startPosition.getColumn();
             int startRow = startPosition.getRow();
             if (Objects.equals(direction, "NWW")){
@@ -220,8 +221,72 @@ public class PieceMovesCalculator {
             return null;
         }
 
-
-
     }
+
+    public class PawnMovesCalculator {
+        private boolean hasMoved;
+
+
+        public PawnMovesCalculator(ChessBoard board, ChessPiece piece, ChessPosition startPosition) {
+            hasMoved = false;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (startPosition.getRow()!=2){hasMoved=true;}
+                moveForwardIfPossible(board, startPosition, "north");
+                moveDiagonalIfPossible(board,startPosition,"northwest",piece.getTeamColor());
+                moveDiagonalIfPossible(board,startPosition,"northeast",piece.getTeamColor());
+
+            } else {
+                if (startPosition.getRow()!=7){hasMoved=true;}
+                moveForwardIfPossible(board, startPosition, "south");
+                moveDiagonalIfPossible(board,startPosition,"southwest",piece.getTeamColor());
+                moveDiagonalIfPossible(board,startPosition,"southeast",piece.getTeamColor());
+            }
+        }
+
+        private void moveForwardIfPossible(ChessBoard board, ChessPosition startPosition, String direction) {
+            ChessPosition potentialPosition = getDesiredPosition(startPosition, direction);
+            if (potentialPosition != null) {
+                ChessPiece potentialCapture = board.getPiece(potentialPosition);
+                if (potentialCapture == null) {
+                    promotePawn(startPosition, potentialPosition);
+                    if (Objects.equals(direction, "north") || Objects.equals(direction, "south")) {
+                        if (!hasMoved) {  //can move up to two spots
+                            potentialPosition = getDesiredPosition(potentialPosition, direction);
+                            if (potentialPosition != null) {
+                                potentialCapture = board.getPiece(potentialPosition);
+                                if (potentialCapture == null) {
+                                    possibleMoves.add(new ChessMove(startPosition, potentialPosition, null));
+                                }
+                            }
+                        }
+                    }
+                    hasMoved=true;
+                }
+            }
+        }
+
+        private void moveDiagonalIfPossible(ChessBoard board, ChessPosition startPosition, String direction, ChessGame.TeamColor color) {
+            ChessPosition potentialPosition = getDesiredPosition(startPosition, direction);
+            if (potentialPosition != null) {
+                ChessPiece potentialCapture = board.getPiece(potentialPosition);
+                if (potentialCapture != null) {
+                    if (potentialCapture.getTeamColor() != color) {
+                        promotePawn(startPosition, potentialPosition);
+                    }
+                }
+            }
+        }
+
+        private void promotePawn(ChessPosition startPosition, ChessPosition potentialPosition) {
+            if (potentialPosition.getRow()==8 || potentialPosition.getRow()==1){
+                possibleMoves.add(new ChessMove(startPosition, potentialPosition, ChessPiece.PieceType.BISHOP));
+                possibleMoves.add(new ChessMove(startPosition, potentialPosition, ChessPiece.PieceType.QUEEN));
+                possibleMoves.add(new ChessMove(startPosition, potentialPosition, ChessPiece.PieceType.ROOK));
+                possibleMoves.add(new ChessMove(startPosition, potentialPosition, ChessPiece.PieceType.KNIGHT));
+            } else{
+                possibleMoves.add(new ChessMove(startPosition, potentialPosition, null));}
+        }
+    }
+
 }
 
