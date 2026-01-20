@@ -17,6 +17,8 @@ public class PieceMovesCalculator {
         }
         else if (piece.getPieceType()==ChessPiece.PieceType.ROOK) {
             RookMovesCalculator rookCalculator = new RookMovesCalculator(board,piece,position);
+        } else if (piece.getPieceType()==ChessPiece.PieceType.BISHOP) {
+            BishopMovesCalculator bishopCalculator = new BishopMovesCalculator(board,piece,position);
         }
     }
 
@@ -117,6 +119,31 @@ public class PieceMovesCalculator {
             }
 
         }
+    }
+
+    public class BishopMovesCalculator {
+
+        public BishopMovesCalculator(ChessBoard board, ChessPiece piece, ChessPosition startPosition) {
+            ChessPosition nextPosition = startPosition;
+
+            while (moveIfPossible(board,startPosition,nextPosition,"northeast",piece.getTeamColor()) && nextPosition.getRow()!=8 && nextPosition.getColumn()!=8 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(nextPosition.getRow()+1,nextPosition.getColumn()+1);
+            }
+            nextPosition = startPosition;
+            while (moveIfPossible(board,startPosition,nextPosition,"northwest",piece.getTeamColor()) && nextPosition.getRow()!=8 && nextPosition.getColumn()!=1 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(nextPosition.getRow()+1, nextPosition.getColumn()-1);
+            }
+            nextPosition = startPosition;
+            while (moveIfPossible(board,startPosition,nextPosition,"southeast",piece.getTeamColor()) && nextPosition.getRow()!=1 && nextPosition.getColumn()!=8 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(nextPosition.getRow()-1, nextPosition.getColumn()+1);
+            }
+            nextPosition = startPosition;
+            while (moveIfPossible(board,startPosition,nextPosition,"southwest",piece.getTeamColor()) && nextPosition.getRow()!=1 && nextPosition.getColumn()!=1 && !hasCapturedPiece){
+                nextPosition=new ChessPosition(nextPosition.getRow()-1,nextPosition.getColumn()-1);
+            }
+        }
+
+
     }
 }
 
