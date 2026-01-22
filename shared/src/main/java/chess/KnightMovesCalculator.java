@@ -3,11 +3,13 @@ package chess;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
 /**
  * Calculates the moves a KNIGHT can take at a given position based on chess rules.
  */
-public class KnightMovesCalculator extends PieceMovesCalculator2{
-    private List<ChessMove> possibleMovesList;
+public class KnightMovesCalculator extends PieceMovesCalculator {
+    private final List<ChessMove> possibleMovesList;
+
     public KnightMovesCalculator(ChessBoard board, ChessPosition position) {
         super(board, position);
         possibleMovesList = getPossibleMovesList();
@@ -24,7 +26,7 @@ public class KnightMovesCalculator extends PieceMovesCalculator2{
     }
 
     @Override
-    public Collection<ChessMove> getPossibleMoves(){
+    public Collection<ChessMove> getPossibleMoves() {
         String[] directions = {"NWW", "NNW", "NNE", "NEE", "SEE", "SSE", "SSW", "SWW"};
         for (String direction : directions) {
             addMoveIfPossible(direction);
@@ -33,7 +35,7 @@ public class KnightMovesCalculator extends PieceMovesCalculator2{
     }
 
     @Override
-    public ChessPosition getDesiredPosition(String direction, ChessPosition position){
+    public ChessPosition getDesiredPosition(String direction, ChessPosition position) {
         int startCol = position.getColumn();
         int startRow = position.getRow();
         if (Objects.equals(direction, "NWW")) {

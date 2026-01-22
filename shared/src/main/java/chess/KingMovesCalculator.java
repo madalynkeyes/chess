@@ -6,8 +6,8 @@ import java.util.List;
 /**
  * Calculates the moves a KING can take at a given position based on chess rules.
  */
-public class KingMovesCalculator extends PieceMovesCalculator2{
-    private List<ChessMove> possibleMovesList;
+public class KingMovesCalculator extends PieceMovesCalculator {
+    private final List<ChessMove> possibleMovesList;
 
     public KingMovesCalculator(ChessBoard board, ChessPosition position) {
         super(board, position);
@@ -15,7 +15,7 @@ public class KingMovesCalculator extends PieceMovesCalculator2{
     }
 
     @Override
-    public Collection<ChessMove> getPossibleMoves(){
+    public Collection<ChessMove> getPossibleMoves() {
         addMoveIfPossible("northeast");
         addMoveIfPossible("north");
         addMoveIfPossible("northwest");

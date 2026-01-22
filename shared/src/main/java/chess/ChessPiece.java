@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -70,26 +69,28 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         if (type == PieceType.KING){
-            PieceMovesCalculator2 kingCalculator = new KingMovesCalculator(board,myPosition);
+            PieceMovesCalculator kingCalculator = new KingMovesCalculator(board,myPosition);
             return kingCalculator.getPossibleMoves();
         } else if (type == PieceType.ROOK) {
-            PieceMovesCalculator2 rookCalculator = new RookMovesCalculator(board,myPosition);
+            PieceMovesCalculator rookCalculator = new RookMovesCalculator(board,myPosition);
             return rookCalculator.getPossibleMoves();
         } else if (type == PieceType.BISHOP) {
-            PieceMovesCalculator2 bishopCalculator = new BishopMovesCalculator(board,myPosition);
+            PieceMovesCalculator bishopCalculator = new BishopMovesCalculator(board,myPosition);
             return bishopCalculator.getPossibleMoves();
         } else if (type == PieceType.QUEEN) {
-            PieceMovesCalculator2 rookCalculator = new RookMovesCalculator(board,myPosition);
-            PieceMovesCalculator2 bishopCalculator = new BishopMovesCalculator(board,myPosition);
+            PieceMovesCalculator rookCalculator = new RookMovesCalculator(board,myPosition);
+            PieceMovesCalculator bishopCalculator = new BishopMovesCalculator(board,myPosition);
             List<ChessMove> rookPossibleMoves = (List<ChessMove>) rookCalculator.getPossibleMoves();
             List<ChessMove> bishopPossibleMoves = (List<ChessMove>) bishopCalculator.getPossibleMoves();
             rookPossibleMoves.addAll(bishopPossibleMoves);
             return rookPossibleMoves;
         } else if (type == PieceType.KNIGHT) {
-            PieceMovesCalculator2 knightCalculator = new KnightMovesCalculator(board,myPosition);
+            PieceMovesCalculator knightCalculator = new KnightMovesCalculator(board,myPosition);
             return knightCalculator.getPossibleMoves();
+        } else if (type == PieceType.PAWN) {
+            PieceMovesCalculator pawnCalculator = new PawnMovesCalculator(board,myPosition);
+            return pawnCalculator.getPossibleMoves();
         }
         return null;
-//        return new PieceMovesCalculator(board, myPosition).getPossibleMoves();
     }
 }
