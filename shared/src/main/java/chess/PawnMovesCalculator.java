@@ -73,14 +73,15 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
      * @return boolean of whether PAWN can move in specific direction
      */
     public boolean ifCanCaptureOrMove(ChessPosition position, String direction) {
+        boolean b = Objects.equals(direction, "north") || Objects.equals(direction, "south");
         if (getBoard().getPiece(position) != null) {
-            if (Objects.equals(direction, "north") || Objects.equals(direction, "south")) {
+            if (b) {
                 return false;
             } else {
                 return getBoard().getPiece(position).getTeamColor() != piece.getTeamColor();
             }
         } else {
-            return !Objects.equals(direction, "northwest") && !Objects.equals(direction, "northeast") && !Objects.equals(direction, "southwest") && !Objects.equals(direction, "southeast");
+            return b;
         }
     }
 
