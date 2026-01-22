@@ -22,38 +22,30 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
         ChessPosition startPosition = getPosition();
         ChessPosition nextPosition = startPosition;
         while (!hasEncounteredPiece && nextPosition.getRow() != 8 && nextPosition.getColumn() != 8) {
-            addMoveIfPossible("northeast", startPosition, nextPosition);
+            addMultipleMovesIfPossible("northeast", startPosition, nextPosition);
             nextPosition = new ChessPosition(nextPosition.getRow() + 1, nextPosition.getColumn() + 1);
         }
         hasEncounteredPiece = false;
         nextPosition = startPosition;
         while (!hasEncounteredPiece && nextPosition.getRow() != 8 && nextPosition.getColumn() != 1) {
-            addMoveIfPossible("northwest", startPosition, nextPosition);
+            addMultipleMovesIfPossible("northwest", startPosition, nextPosition);
             nextPosition = new ChessPosition(nextPosition.getRow() + 1, nextPosition.getColumn() - 1);
         }
         hasEncounteredPiece = false;
         nextPosition = startPosition;
         while (!hasEncounteredPiece && nextPosition.getRow() != 1 && nextPosition.getColumn() != 8) {
-            addMoveIfPossible("southeast", startPosition, nextPosition);
+            addMultipleMovesIfPossible("southeast", startPosition, nextPosition);
             nextPosition = new ChessPosition(nextPosition.getRow() - 1, nextPosition.getColumn() + 1);
         }
         hasEncounteredPiece = false;
         nextPosition = startPosition;
         while (!hasEncounteredPiece && nextPosition.getRow() != 1 && nextPosition.getColumn() != 1) {
-            addMoveIfPossible("southwest", startPosition, nextPosition);
+            addMultipleMovesIfPossible("southwest", startPosition, nextPosition);
             nextPosition = new ChessPosition(nextPosition.getRow() - 1, nextPosition.getColumn() - 1);
         }
         return possibleMovesList;
     }
 
-    public void addMoveIfPossible(String direction, ChessPosition startPosition, ChessPosition nextPosition) {
-        ChessPosition potentialPosition = getDesiredPosition(direction, nextPosition);
-        if (potentialPosition != null) {
-            if (ifCanCaptureOrMove(potentialPosition)) {
-                possibleMovesList.add(new ChessMove(startPosition, potentialPosition, null));
-            }
-        }
-    }
 
     @Override
     public boolean ifCanCaptureOrMove(ChessPosition position) {

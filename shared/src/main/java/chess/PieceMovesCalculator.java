@@ -94,4 +94,17 @@ public class PieceMovesCalculator {
         }
     }
 
+    /**
+     * addMoveIfPossible method specifically for ROOK, BISHOP and QUEEN pieces.
+     */
+    public void addMultipleMovesIfPossible(String direction, ChessPosition startPosition, ChessPosition nextPosition) {
+        ChessPosition potentialPosition = getDesiredPosition(direction, nextPosition);
+        if (potentialPosition != null) {
+            if (ifCanCaptureOrMove(potentialPosition)) {
+                possibleMovesList.add(new ChessMove(startPosition, potentialPosition, null));
+            }
+        }
+    }
+
+
 }
