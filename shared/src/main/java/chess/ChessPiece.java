@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -71,26 +70,17 @@ public class ChessPiece {
         if (type == PieceType.KING){
             PieceMovesCalculator kingCalculator = new KingMovesCalculator(board,myPosition);
             return kingCalculator.getPossibleMoves();
-        } else if (type == PieceType.ROOK) {
-            PieceMovesCalculator rookCalculator = new RookMovesCalculator(board,myPosition);
-            return rookCalculator.getPossibleMoves();
-        } else if (type == PieceType.BISHOP) {
-            PieceMovesCalculator bishopCalculator = new BishopMovesCalculator(board,myPosition);
-            return bishopCalculator.getPossibleMoves();
-        } else if (type == PieceType.QUEEN) {
-            PieceMovesCalculator rookCalculator = new RookMovesCalculator(board,myPosition);
-            PieceMovesCalculator bishopCalculator = new BishopMovesCalculator(board,myPosition);
-            List<ChessMove> rookPossibleMoves = (List<ChessMove>) rookCalculator.getPossibleMoves();
-            List<ChessMove> bishopPossibleMoves = (List<ChessMove>) bishopCalculator.getPossibleMoves();
-            rookPossibleMoves.addAll(bishopPossibleMoves);
-            return rookPossibleMoves;
+        } else if (type == PieceType.ROOK || type ==PieceType.BISHOP || type==PieceType.QUEEN) {
+            PieceMovesCalculator rookBishopQueenCalculator = new RookBishopQueenCalculator(board, myPosition);
+            return rookBishopQueenCalculator.getPossibleMoves();
         } else if (type == PieceType.KNIGHT) {
-            PieceMovesCalculator knightCalculator = new KnightMovesCalculator(board,myPosition);
+            PieceMovesCalculator knightCalculator = new KnightMovesCalculator(board, myPosition);
             return knightCalculator.getPossibleMoves();
         } else if (type == PieceType.PAWN) {
             PieceMovesCalculator pawnCalculator = new PawnMovesCalculator(board,myPosition);
             return pawnCalculator.getPossibleMoves();
         }
+
         return null;
     }
 }

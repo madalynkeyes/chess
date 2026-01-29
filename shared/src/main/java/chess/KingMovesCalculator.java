@@ -11,7 +11,7 @@ public class KingMovesCalculator extends PieceMovesCalculator {
 
     public KingMovesCalculator(ChessBoard board, ChessPosition position) {
         super(board, position);
-        possibleMovesList = getPossibleMovesList();
+        possibleMovesList = getMovesList();
     }
 
     @Override

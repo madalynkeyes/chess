@@ -12,7 +12,7 @@ public class KnightMovesCalculator extends PieceMovesCalculator {
 
     public KnightMovesCalculator(ChessBoard board, ChessPosition position) {
         super(board, position);
-        possibleMovesList = getPossibleMovesList();
+        possibleMovesList = getMovesList();
          /*"""
             | | | | | | | | |
             | | | |*| |*| | |
@@ -35,41 +35,23 @@ public class KnightMovesCalculator extends PieceMovesCalculator {
     }
 
     @Override
-    public ChessPosition getDesiredPosition(String direction, ChessPosition position) {
-        int startCol = position.getColumn();
-        int startRow = position.getRow();
-        if (Objects.equals(direction, "NWW")) {
-            if (startRow != 8 && startCol > 2) {
-                return new ChessPosition(startRow + 1, startCol - 2);
-            }
-        } else if (Objects.equals(direction, "NNW")) {
-            if (startRow < 7 && startCol != 1) {
-                return new ChessPosition(startRow + 2, startCol - 1);
-            }
-        } else if (Objects.equals(direction, "NNE")) {
-            if (startRow < 7 && startCol != 8) {
-                return new ChessPosition(startRow + 2, startCol + 1);
-            }
-        } else if (Objects.equals(direction, "NEE")) {
-            if (startRow != 8 && startCol < 7) {
-                return new ChessPosition(startRow + 1, startCol + 2);
-            }
-        } else if (Objects.equals(direction, "SEE")) {
-            if (startRow != 1 && startCol < 7) {
-                return new ChessPosition(startRow - 1, startCol + 2);
-            }
-        } else if (Objects.equals(direction, "SSE")) {
-            if (startRow > 2 && startCol != 8) {
-                return new ChessPosition(startRow - 2, startCol + 1);
-            }
-        } else if (Objects.equals(direction, "SSW")) {
-            if (startRow > 2 && startCol != 1) {
-                return new ChessPosition(startRow - 2, startCol - 1);
-            }
-        } else if (Objects.equals(direction, "SWW")) {
-            if (startRow != 1 && startCol > 2) {
-                return new ChessPosition(startRow - 1, startCol - 2);
-            }
+    public ChessPosition getDesiredPosition(ChessPosition position, String direction) {
+        if (Objects.equals(direction,"NNE") && position.getRow()<7 && position.getColumn()!=8){
+            return new ChessPosition(position.getRow()+2, position.getColumn()+1);
+        } else if (Objects.equals(direction,"NEE") && position.getRow()!=8 && position.getColumn()<7) {
+            return new ChessPosition(position.getRow()+1, position.getColumn()+2);
+        } else if (Objects.equals(direction,"NNW") && position.getRow()<7 && position.getColumn()!=1) {
+            return new ChessPosition(position.getRow()+2, position.getColumn()-1);
+        } else if (Objects.equals(direction,"NWW") && position.getRow()!=8 && position.getColumn()>2) {
+            return new ChessPosition(position.getRow()+1, position.getColumn()-2);
+        } else if (Objects.equals(direction, "SSE") && position.getRow()>2 && position.getColumn()!=8) {
+            return new ChessPosition(position.getRow()-2, position.getColumn()+1);
+        } else if (Objects.equals(direction,"SEE") && position.getRow()!=1 && position.getColumn()<7) {
+            return new ChessPosition(position.getRow()-1, position.getColumn()+2);
+        } else if (Objects.equals(direction,"SSW") && position.getRow()>2 && position.getColumn()!=1) {
+            return new ChessPosition(position.getRow()-2, position.getColumn()-1);
+        } else if (Objects.equals(direction, "SWW") && position.getRow()!=1 && position.getColumn()>2) {
+            return new ChessPosition(position.getRow()-1, position.getColumn()-2);
         }
         return null;
     }

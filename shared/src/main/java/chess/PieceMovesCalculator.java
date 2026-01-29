@@ -6,105 +6,57 @@ import java.util.List;
 import java.util.Objects;
 
 public class PieceMovesCalculator {
-    private final List<ChessMove> possibleMovesList = new ArrayList<>();
-    private final ChessBoard board;
-    private final ChessPosition position;
+    public final ChessBoard board;
+    public final ChessPosition position;
+    private final List<ChessMove> movesList = new ArrayList<>();
     private final ChessPiece piece;
 
     public PieceMovesCalculator(ChessBoard board, ChessPosition position) {
         this.board = board;
         this.position = position;
-        this.piece = board.getPiece(position);
+        piece = board.getPiece(position);
     }
 
-    public List<ChessMove> getPossibleMovesList() {
-        return possibleMovesList;
+    public List<ChessMove> getMovesList() {
+        return movesList;
     }
 
-    public ChessBoard getBoard() {
-        return board;
+    public Collection<ChessMove>getPossibleMoves(){
+        return movesList;
     }
 
-    public ChessPosition getPosition() {
-        return position;
-    }
-
-    public ChessPiece getPiece() {
-        return piece;
-    }
-
-    public Collection<ChessMove> getPossibleMoves() {
-//        addMoveIfPossible(null);
-        return possibleMovesList;
-    }
-
-    public void addMoveIfPossible(String direction) {
-        ChessPosition potentialPosition = getDesiredPosition(direction, position);
-        if (potentialPosition != null) {
-            if (ifCanCaptureOrMove(potentialPosition)) {
-                possibleMovesList.add(new ChessMove(position, potentialPosition, null));
+    public void addMoveIfPossible(String direction){
+        ChessPosition endPosition = getDesiredPosition(position,direction);
+        if (endPosition!=null){
+            if(canCaptureOrMove(endPosition)){
+                movesList.add(new ChessMove(position,endPosition,null));
             }
         }
     }
 
-    public ChessPosition getDesiredPosition(String direction, ChessPosition position) {
-        int startCol = position.getColumn();
-        int startRow = position.getRow();
-        if (Objects.equals(direction, "north")) {
-            if (startRow != 8) {
-                return new ChessPosition(startRow + 1, startCol);
-            }
-        } else if (Objects.equals(direction, "south")) {
-            if (startRow != 1) {
-                return new ChessPosition(startRow - 1, startCol);
-            }
-        } else if (Objects.equals(direction, "west")) {
-            if (startCol != 1) {
-                return new ChessPosition(startRow, startCol - 1);
-            }
-        } else if (Objects.equals(direction, "east")) {
-            if (startCol != 8) {
-                return new ChessPosition(startRow, startCol + 1);
-            }
-        } else if (Objects.equals(direction, "northwest")) {
-            if (startRow != 8 && startCol != 1) {
-                return new ChessPosition(startRow + 1, startCol - 1);
-            }
-        } else if (Objects.equals(direction, "northeast")) {
-            if (startRow != 8 && startCol != 8) {
-                return new ChessPosition(startRow + 1, startCol + 1);
-            }
-        } else if (Objects.equals(direction, "southwest")) {
-            if (startRow != 1 && startCol != 1) {
-                return new ChessPosition(startRow - 1, startCol - 1);
-            }
-        } else if (Objects.equals(direction, "southeast")) {
-            if (startRow != 1 && startCol != 8) {
-                return new ChessPosition(startRow - 1, startCol + 1);
-            }
-        }
-        return null;
+    public boolean canCaptureOrMove(ChessPosition endPosition) {
+        if (board.getPiece(endPosition)!=null){
+            return board.getPiece(endPosition).getTeamColor() != piece.getTeamColor();
+        } return true;
     }
 
-    public boolean ifCanCaptureOrMove(ChessPosition position) {
-        if (board.getPiece(position) != null) {
-            return board.getPiece(position).getTeamColor() != piece.getTeamColor();
-        } else {
-            return true;
-        }
+    public ChessPosition getDesiredPosition(ChessPosition position, String direction) {
+        if (Objects.equals(direction, "north") && position.getRow()!=8){
+            return new ChessPosition(position.getRow()+1, position.getColumn());
+        } else if (Objects.equals(direction,"south") &&position.getRow()!=1) {
+            return new ChessPosition(position.getRow()-1, position.getColumn());
+        } else if (Objects.equals(direction,"east") && position.getColumn()!=8) {
+            return new ChessPosition(position.getRow(), position.getColumn()+1);
+        } else if (Objects.equals(direction,"west") && position.getColumn()!=1) {
+            return new ChessPosition(position.getRow(), position.getColumn()-1);
+        } else if (Objects.equals(direction,"northwest") && position.getRow()!=8 && position.getColumn()!=1) {
+            return new ChessPosition(position.getRow()+1, position.getColumn()-1);
+        } else if (Objects.equals(direction,"northeast") && position.getRow()!=8 && position.getColumn()!=8) {
+            return new ChessPosition(position.getRow()+1, position.getColumn()+1);
+        } else if (Objects.equals(direction,"southwest") && position.getRow()!=1 && position.getColumn()!=1) {
+            return new ChessPosition(position.getRow()-1, position.getColumn()-1);
+        } else if (Objects.equals(direction,"southeast") && position.getRow()!=1 && position.getColumn()!=8) {
+            return new ChessPosition(position.getRow()-1, position.getColumn()+1);
+        } return null;
     }
-
-    /**
-     * addMoveIfPossible method specifically for ROOK, BISHOP and QUEEN pieces.
-     */
-    public void addMultipleMovesIfPossible(String direction, ChessPosition startPosition, ChessPosition nextPosition) {
-        ChessPosition potentialPosition = getDesiredPosition(direction, nextPosition);
-        if (potentialPosition != null) {
-            if (ifCanCaptureOrMove(potentialPosition)) {
-                possibleMovesList.add(new ChessMove(startPosition, potentialPosition, null));
-            }
-        }
-    }
-
-
 }
