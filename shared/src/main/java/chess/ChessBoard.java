@@ -16,6 +16,19 @@ public class ChessBoard {
         
     }
 
+    //copy constructor
+    public ChessBoard(ChessBoard otherBoard){
+        this.squares=deepCopy(otherBoard.squares);
+    }
+
+    private ChessPiece[][] deepCopy(ChessPiece[][] original){
+        ChessPiece[][] copy = new ChessPiece[original.length][];
+        for (int i=0; i<original.length;i++){
+            copy[i]=original[i].clone();
+        }
+        return copy;
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *

@@ -45,6 +45,15 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
+    @Override
+    public String toString() {
+        return "{"
+                + pieceColor +
+                ", " + type +
+                '}';
+    }
+
+
     /**
      * @return Which team this chess piece belongs to
      */
