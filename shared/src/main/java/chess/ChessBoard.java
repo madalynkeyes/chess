@@ -50,6 +50,12 @@ public class ChessBoard {
         return squares[position.getRow()-1][position.getColumn()-1];
     }
 
+    public void movePiece(ChessPosition startPosition, ChessPosition endPosition){
+        ChessPiece piece = squares[startPosition.getRow()-1][startPosition.getColumn()-1];
+        squares[startPosition.getRow()-1][startPosition.getColumn()-1]=null;
+        squares[endPosition.getRow()-1][endPosition.getColumn()-1]=piece;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
