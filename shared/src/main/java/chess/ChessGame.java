@@ -124,6 +124,12 @@ public class ChessGame {
         return false;
     }
 
+    /**
+     * Determines if enemy piece can capture king or put king in check
+     * @param possibleMoves list of moves the enemy's piece can make
+     * @param kingPosition position of king
+     * @return whether piece can capture other team's king
+     */
     private boolean canCaptureKing(Collection<ChessMove> possibleMoves, ChessPosition kingPosition) {
         for (ChessMove move : possibleMoves) {
             ChessPosition endPosition = move.getEndPosition();
