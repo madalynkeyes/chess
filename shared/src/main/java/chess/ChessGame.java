@@ -82,7 +82,7 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = currentBoard.getPiece(startPosition);
-        if (piece.getTeamColor()==currentTeam){
+        if (piece!=null && piece.getTeamColor()==currentTeam){
             Collection<ChessMove>possibleMoves = validMoves(startPosition);
             boolean canMove = possibleMoves.contains(move);
             if (canMove){
@@ -91,6 +91,8 @@ public class ChessGame {
                 throw new InvalidMoveException("Move not valid");
             }
             currentTeam= (currentTeam==TeamColor.WHITE)? TeamColor.BLACK : TeamColor.WHITE;
+        } else{
+            throw new InvalidMoveException("Move not valid");
         }
     }
 
@@ -176,7 +178,7 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return currentBoard;
     }
 
     @Override
