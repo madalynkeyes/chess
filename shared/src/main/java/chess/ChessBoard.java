@@ -50,10 +50,14 @@ public class ChessBoard {
         return squares[position.getRow()-1][position.getColumn()-1];
     }
 
-    public void movePiece(ChessPosition startPosition, ChessPosition endPosition){
+    public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece){
         ChessPiece piece = squares[startPosition.getRow()-1][startPosition.getColumn()-1];
         squares[startPosition.getRow()-1][startPosition.getColumn()-1]=null;
-        squares[endPosition.getRow()-1][endPosition.getColumn()-1]=piece;
+        if(piece.getPieceType()== ChessPiece.PieceType.PAWN && endPosition.getRow()==1 || endPosition.getRow()==8){
+            squares[endPosition.getRow()-1][endPosition.getColumn()-1]=new ChessPiece(piece.getTeamColor(),promotionPiece);
+        } else {
+            squares[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
+        }
     }
 
     /**

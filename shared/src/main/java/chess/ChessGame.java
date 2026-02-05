@@ -59,7 +59,7 @@ public class ChessGame {
             Collection<ChessMove> allPossibleMoves = new ArrayList<>();
                     Collection<ChessMove> possibleMoves = piece.pieceMoves(boardCopy, startPosition);
                     for (ChessMove move : possibleMoves) {
-                            boardCopy.movePiece(move.getStartPosition(), move.getEndPosition()); //move piece
+                            boardCopy.movePiece(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece()); //move piece
                             if (!isInCheck(pieceColor)) { //double check king is still good
                                 allPossibleMoves.add(move);
                             }
@@ -86,7 +86,8 @@ public class ChessGame {
             Collection<ChessMove>possibleMoves = validMoves(startPosition);
             boolean canMove = possibleMoves.contains(move);
             if (canMove){
-                currentBoard.movePiece(startPosition,endPosition);
+                ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+                currentBoard.movePiece(startPosition,endPosition,promotionPiece);
             } else {
                 throw new InvalidMoveException("Move not valid");
             }
