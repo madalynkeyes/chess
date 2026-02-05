@@ -13,18 +13,18 @@ public class ChessBoard {
     ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
-        
+
     }
 
     //copy constructor
-    public ChessBoard(ChessBoard otherBoard){
-        this.squares=deepCopy(otherBoard.squares);
+    public ChessBoard(ChessBoard otherBoard) {
+        this.squares = deepCopy(otherBoard.squares);
     }
 
-    private ChessPiece[][] deepCopy(ChessPiece[][] original){
+    private ChessPiece[][] deepCopy(ChessPiece[][] original) {
         ChessPiece[][] copy = new ChessPiece[original.length][];
-        for (int i=0; i<original.length;i++){
-            copy[i]=original[i].clone();
+        for (int i = 0; i < original.length; i++) {
+            copy[i] = original[i].clone();
         }
         return copy;
     }
@@ -36,7 +36,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        squares[position.getRow()-1][position.getColumn()-1] = piece;
+        squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -47,14 +47,14 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow()-1][position.getColumn()-1];
+        return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
-    public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece){
-        ChessPiece piece = squares[startPosition.getRow()-1][startPosition.getColumn()-1];
-        squares[startPosition.getRow()-1][startPosition.getColumn()-1]=null;
-        if(piece.getPieceType()== ChessPiece.PieceType.PAWN && (endPosition.getRow()==1 || endPosition.getRow()==8)){
-            squares[endPosition.getRow()-1][endPosition.getColumn()-1]=new ChessPiece(piece.getTeamColor(),promotionPiece);
+    public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
+        ChessPiece piece = squares[startPosition.getRow() - 1][startPosition.getColumn() - 1];
+        squares[startPosition.getRow() - 1][startPosition.getColumn() - 1] = null;
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && (endPosition.getRow() == 1 || endPosition.getRow() == 8)) {
+            squares[endPosition.getRow() - 1][endPosition.getColumn() - 1] = new ChessPiece(piece.getTeamColor(), promotionPiece);
         } else {
             squares[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
         }
