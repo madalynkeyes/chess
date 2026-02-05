@@ -106,23 +106,29 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = getKingPosition(teamColor);
+        ChessPosition kingPosition;
+        kingPosition = getKingPosition(teamColor);
+        Collection<ChessMove> possibleMoves;
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = boardCopy.getPiece(new ChessPosition(row, col));
                 if (piece != null && piece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> possibleMoves = piece.pieceMoves(boardCopy, new ChessPosition(row, col));
-                    if (possibleMoves != null && kingPosition != null) {
-                        for (ChessMove move : possibleMoves) {
-                            ChessPosition endPosition = move.getEndPosition();
-                            if (Objects.equals(endPosition, kingPosition)) {
-                                return true;
-                            }
-                        }
+                    possibleMoves = piece.pieceMoves(boardCopy, new ChessPosition(row, col));
+                    if (canCaptureKing(possibleMoves, kingPosition)) {
+                        return true;
                     }
-                    assert possibleMoves != null;
                     possibleMoves.clear();
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean canCaptureKing(Collection<ChessMove> possibleMoves, ChessPosition kingPosition) {
+        for (ChessMove move : possibleMoves) {
+            ChessPosition endPosition = move.getEndPosition();
+            if (Objects.equals(endPosition, kingPosition)) {
+                return true;
             }
         }
         return false;
@@ -131,6 +137,7 @@ public class ChessGame {
 
     /**
      * Gets the position of king piece for specific team
+     *
      * @param teamColor which team wants to find king's position
      * @return king piece position
      */
@@ -139,10 +146,8 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = boardCopy.getPiece(new ChessPosition(row, col));
-                if (piece != null) {
-                    if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                        kingPosition = new ChessPosition(row, col);
-                    }
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    kingPosition = new ChessPosition(row, col);
                 }
             }
         }
@@ -180,6 +185,7 @@ public class ChessGame {
     /**
      * Determine if there are no valid moves for any of the team's pieces
      * If no valid moves, then it is either a checkmate or stalemate
+     *
      * @param teamColor the team who wants to see if in checkmate or stalemate
      * @return whether a team has any valid moves for any of their pieces
      */
@@ -223,7 +229,10 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return currentTeam == chessGame.currentTeam && Objects.equals(currentBoard, chessGame.currentBoard) && Objects.equals(boardCopy, chessGame.boardCopy);
+        boolean currTeam = currentTeam == chessGame.currentTeam;
+        boolean currBoard = Objects.equals(currentBoard, chessGame.currentBoard);
+        boolean boardCp = Objects.equals(boardCopy, chessGame.boardCopy);
+        return currTeam && currBoard && boardCp;
     }
 
     @Override

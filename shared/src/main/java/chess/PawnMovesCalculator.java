@@ -40,16 +40,12 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
     @Override
     public void addMoveIfPossible(String direction){
         ChessPosition endPosition = getDesiredPosition(position,direction);
-        if (endPosition!=null){
-            if(canCaptureOrMove(endPosition,direction)){
-                checkIfPromote(endPosition);
-                if (!hasMoved){
-                    endPosition = getDesiredPosition(endPosition,direction);
-                    if (endPosition!=null){
-                        if(canCaptureOrMove(endPosition,direction)){
-                            checkIfPromote(endPosition);
-                        }
-                    }
+        if (endPosition!=null && canCaptureOrMove(endPosition,direction)){
+            checkIfPromote(endPosition);
+            if (!hasMoved){
+                endPosition = getDesiredPosition(endPosition,direction);
+                if (endPosition!=null && canCaptureOrMove(endPosition,direction)){
+                        checkIfPromote(endPosition);
                 }
             }
         }
