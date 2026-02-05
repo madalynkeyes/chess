@@ -53,7 +53,7 @@ public class ChessBoard {
     public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece){
         ChessPiece piece = squares[startPosition.getRow()-1][startPosition.getColumn()-1];
         squares[startPosition.getRow()-1][startPosition.getColumn()-1]=null;
-        if(piece.getPieceType()== ChessPiece.PieceType.PAWN && endPosition.getRow()==1 || endPosition.getRow()==8){
+        if(piece.getPieceType()== ChessPiece.PieceType.PAWN && (endPosition.getRow()==1 || endPosition.getRow()==8)){
             squares[endPosition.getRow()-1][endPosition.getColumn()-1]=new ChessPiece(piece.getTeamColor(),promotionPiece);
         } else {
             squares[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
