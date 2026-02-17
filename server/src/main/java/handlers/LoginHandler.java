@@ -1,28 +1,28 @@
 package handlers;
-import dataaccess.DataAccessException;
+import dataaccess.NotAuthorizedException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import server.Serializer;
-import service.RegisterRequest;
+import service.LoginRequest;
 import service.RegisterResponse;
 import service.UserService;
 
 
-public class RegisterHandler{
+public class LoginHandler{
     private final UserService userService;
 
-    public RegisterHandler(Javalin javalinServer, UserService userService) {
+    public LoginHandler(Javalin javalinServer, UserService userService) {
         this.userService = userService;
-        javalinServer.post("/user",this::register);
+        javalinServer.post("/session",this::login);
     }
 
-    public void register(Context ctx) {
+    public void login(Context ctx) {
         try {
             //deserialize JSON body request
-            RegisterRequest request = Serializer.fromJson(ctx.body(),RegisterRequest.class);
+            LoginRequest request = Serializer.fromJson(ctx.body(),LoginRequest.class);
             //get the right endpoint & call service class
             //record the response from the service class
-            RegisterResponse response = userService.register(request);
+            RegisterResponse response = userService.login(request);
             //serialize that response
             String jsonResponse = Serializer.toJson(response);
             //send success response
@@ -31,9 +31,10 @@ public class RegisterHandler{
         } catch (IllegalArgumentException e){
             ctx.status(400);
             ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
-        } catch (DataAccessException e){
+        } catch (NotAuthorizedException e){
             ctx.status(403);
             ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
         }
     }
 }
+

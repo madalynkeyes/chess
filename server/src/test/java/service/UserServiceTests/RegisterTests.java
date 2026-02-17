@@ -19,7 +19,7 @@ public class RegisterTests {
     @Test
     public  void register_valid_success() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("mkeyes","123","m@gmail.com");
-        RegisterResponse response = userService.getUser(request);
+        RegisterResponse response = userService.register(request);
         assertEquals("mkeyes",response.username());
         assertNotNull(response.authToken());
     }
@@ -27,25 +27,25 @@ public class RegisterTests {
     @Test
     public void register_username_taken_throwsException() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("mkeyes","123","m@gmail.com");
-        userService.getUser(request);
+        userService.register(request);
         RegisterRequest request2 = new RegisterRequest("mkeyes","123","m@gmail.com");
-        assertThrows(DataAccessException.class,() -> userService.getUser(request2));
+        assertThrows(DataAccessException.class,() -> userService.register(request2));
     }
 
     @Test
     public void register_noUsername_throwsException() throws IllegalArgumentException {
         RegisterRequest request = new RegisterRequest(null,"123","m@gmail.com");
-        assertThrows(IllegalArgumentException.class,() -> userService.getUser(request));
+        assertThrows(IllegalArgumentException.class,() -> userService.register(request));
     }
 
     @Test
     public void register_noPassword_throwsException() throws IllegalArgumentException{
         RegisterRequest request = new RegisterRequest("mk",null,"m@gmail.com");
-        assertThrows(IllegalArgumentException.class,() -> userService.getUser(request));
+        assertThrows(IllegalArgumentException.class,() -> userService.register(request));
     }
     @Test
     public void register_noEmail_throwsException() throws IllegalArgumentException {
         RegisterRequest request = new RegisterRequest("mk","123",null);
-        assertThrows(IllegalArgumentException.class,() -> userService.getUser(request));
+        assertThrows(IllegalArgumentException.class,() -> userService.register(request));
     }
 }

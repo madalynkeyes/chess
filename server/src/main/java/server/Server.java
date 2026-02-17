@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import handlers.LoginHandler;
 import handlers.RegisterHandler;
 import io.javalin.*;
 import service.UserService;
@@ -15,6 +16,7 @@ public class Server {
         AuthDAO authDAO = new RAMAuthDAO();
         UserService userService = new UserService(userDAO,authDAO);
         new RegisterHandler(javalin,userService);
+        new LoginHandler(javalin,userService);
 
         // Register your endpoints and exception handlers here.
 
