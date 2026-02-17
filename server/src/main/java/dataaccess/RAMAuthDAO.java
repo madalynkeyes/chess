@@ -11,8 +11,7 @@ public class RAMAuthDAO implements AuthDAO {
         private final Map<String, AuthData> authTokens = new HashMap<>();
         @Override
         public void createAuth(AuthData authData){
-            String authToken = UUID.randomUUID().toString();
-            authTokens.put(authToken,authData);
+            authTokens.put(authData.authToken(),authData);
         }
         @Override
         public AuthData getAuth(String authToken){
