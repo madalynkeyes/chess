@@ -1,5 +1,7 @@
 package service.UserServiceTests;
 import dataaccess.*;
+import dataaccess.Exceptions.AlreadyTakenException;
+import dataaccess.Exceptions.DataAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.RegisterRequest;
@@ -17,7 +19,7 @@ public class RegisterTests {
     }
 
     @Test
-    public  void register_valid_success() throws DataAccessException {
+    public  void register_valid_success(){
         RegisterRequest request = new RegisterRequest("mkeyes","123","m@gmail.com");
         RegisterResponse response = userService.register(request);
         assertEquals("mkeyes",response.username());
@@ -25,11 +27,11 @@ public class RegisterTests {
     }
 
     @Test
-    public void register_username_taken_throwsException() throws DataAccessException {
+    public void register_username_taken_throwsException() throws AlreadyTakenException {
         RegisterRequest request = new RegisterRequest("mkeyes","123","m@gmail.com");
         userService.register(request);
         RegisterRequest request2 = new RegisterRequest("mkeyes","123","m@gmail.com");
-        assertThrows(DataAccessException.class,() -> userService.register(request2));
+        assertThrows(AlreadyTakenException.class,() -> userService.register(request2));
     }
 
     @Test

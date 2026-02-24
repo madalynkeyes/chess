@@ -1,5 +1,7 @@
 package service.UserServiceTests;
 import dataaccess.*;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.LoginRequest;
@@ -11,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LoginTests {
     UserService userService;
     @BeforeEach
-    public void initialize() throws DataAccessException {
+    public void initialize(){
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
         userService = new UserService(userDAO,authDAO);
@@ -28,7 +30,7 @@ public class LoginTests {
     }
 
     @Test
-    public void login_notAuthorized_throwsException(){
+    public void login_notAuthorized_throwsException() throws NotAuthorizedException{
        LoginRequest request = new LoginRequest("mke","123");
         assertThrows(NotAuthorizedException.class,() -> userService.login(request));
     }
@@ -46,7 +48,7 @@ public class LoginTests {
     }
 
     @Test
-    public void login_wrongPassword_throwsException(){
+    public void login_wrongPassword_throwsException() throws NotAuthorizedException{
         LoginRequest request = new LoginRequest("mkeyes","123!");
         assertThrows(NotAuthorizedException.class,() -> userService.login(request));
     }

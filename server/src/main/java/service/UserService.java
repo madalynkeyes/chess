@@ -1,8 +1,10 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.NotAuthorizedException;
+import dataaccess.Exceptions.AlreadyTakenException;
+import dataaccess.Exceptions.BadRequestException;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.NotAuthorizedException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -28,15 +30,14 @@ public class UserService {
      * Else, create a new user and create new auth token
      * @param request register request
      * @return register response
-     * @throws DataAccessException if username is already taken
      * @throws IllegalArgumentException if missing username, password or email
      */
-    public RegisterResponse register(RegisterRequest request) throws DataAccessException, IllegalArgumentException {
+    public RegisterResponse register(RegisterRequest request) throws IllegalArgumentException, AlreadyTakenException {
         if(request.username()==null||request.password()==null||request.email()==null){
             throw new IllegalArgumentException("Error: enter username, password and email");
         }
         if (userDAO.getUser(request.username())!=null){
-            throw new DataAccessException("Error: username already taken");
+            throw new AlreadyTakenException("Error: username already taken");
         }
         UserData userData = new UserData(
                 request.username(),
@@ -77,6 +78,18 @@ public class UserService {
         } else{
             throw new NotAuthorizedException("Error: unauthorized");
         }
+    }
+
+    public LogoutResponse logout(String authToken){
+        if(authToken==null){
+            throw new BadRequestException("Error: bad request");
+        }
+        if(authDAO.getAuth(authToken)==null){
+            throw new NotAuthorizedException("Error: not authorized");
+        }
+        authDAO.deleteAuth(authToken);
+        return new LogoutResponse("{}");
+
     }
 
 }
