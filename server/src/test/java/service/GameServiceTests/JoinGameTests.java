@@ -3,6 +3,7 @@ package service.GameServiceTests;
 import dataaccess.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Serializer;
 import service.GameService;
 import service.Requests.CreateGameRequest;
 import service.Requests.JoinGameRequest;
@@ -10,6 +11,7 @@ import service.Requests.LoginRequest;
 import service.Requests.RegisterRequest;
 import service.Responses.CreateGameResponse;
 import service.Responses.JoinGameResponse;
+import service.Responses.ListGamesResponse;
 import service.Responses.RegisterResponse;
 import service.UserService;
 
@@ -41,9 +43,11 @@ public class JoinGameTests {
         JoinGameRequest request = new JoinGameRequest(response.authToken(),"WHITE",createGameResponse.gameID());
         JoinGameResponse joinGameResponse = gameService.joinGame(request);
         assertEquals("{}",joinGameResponse.message());
-//        ListGamesResponse listGamesResponse = gameService.listGames(response.authToken());
-//        System.out.println(listGamesResponse);
-//        assertEquals("mkeyes",listGamesResponse.games());
+        ListGamesResponse listGamesResponse = gameService.listGames(response.authToken());
+        String expected = "{\"games\":[{\"gameID\":" + createGameResponse.gameID() +
+                ",\"whiteUsername\":\"mkeyes\",\"blackUsername\":\"\",\"gameName\":\"gameName\"}]}";
+        String actualJson = Serializer.toJson(listGamesResponse);
+        assertEquals(expected,actualJson);
     }
 
 
