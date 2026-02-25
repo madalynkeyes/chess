@@ -6,8 +6,10 @@ import dataaccess.Exceptions.BadRequestException;
 import dataaccess.Exceptions.NotAuthorizedException;
 //import handlers.LoginHandler;
 //import handlers.RegisterHandler;
+import handlers.GameHandler;
 import handlers.UserHandler;
 import io.javalin.*;
+import service.GameService;
 import service.UserService;
 
 public class Server {
@@ -18,11 +20,16 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
-        UserService userService = new UserService(userDAO,authDAO);
+        GameDAO gameDAO = new RAMGameDAO();
+        UserService userService = new UserService(userDAO,authDAO,gameDAO);
         UserHandler userHandler = new UserHandler(userService);
+        GameService gameService = new GameService(userDAO,authDAO,gameDAO);
+        GameHandler gameHandler = new GameHandler(gameService);
         userHandler.register(javalin);
         userHandler.login(javalin);
         userHandler.logout(javalin);
+        gameHandler.listGames(javalin);
+        gameHandler.createGame(javalin);
 
         //global exceptions
         javalin.exception(AlreadyTakenException.class,(e,ctx)->{

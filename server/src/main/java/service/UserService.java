@@ -2,23 +2,27 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.DataAccessException;
 import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import service.Requests.LoginRequest;
+import service.Requests.RegisterRequest;
+import service.Responses.LogoutResponse;
+import service.Responses.RegisterResponse;
 
 import java.util.UUID;
 
 /**
  * Service classes to register, login and logout
  */
-public class UserService {
+public class UserService extends Service {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
 
-    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+    public UserService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        super(userDAO,authDAO,gameDAO);
         this.userDAO = userDAO;
         this.authDAO = authDAO;
 
@@ -81,15 +85,12 @@ public class UserService {
     }
 
     public LogoutResponse logout(String authToken){
-        if(authToken==null){
-            throw new BadRequestException("Error: bad request");
-        }
-        if(authDAO.getAuth(authToken)==null){
-            throw new NotAuthorizedException("Error: not authorized");
-        }
+        hasAuthToken(authToken);
         authDAO.deleteAuth(authToken);
         return new LogoutResponse("{}");
 
     }
+
+
 
 }

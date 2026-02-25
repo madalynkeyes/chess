@@ -1,11 +1,10 @@
 package service.UserServiceTests;
 import dataaccess.*;
 import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.DataAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.RegisterRequest;
-import service.RegisterResponse;
+import service.Requests.RegisterRequest;
+import service.Responses.RegisterResponse;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +14,8 @@ public class RegisterTests {
     public void initialize(){
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
-        userService = new UserService(userDAO,authDAO);
+        GameDAO gameDAO = new RAMGameDAO();
+        userService = new UserService(userDAO,authDAO,gameDAO);
     }
 
     @Test

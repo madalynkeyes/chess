@@ -3,8 +3,8 @@
 //import io.javalin.Javalin;
 //import io.javalin.http.Context;
 //import server.Serializer;
-//import service.LoginRequest;
-//import service.RegisterResponse;
+//import service.Requests.LoginRequest;
+//import service.Responses.RegisterResponse;
 //import service.UserService;
 //
 //
