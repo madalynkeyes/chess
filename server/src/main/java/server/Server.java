@@ -1,12 +1,12 @@
 package server;
 
 import dataaccess.*;
-import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotAuthorizedException;
 //import handlers.LoginHandler;
 //import handlers.RegisterHandler;
-import dataaccess.Exceptions.NotFoundException;
+import dataaccess.exceptions.NotFoundException;
 import handlers.ClearHandler;
 import handlers.GameHandler;
 import handlers.UserHandler;
@@ -25,7 +25,7 @@ public class Server {
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
         GameDAO gameDAO = new RAMGameDAO();
-        initializeServiceMethods services = getInitializeServiceMethods(userDAO, authDAO, gameDAO);
+        InitializeServiceMethods services = getInitializeServiceMethods(userDAO, authDAO, gameDAO);
         createHandlers(services);
         checkGlobalExceptions();
 
@@ -33,7 +33,7 @@ public class Server {
 
     }
 
-    private void createHandlers(initializeServiceMethods services) {
+    private void createHandlers(InitializeServiceMethods services) {
         services.userHandler().register(javalin);
         services.userHandler().login(javalin);
         services.userHandler().logout(javalin);
@@ -44,17 +44,17 @@ public class Server {
     }
 
     @NotNull
-    private static initializeServiceMethods getInitializeServiceMethods(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+    private static InitializeServiceMethods getInitializeServiceMethods(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         UserService userService = new UserService(userDAO, authDAO);
         UserHandler userHandler = new UserHandler(userService);
         GameService gameService = new GameService(authDAO, gameDAO);
         GameHandler gameHandler = new GameHandler(gameService);
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         ClearHandler clearHandler = new ClearHandler(clearService);
-        return new initializeServiceMethods(userHandler, gameHandler, clearHandler);
+        return new InitializeServiceMethods(userHandler, gameHandler, clearHandler);
     }
 
-    private record initializeServiceMethods(UserHandler userHandler, GameHandler gameHandler,
+    private record InitializeServiceMethods(UserHandler userHandler, GameHandler gameHandler,
                                             ClearHandler clearHandler) {
     }
 

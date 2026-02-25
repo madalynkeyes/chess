@@ -3,9 +3,9 @@ package handlers;
 import io.javalin.Javalin;
 import server.Serializer;
 import service.GameService;
-import service.Requests.CreateGameRequest;
-import service.Requests.JoinGameRequest;
-import service.Requests.LogoutOrListGamesRequest;
+import service.requests.CreateGameRequest;
+import service.requests.JoinGameRequest;
+import service.requests.LogoutOrListGamesRequest;
 
 public class GameHandler {
     private final GameService gameService;

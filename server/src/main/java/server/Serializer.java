@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 
 public class Serializer {
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public static <T> T fromJson(String json, Class<T> clazz) {
-        return gson.fromJson(json, clazz);
+        return GSON.fromJson(json, clazz);
     }
 
     public static String toJson(Object obj) {
-        return gson.toJson(obj);
+        return GSON.toJson(obj);
     }
 }

@@ -1,16 +1,16 @@
-package service.UserServiceTests;
+package service.userservicetests;
 
 import dataaccess.*;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.*;
-import service.Requests.LoginRequest;
-import service.Requests.LogoutOrListGamesRequest;
-import service.Requests.RegisterRequest;
-import service.Responses.JoinClearLogoutResponse;
-import service.Responses.RegisterLoginResponse;
+import service.requests.LoginRequest;
+import service.requests.LogoutOrListGamesRequest;
+import service.requests.RegisterRequest;
+import service.responses.JoinClearLogoutResponse;
+import service.responses.RegisterLoginResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +33,7 @@ public class LogoutTests {
     }
 
     @Test
-    public void logout_valid_success() {
+    public void logoutValidSuccess() {
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest(response.authToken());
         JoinClearLogoutResponse logoutResponse = userService.logout(request);
         assertEquals("{}", logoutResponse.message());
@@ -41,13 +41,13 @@ public class LogoutTests {
     }
 
     @Test
-    public void logout_no_authToken() throws BadRequestException {
+    public void logoutNoAuthToken() throws BadRequestException {
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest(null);
         assertThrows(BadRequestException.class, () -> userService.logout(request));
     }
 
     @Test
-    public void logout_wrong_authToken() throws NotAuthorizedException {
+    public void logoutWrongAuthToken() throws NotAuthorizedException {
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest("abc");
         assertThrows(NotAuthorizedException.class, () -> userService.logout(request));
     }

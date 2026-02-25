@@ -2,7 +2,7 @@ package handlers;
 
 import io.javalin.Javalin;
 import service.ClearService;
-import service.Requests.ClearRequest;
+import service.requests.ClearRequest;
 
 public class ClearHandler {
 

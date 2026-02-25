@@ -2,18 +2,18 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.AuthDAO;
-import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotFoundException;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotFoundException;
 import dataaccess.GameDAO;
 import model.GameData;
-import service.Requests.CreateGameRequest;
-import service.Requests.JoinGameRequest;
-import service.Requests.LogoutOrListGamesRequest;
-import service.Responses.CreateGameResponse;
-import service.Responses.GameListFormat;
-import service.Responses.JoinClearLogoutResponse;
-import service.Responses.ListGamesResponse;
+import service.requests.CreateGameRequest;
+import service.requests.JoinGameRequest;
+import service.requests.LogoutOrListGamesRequest;
+import service.responses.CreateGameResponse;
+import service.responses.GameListFormat;
+import service.responses.JoinClearLogoutResponse;
+import service.responses.ListGamesResponse;
 
 import java.util.List;
 import java.util.Objects;

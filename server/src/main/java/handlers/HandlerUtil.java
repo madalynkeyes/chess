@@ -6,15 +6,16 @@ import server.Serializer;
 import java.util.function.Function;
 
 public class HandlerUtil {
-    public static <Req, Res> void handle(
+    public static <T, R> void handle(
             Context ctx,
-            Function<Context, Req> requestBuild,
-            Function<Req, Res> serviceMethod
+            Function<Context, T> requestBuild,
+            Function<T, R> serviceMethod
     ) {
-        Req request = requestBuild.apply(ctx);
-        Res response = serviceMethod.apply(request);
+        T request = requestBuild.apply(ctx);
+        R response = serviceMethod.apply(request);
         ctx.status(200);
         ctx.result(Serializer.toJson(response));
 
     }
 }
+

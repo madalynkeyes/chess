@@ -2,9 +2,9 @@ package handlers;
 
 import io.javalin.Javalin;
 import server.Serializer;
-import service.Requests.LoginRequest;
-import service.Requests.LogoutOrListGamesRequest;
-import service.Requests.RegisterRequest;
+import service.requests.LoginRequest;
+import service.requests.LogoutOrListGamesRequest;
+import service.requests.RegisterRequest;
 import service.UserService;
 
 

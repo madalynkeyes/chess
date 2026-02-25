@@ -1,4 +1,4 @@
-package dataaccess.Exceptions;
+package dataaccess.exceptions;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

@@ -1,7 +1,7 @@
 package dataaccess;
 
 import model.GameData;
-import service.Responses.GameListFormat;
+import service.responses.GameListFormat;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotAuthorizedException;
 
 public class Service {
     private final AuthDAO authDAO;

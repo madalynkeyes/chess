@@ -1,14 +1,14 @@
-package service.UserServiceTests;
+package service.userservicetests;
 
 import dataaccess.*;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
-import service.Requests.LoginRequest;
-import service.Requests.RegisterRequest;
-import service.Responses.RegisterLoginResponse;
+import service.requests.LoginRequest;
+import service.requests.RegisterRequest;
+import service.responses.RegisterLoginResponse;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +26,7 @@ public class LoginTests {
     }
 
     @Test
-    public void login_valid_success() throws NotAuthorizedException {
+    public void loginValidSuccess() throws NotAuthorizedException {
         LoginRequest request = new LoginRequest("mkeyes", "123");
         RegisterLoginResponse response = userService.login(request);
         assertEquals("mkeyes", response.username());
@@ -36,25 +36,25 @@ public class LoginTests {
     }
 
     @Test
-    public void login_notAuthorized_throwsException() throws NotAuthorizedException {
+    public void loginNotAuthorizedThrowsException() throws NotAuthorizedException {
         LoginRequest request = new LoginRequest("mke", "123");
         assertThrows(NotAuthorizedException.class, () -> userService.login(request));
     }
 
     @Test
-    public void login_noUsername_throwsException() throws BadRequestException {
+    public void loginNoUsernameThrowsException() throws BadRequestException {
         LoginRequest request = new LoginRequest(null, "123");
         assertThrows(BadRequestException.class, () -> userService.login(request));
     }
 
     @Test
-    public void login_noPassword_throwsException() throws BadRequestException {
+    public void loginNoPasswordThrowsException() throws BadRequestException {
         LoginRequest request = new LoginRequest("mkeyes", null);
         assertThrows(BadRequestException.class, () -> userService.login(request));
     }
 
     @Test
-    public void login_wrongPassword_throwsException() throws NotAuthorizedException {
+    public void loginWrongPasswordThrowsException() throws NotAuthorizedException {
         LoginRequest request = new LoginRequest("mkeyes", "123!");
         assertThrows(NotAuthorizedException.class, () -> userService.login(request));
     }

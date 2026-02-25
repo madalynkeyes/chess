@@ -1,13 +1,13 @@
-package service.UserServiceTests;
+package service.userservicetests;
 
 import dataaccess.*;
-import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.BadRequestException;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
-import service.Requests.RegisterRequest;
-import service.Responses.RegisterLoginResponse;
+import service.requests.RegisterRequest;
+import service.responses.RegisterLoginResponse;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +23,7 @@ public class RegisterTests {
     }
 
     @Test
-    public void register_valid_success() {
+    public void registerValidSuccess() {
         RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         RegisterLoginResponse response = userService.register(request);
         assertEquals("mkeyes", response.username());
@@ -33,7 +33,7 @@ public class RegisterTests {
     }
 
     @Test
-    public void register_username_taken_throwsException() throws AlreadyTakenException {
+    public void registerUsernameTakenThrowsException() throws AlreadyTakenException {
         RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(request);
         RegisterRequest request2 = new RegisterRequest("mkeyes", "123", "m@gmail.com");
@@ -41,19 +41,19 @@ public class RegisterTests {
     }
 
     @Test
-    public void register_noUsername_throwsException() throws BadRequestException {
+    public void registerNoUsernameThrowsException() throws BadRequestException {
         RegisterRequest request = new RegisterRequest(null, "123", "m@gmail.com");
         assertThrows(BadRequestException.class, () -> userService.register(request));
     }
 
     @Test
-    public void register_noPassword_throwsException() throws BadRequestException {
+    public void registerNoPasswordThrowsException() throws BadRequestException {
         RegisterRequest request = new RegisterRequest("mk", null, "m@gmail.com");
         assertThrows(BadRequestException.class, () -> userService.register(request));
     }
 
     @Test
-    public void register_noEmail_throwsException() throws BadRequestException {
+    public void registerNoEmailThrowsException() throws BadRequestException {
         RegisterRequest request = new RegisterRequest("mk", "123", null);
         assertThrows(BadRequestException.class, () -> userService.register(request));
     }

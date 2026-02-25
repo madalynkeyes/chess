@@ -3,7 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import service.Responses.JoinClearLogoutResponse;
+import service.responses.JoinClearLogoutResponse;
 
 public class ClearService extends Service {
     private final UserDAO userDAO;

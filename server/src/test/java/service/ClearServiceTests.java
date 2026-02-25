@@ -1,12 +1,12 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.Requests.*;
-import service.Responses.ListGamesResponse;
-import service.Responses.RegisterLoginResponse;
+import service.requests.*;
+import service.responses.ListGamesResponse;
+import service.responses.RegisterLoginResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +37,7 @@ public class ClearServiceTests {
     }
 
     @Test
-    public void clear_success_noLongerAuthorized() {
+    public void clearSuccessNoLongerAuthorized() {
         clearService.clear();
         LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
         assertThrows(NotAuthorizedException.class, () -> userService.login(loginRequest));
@@ -48,7 +48,7 @@ public class ClearServiceTests {
     }
 
     @Test
-    public void clear_success_GamesListEmpty() {
+    public void clearSuccessGamesListEmpty() {
         clearService.clear();
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);

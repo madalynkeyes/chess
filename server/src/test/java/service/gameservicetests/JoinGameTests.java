@@ -1,46 +1,30 @@
-package service.GameServiceTests;
+package service.gameservicetests;
 
 import dataaccess.*;
-import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.NotAuthorizedException;
-import dataaccess.Exceptions.NotFoundException;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
-import service.GameService;
-import service.Requests.*;
-import service.Responses.CreateGameResponse;
-import service.Responses.JoinClearLogoutResponse;
-import service.Responses.ListGamesResponse;
-import service.Responses.RegisterLoginResponse;
-import service.UserService;
+import service.requests.*;
+import service.responses.CreateGameResponse;
+import service.responses.JoinClearLogoutResponse;
+import service.responses.ListGamesResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JoinGameTests {
-    UserService userService;
-    GameService gameService;
-    RegisterLoginResponse response;
+public class JoinGameTests extends GameServiceTests {
     CreateGameResponse createGameResponse;
 
     @BeforeEach
-    public void initialize() {
-        UserDAO userDAO = new RAMUserDAO();
-        AuthDAO authDAO = new RAMAuthDAO();
-        GameDAO gameDAO = new RAMGameDAO();
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(authDAO, gameDAO);
-        RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
-        userService.register(request);
-        LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
-        userService.login(loginRequest);
-        response = userService.login(loginRequest);
+    public void setup() {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
         createGameResponse = gameService.createGame(createGameRequest);
     }
 
     @Test
-    public void joinGame_white_valid_success() {
+    public void joinGameWhiteValidSuccess() {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());
         JoinClearLogoutResponse joinGameResponse = gameService.joinGame(request);
         assertEquals("{}", joinGameResponse.message());
@@ -53,7 +37,7 @@ public class JoinGameTests {
     }
 
     @Test
-    public void joinGame_black_valid_success() {
+    public void joinGameBlackValidSuccess() {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "BLACK", createGameResponse.gameID());
         JoinClearLogoutResponse joinGameResponse = gameService.joinGame(request);
         assertEquals("{}", joinGameResponse.message());
@@ -66,19 +50,19 @@ public class JoinGameTests {
     }
 
     @Test
-    public void joinGame_notAuthorized_throwsException() throws NotAuthorizedException {
+    public void joinGameNotAuthorizedThrowsException() throws NotAuthorizedException {
         JoinGameRequest request = new JoinGameRequest("abc", "WHITE", createGameResponse.gameID());
         assertThrows(NotAuthorizedException.class, () -> gameService.joinGame(request));
     }
 
     @Test
-    public void joinGame_gameNotFound_throwsException() throws NotFoundException {
+    public void joinGameGameNotFoundThrowsException() throws NotFoundException {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", 1234);
         assertThrows(NotFoundException.class, () -> gameService.joinGame(request));
     }
 
     @Test
-    public void joinGame_colorAlreadyTaken_throwsException() throws AlreadyTakenException {
+    public void joinGameColorAlreadyTakenThrowsException() throws AlreadyTakenException {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());
         gameService.joinGame(request);
         JoinGameRequest request2 = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());

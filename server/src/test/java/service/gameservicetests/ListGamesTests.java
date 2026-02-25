@@ -1,44 +1,27 @@
-package service.GameServiceTests;
+package service.gameservicetests;
 
 import dataaccess.*;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
-import service.GameService;
-import service.Requests.CreateGameRequest;
-import service.Requests.LoginRequest;
-import service.Requests.LogoutOrListGamesRequest;
-import service.Requests.RegisterRequest;
-import service.Responses.CreateGameResponse;
-import service.Responses.ListGamesResponse;
-import service.Responses.RegisterLoginResponse;
-import service.UserService;
+import service.requests.CreateGameRequest;
+import service.requests.LogoutOrListGamesRequest;
+import service.responses.CreateGameResponse;
+import service.responses.ListGamesResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ListGamesTests {
-    UserService userService;
-    GameService gameService;
-    RegisterLoginResponse response;
+public class ListGamesTests extends GameServiceTests {
+
 
     @BeforeEach
-    public void initialize() {
-        UserDAO userDAO = new RAMUserDAO();
-        AuthDAO authDAO = new RAMAuthDAO();
-        GameDAO gameDAO = new RAMGameDAO();
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(authDAO, gameDAO);
-        RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
-        userService.register(request);
-        LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
-        userService.login(loginRequest);
-        response = userService.login(loginRequest);
+    public void setup() {
     }
 
     @Test
-    public void listGame_valid_success() {
+    public void listGameValidSuccess() {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse response1 = gameService.createGame(request);
         CreateGameRequest request1 = new CreateGameRequest(response.authToken(), "gameName1");
@@ -53,20 +36,20 @@ public class ListGamesTests {
     }
 
     @Test
-    public void listGame_empty_success() {
+    public void listGameEmptySuccess() {
         LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
         ListGamesResponse listGamesResponse = gameService.listGames(listGamesRequest);
         assertTrue(listGamesResponse.games().isEmpty());
     }
 
     @Test
-    public void listGame_noAuthToken_throwsException() throws BadRequestException {
+    public void listGameNoAuthTokenThrowsException() throws BadRequestException {
         LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(null);
         assertThrows(BadRequestException.class, () -> gameService.listGames(listGamesRequest));
     }
 
     @Test
-    public void listGame_wrong_authToken_throwsException() throws NotAuthorizedException {
+    public void listGameWrongAuthTokenThrowsException() throws NotAuthorizedException {
         LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest("abc");
         assertThrows(NotAuthorizedException.class, () -> gameService.listGames(listGamesRequest));
     }

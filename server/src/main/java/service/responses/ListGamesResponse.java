@@ -1,4 +1,4 @@
-package service.Responses;
+package service.responses;
 
 //public record ListGamesResponse(java.util.Map<String, model.GameData> games) {
 //}

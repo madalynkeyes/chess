@@ -1,17 +1,17 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.Exceptions.AlreadyTakenException;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.NotAuthorizedException;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotAuthorizedException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
-import service.Requests.LoginRequest;
-import service.Requests.LogoutOrListGamesRequest;
-import service.Requests.RegisterRequest;
-import service.Responses.JoinClearLogoutResponse;
-import service.Responses.RegisterLoginResponse;
+import service.requests.LoginRequest;
+import service.requests.LogoutOrListGamesRequest;
+import service.requests.RegisterRequest;
+import service.responses.JoinClearLogoutResponse;
+import service.responses.RegisterLoginResponse;
 
 import java.util.UUID;
 
