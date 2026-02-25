@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface GameDAO {
     void createGame(GameData gameData);
-    GameData getGame(String gameID);
+    GameData getGameByID(int gameID);
+    GameData getGameByName(String gameName);
     void clear();
 
     List<GameListFormat> listGames();

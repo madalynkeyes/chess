@@ -9,27 +9,34 @@ import java.util.List;
 import java.util.Map;
 
 public class RAMGameDAO implements GameDAO{
-    private final Map<String, GameData> games = new HashMap<>();
-
+    private final Map<String, GameData> gamesByName = new HashMap<>();
+    private final Map<Integer,GameData> gamesByID = new HashMap<>();
     @Override
     public void createGame(GameData gameData) {
-        games.put(gameData.gameName(),gameData);
+
+        gamesByName.put(gameData.gameName(),gameData);
+        gamesByID.put((gameData.gameId()),gameData);
     }
 
     @Override
-    public GameData getGame(String gameID) {
-        return games.get(gameID);
+    public GameData getGameByID(int gameID) {
+        return gamesByID.get(gameID);
+    }
+
+    @Override
+    public GameData getGameByName(String gameName) {
+        return gamesByName.get(gameName);
     }
 
     @Override
     public void clear() {
-        games.clear();
+        gamesByName.clear();
     }
 
     @Override
     public List<GameListFormat> listGames() {
         List<GameListFormat>gameInfoList = new ArrayList<>();
-        for (GameData gameData:games.values()){
+        for (GameData gameData:gamesByName.values()){
             gameInfoList.add(new GameListFormat(gameData.gameId(),gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName()));
         }
         return gameInfoList;

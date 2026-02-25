@@ -16,7 +16,13 @@ public class RAMAuthDAO implements AuthDAO {
         public AuthData getAuth(String authToken){
             return authTokens.get(authToken);
         }
-        @Override
+
+    @Override
+    public String getUserByToken(String authToken) {
+        return authTokens.get(authToken).username();
+    }
+
+    @Override
         public void deleteAuth(String authToken){
             authTokens.remove(authToken);
         }

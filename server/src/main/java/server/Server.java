@@ -6,6 +6,7 @@ import dataaccess.Exceptions.BadRequestException;
 import dataaccess.Exceptions.NotAuthorizedException;
 //import handlers.LoginHandler;
 //import handlers.RegisterHandler;
+import dataaccess.Exceptions.NotFoundException;
 import handlers.GameHandler;
 import handlers.UserHandler;
 import io.javalin.*;
@@ -30,6 +31,7 @@ public class Server {
         userHandler.logout(javalin);
         gameHandler.listGames(javalin);
         gameHandler.createGame(javalin);
+        gameHandler.joinGame(javalin);
 
         //global exceptions
         javalin.exception(AlreadyTakenException.class,(e,ctx)->{
@@ -43,6 +45,11 @@ public class Server {
         });
 
         javalin.exception(BadRequestException.class,(e,ctx)->{
+            ctx.status(400);
+            ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
+        });
+
+        javalin.exception(NotFoundException.class,(e,ctx)->{
             ctx.status(400);
             ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
         });

@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import server.Serializer;
 import service.GameService;
 import service.Requests.CreateGameRequest;
+import service.Requests.JoinGameRequest;
 
 public class GameHandler {
     private final GameService gameService;
@@ -23,5 +24,16 @@ public class GameHandler {
                     String authToken = c.header("Authorization");
                     return new CreateGameRequest(authToken, Serializer.fromJson(c.body(), CreateGameRequest.class).gameName());
                 }, gameService::createGame));
+    }
+
+    public void joinGame(Javalin javalin){
+        javalin.put("/game", ctx->
+                HandlerUtil.handle(ctx, c->{
+                    String authToken = c.header("Authorization");
+                    String playerColor = Serializer.fromJson(c.body(), JoinGameRequest.class).playerColor();
+//                    System.out.println(playerColor=="WHITE");
+                    int gameID = Serializer.fromJson(c.body(),JoinGameRequest.class).gameID();
+                    return new JoinGameRequest(authToken,playerColor,gameID);
+                },gameService::joinGame));
     }
 }

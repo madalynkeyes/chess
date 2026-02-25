@@ -11,6 +11,7 @@ public class Service {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
 
+
     public Service(UserDAO userDAO,AuthDAO authDAO,GameDAO gameDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
