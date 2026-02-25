@@ -3,6 +3,7 @@ import dataaccess.*;
 import dataaccess.Exceptions.AlreadyTakenException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Serializer;
 import service.Requests.RegisterRequest;
 import service.Responses.RegisterResponse;
 import service.UserService;
@@ -23,7 +24,9 @@ public class RegisterTests {
         RegisterRequest request = new RegisterRequest("mkeyes","123","m@gmail.com");
         RegisterResponse response = userService.register(request);
         assertEquals("mkeyes",response.username());
-        assertNotNull(response.authToken());
+        String expected = "{\"username\":\"mkeyes\",\"authToken\":\""+response.authToken()+"\"}";
+        String actualJson = Serializer.toJson(response);
+        assertEquals(expected,actualJson);
     }
 
     @Test

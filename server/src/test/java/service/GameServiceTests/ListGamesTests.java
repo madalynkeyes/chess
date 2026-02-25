@@ -5,10 +5,12 @@ import dataaccess.Exceptions.BadRequestException;
 import dataaccess.Exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Serializer;
 import service.GameService;
 import service.Requests.CreateGameRequest;
 import service.Requests.LoginRequest;
 import service.Requests.RegisterRequest;
+import service.Responses.CreateGameResponse;
 import service.Responses.ListGamesResponse;
 import service.Responses.RegisterResponse;
 import service.UserService;
@@ -36,11 +38,15 @@ public class ListGamesTests {
     @Test
     public  void listGame_valid_success() {
         CreateGameRequest request = new CreateGameRequest(response.authToken(),"gameName");
-        gameService.createGame(request);
+        CreateGameResponse response1 = gameService.createGame(request);
         CreateGameRequest request1 = new CreateGameRequest(response.authToken(),"gameName1");
-        gameService.createGame(request1);
+        CreateGameResponse response2 = gameService.createGame(request1);
         ListGamesResponse listGamesResponse= gameService.listGames(response.authToken());
-        assertNotNull(listGamesResponse.games());
+        String expected = "{\"games\":[{\"gameID\":" + response2.gameID() +
+                ",\"whiteUsername\":\"\",\"blackUsername\":\"\",\"gameName\":\"gameName1\"}," +
+                "{\"gameID\":"+response1.gameID()+",\"whiteUsername\":\"\",\"blackUsername\":\"\",\"gameName\":\"gameName\"}]}";
+        String actualJson = Serializer.toJson(listGamesResponse);
+        assertEquals(expected,actualJson);
     }
 
     @Test

@@ -3,6 +3,7 @@ import dataaccess.*;
 import dataaccess.Exceptions.NotAuthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Serializer;
 import service.Requests.LoginRequest;
 import service.Requests.RegisterRequest;
 import service.Responses.RegisterResponse;
@@ -26,7 +27,9 @@ public class LoginTests {
         LoginRequest request = new LoginRequest("mkeyes","123");
         RegisterResponse response = userService.login(request);
         assertEquals("mkeyes",response.username());
-        assertNotNull(response.authToken());
+        String expected = "{\"username\":\"mkeyes\",\"authToken\":\""+response.authToken()+"\"}";
+        String actualJson = Serializer.toJson(response);
+        assertEquals(expected,actualJson);
     }
 
     @Test

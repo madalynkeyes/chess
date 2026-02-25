@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LogoutTests {
     UserService userService;
     RegisterResponse response;
+    AuthDAO authDAO = new RAMAuthDAO();
     @BeforeEach
     public void initialize(){
         UserDAO userDAO = new RAMUserDAO();
@@ -27,12 +28,14 @@ public class LogoutTests {
         LoginRequest loginRequest = new LoginRequest("mkeyes","123");
         userService.login(loginRequest);
         response = userService.login(loginRequest);
+        assertNotNull(authDAO.getAuth(response.authToken()));
     }
 
     @Test
     public  void logout_valid_success() {
         LogoutResponse logoutResponse = userService.logout(response.authToken());
         assertEquals("{}", logoutResponse.message());
+        assertNull(authDAO.getAuth(response.authToken()));
     }
 
     @Test
