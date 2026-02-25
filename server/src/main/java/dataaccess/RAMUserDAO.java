@@ -5,19 +5,18 @@ import model.UserData;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RAMUserDAO implements UserDAO{
-    private final Map<String,UserData> users = new HashMap<>();
+public class RAMUserDAO implements UserDAO {
+    private final Map<String, UserData> users = new HashMap<>();
 
     @Override
-    public void createUser(UserData user){
-        users.put(user.username(),user);
+    public void createUser(UserData user) {
+        users.put(user.username(), user);
     }
 
     @Override
-    public UserData getUser(String username){
+    public UserData getUser(String username) {
         return users.get(username);
     }
-
 
 
     @Override

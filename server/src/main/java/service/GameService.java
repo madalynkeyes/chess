@@ -6,14 +6,13 @@ import dataaccess.Exceptions.AlreadyTakenException;
 import dataaccess.Exceptions.BadRequestException;
 import dataaccess.Exceptions.NotFoundException;
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.GameData;
-import org.jetbrains.annotations.NotNull;
 import service.Requests.CreateGameRequest;
 import service.Requests.JoinGameRequest;
+import service.Requests.LogoutOrListGamesRequest;
 import service.Responses.CreateGameResponse;
 import service.Responses.GameListFormat;
-import service.Responses.JoinGameResponse;
+import service.Responses.JoinClearLogoutResponse;
 import service.Responses.ListGamesResponse;
 
 import java.util.List;
@@ -25,34 +24,41 @@ public class GameService extends Service {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
-    public GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
-        super(userDAO,authDAO,gameDAO);
+    public GameService(AuthDAO authDAO, GameDAO gameDAO) {
+        super(authDAO);
 
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
 
     }
 
-    public ListGamesResponse listGames(String authToken){
-        hasAuthToken(authToken);
+    /**
+     * List Games Service Class
+     * Take an auth token, if valid, return a list of current games.
+     *
+     * @param request list game request
+     * @return list game response
+     */
+    public ListGamesResponse listGames(LogoutOrListGamesRequest request) {
+        hasAuthToken(request.authToken());
         List<GameListFormat> games = gameDAO.listGames();
         return new ListGamesResponse(games);
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request){
+    public CreateGameResponse createGame(CreateGameRequest request) {
         String authToken = request.authToken();
         hasAuthToken(authToken);
-        if (request.gameName()==null){
+        if (request.gameName() == null) {
             throw new BadRequestException("Error: game name not entered");
         }
-        if (gameDAO.getGameByName(request.gameName())!=null){
+        if (gameDAO.getGameByName(request.gameName()) != null) {
             throw new AlreadyTakenException("Error: game name already taken");
         }
         Random random = new Random();
         GameData gameData = new GameData(
                 Math.abs(random.nextInt()),
-                "",
-                "",
+                null,
+                null,
                 request.gameName(),
                 new ChessGame()
         );
@@ -61,15 +67,22 @@ public class GameService extends Service {
 
     }
 
-    public JoinGameResponse joinGame(JoinGameRequest request){
+    /**
+     * Join Game Service Class
+     * Take an auth token and check if it is valid.
+     * Take gameID and getGame by gameID. If gameID isn't valid, throw NotFoundException.
+     * Take specified player color and check if it is available.
+     * If it is, create new game with updated game information.
+     *
+     * @param request join game request
+     * @return join game response
+     */
+    public JoinClearLogoutResponse joinGame(JoinGameRequest request) {
         hasAuthToken(request.authToken());
-        if (request.playerColor()==null || request.playerColor().equals("WHITE/BLACK")){
-            throw new BadRequestException("Error: please specify player color");
-        }
-        if(request.gameID()<0){
+        if (request.gameID() < 0) {
             throw new BadRequestException("Error: please enter gameID");
         }
-        if(gameDAO.getGameByID(request.gameID())==null){
+        if (gameDAO.getGameByID(request.gameID()) == null) {
             throw new NotFoundException("Error: game not found");
         }
         GameData gameData = gameDAO.getGameByID(request.gameID());
@@ -77,14 +90,22 @@ public class GameService extends Service {
         GameData newGame = updateGameByColor(request, gameData, username);
         gameDAO.createGame(newGame);
 
-        return new JoinGameResponse("{}");
+        return new JoinClearLogoutResponse("{}");
     }
 
-    @NotNull
+    /**
+     * See if requested color already has a user in a specific game.
+     * If color is available, create new game with username listed for specific color
+     *
+     * @param request  join game request
+     * @param gameData current game info
+     * @param username current player's username
+     * @return new game data
+     */
     private static GameData updateGameByColor(JoinGameRequest request, GameData gameData, String username) {
         GameData newGame;
-        if(Objects.equals(request.playerColor(), "WHITE")){
-            if(!Objects.equals(gameData.whiteUsername(), "")){
+        if (Objects.equals(request.playerColor(), "WHITE")) {
+            if (!Objects.equals(gameData.whiteUsername(), null)) {
                 throw new AlreadyTakenException("Error: color already taken");
             }
             newGame = new GameData(
@@ -95,10 +116,10 @@ public class GameService extends Service {
                     gameData.game()
 
             );
+            return newGame;
 
-
-        } else {
-            if (!Objects.equals(gameData.blackUsername(), "")){
+        } else if (Objects.equals(request.playerColor(), "BLACK")) {
+            if (!Objects.equals(gameData.blackUsername(), null)) {
                 throw new AlreadyTakenException("Error: color already taken");
             }
             newGame = new GameData(
@@ -109,8 +130,9 @@ public class GameService extends Service {
                     gameData.game()
 
             );
-
+            return newGame;
         }
-        return newGame;
+        throw new BadRequestException("Error: please specify player color");
     }
+
 }

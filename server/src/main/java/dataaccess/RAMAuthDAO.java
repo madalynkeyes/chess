@@ -7,15 +7,17 @@ import java.util.Map;
 
 public class RAMAuthDAO implements AuthDAO {
 
-        private final Map<String, AuthData> authTokens = new HashMap<>();
-        @Override
-        public void createAuth(AuthData authData){
-            authTokens.put(authData.authToken(),authData);
-        }
-        @Override
-        public AuthData getAuth(String authToken){
-            return authTokens.get(authToken);
-        }
+    private final Map<String, AuthData> authTokens = new HashMap<>();
+
+    @Override
+    public void createAuth(AuthData authData) {
+        authTokens.put(authData.authToken(), authData);
+    }
+
+    @Override
+    public AuthData getAuth(String authToken) {
+        return authTokens.get(authToken);
+    }
 
     @Override
     public String getUserByToken(String authToken) {
@@ -23,12 +25,12 @@ public class RAMAuthDAO implements AuthDAO {
     }
 
     @Override
-        public void deleteAuth(String authToken){
-            authTokens.remove(authToken);
-        }
+    public void deleteAuth(String authToken) {
+        authTokens.remove(authToken);
+    }
 
-        @Override
-        public void clear() {
-            authTokens.clear();
-        }
+    @Override
+    public void clear() {
+        authTokens.clear();
+    }
 }

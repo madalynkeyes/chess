@@ -3,6 +3,7 @@ package handlers;
 import io.javalin.Javalin;
 import server.Serializer;
 import service.Requests.LoginRequest;
+import service.Requests.LogoutOrListGamesRequest;
 import service.Requests.RegisterRequest;
 import service.UserService;
 
@@ -14,19 +15,22 @@ public class UserHandler {
         this.userService = userService;
     }
 
-    public void register(Javalin javalin){
-        javalin.post("/user",ctx ->
-                HandlerUtil.handle(ctx,c -> Serializer.fromJson(c.body(),RegisterRequest.class),userService::register));
+    public void register(Javalin javalin) {
+        javalin.post("/user", ctx ->
+                HandlerUtil.handle(ctx, c -> Serializer.fromJson(c.body(), RegisterRequest.class), userService::register));
     }
 
-    public void login(Javalin javalin){
-        javalin.post("/session",ctx->
-                HandlerUtil.handle(ctx, c -> Serializer.fromJson(c.body(), LoginRequest.class),userService::login));
+    public void login(Javalin javalin) {
+        javalin.post("/session", ctx ->
+                HandlerUtil.handle(ctx, c -> Serializer.fromJson(c.body(), LoginRequest.class), userService::login));
     }
 
-    public void logout(Javalin javalin){
+    public void logout(Javalin javalin) {
         javalin.delete("/session", ctx ->
-                HandlerUtil.handle(ctx, c -> c.header("Authorization"), userService::logout));
+                HandlerUtil.handle(ctx, c -> {
+                    String authToken = c.header("Authorization");
+                    return new LogoutOrListGamesRequest(authToken);
+                }, userService::logout));
     }
 
 }

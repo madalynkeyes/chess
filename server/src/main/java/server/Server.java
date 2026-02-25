@@ -7,9 +7,12 @@ import dataaccess.Exceptions.NotAuthorizedException;
 //import handlers.LoginHandler;
 //import handlers.RegisterHandler;
 import dataaccess.Exceptions.NotFoundException;
+import handlers.ClearHandler;
 import handlers.GameHandler;
 import handlers.UserHandler;
 import io.javalin.*;
+import org.jetbrains.annotations.NotNull;
+import service.ClearService;
 import service.GameService;
 import service.UserService;
 
@@ -22,42 +25,60 @@ public class Server {
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
         GameDAO gameDAO = new RAMGameDAO();
-        UserService userService = new UserService(userDAO,authDAO,gameDAO);
-        UserHandler userHandler = new UserHandler(userService);
-        GameService gameService = new GameService(userDAO,authDAO,gameDAO);
-        GameHandler gameHandler = new GameHandler(gameService);
-        userHandler.register(javalin);
-        userHandler.login(javalin);
-        userHandler.logout(javalin);
-        gameHandler.listGames(javalin);
-        gameHandler.createGame(javalin);
-        gameHandler.joinGame(javalin);
-
-        //global exceptions
-        javalin.exception(AlreadyTakenException.class,(e,ctx)->{
-            ctx.status(400);
-            ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
-        });
-
-        javalin.exception(NotAuthorizedException.class,(e, ctx)->{
-            ctx.status(401);
-            ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
-        });
-
-        javalin.exception(BadRequestException.class,(e,ctx)->{
-            ctx.status(400);
-            ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
-        });
-
-        javalin.exception(NotFoundException.class,(e,ctx)->{
-            ctx.status(400);
-            ctx.result(Serializer.toJson("{\"message\":\"" + e.getMessage() + "\"}"));
-        });
-//        new RegisterHandler(javalin,userService);
-//        new LoginHandler(javalin,userService);
+        initializeServiceMethods services = getInitializeServiceMethods(userDAO, authDAO, gameDAO);
+        createHandlers(services);
+        checkGlobalExceptions();
 
         // Register your endpoints and exception handlers here.
 
+    }
+
+    private void createHandlers(initializeServiceMethods services) {
+        services.userHandler().register(javalin);
+        services.userHandler().login(javalin);
+        services.userHandler().logout(javalin);
+        services.gameHandler().listGames(javalin);
+        services.gameHandler().createGame(javalin);
+        services.gameHandler().joinGame(javalin);
+        services.clearHandler().clear(javalin);
+    }
+
+    @NotNull
+    private static initializeServiceMethods getInitializeServiceMethods(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        UserService userService = new UserService(userDAO, authDAO);
+        UserHandler userHandler = new UserHandler(userService);
+        GameService gameService = new GameService(authDAO, gameDAO);
+        GameHandler gameHandler = new GameHandler(gameService);
+        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+        ClearHandler clearHandler = new ClearHandler(clearService);
+        return new initializeServiceMethods(userHandler, gameHandler, clearHandler);
+    }
+
+    private record initializeServiceMethods(UserHandler userHandler, GameHandler gameHandler,
+                                            ClearHandler clearHandler) {
+    }
+
+    private void checkGlobalExceptions() {
+        //global exceptions
+        javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
+            ctx.status(403);
+            ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
+        });
+
+        javalin.exception(NotAuthorizedException.class, (e, ctx) -> {
+            ctx.status(401);
+            ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
+        });
+
+        javalin.exception(BadRequestException.class, (e, ctx) -> {
+            ctx.status(400);
+            ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
+        });
+
+        javalin.exception(NotFoundException.class, (e, ctx) -> {
+            ctx.status(400);
+            ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
+        });
     }
 
 

@@ -5,4 +5,5 @@ package service.Responses;
 
 import java.util.List;
 
-public record ListGamesResponse(List<GameListFormat> games){}
+public record ListGamesResponse(List<GameListFormat> games) {
+}

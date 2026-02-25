@@ -1,7 +1,7 @@
 package dataaccess.Exceptions;
 
-public class AlreadyTakenException extends RuntimeException{
-    public AlreadyTakenException(String message){
+public class AlreadyTakenException extends RuntimeException {
+    public AlreadyTakenException(String message) {
         super(message);
     }
 }

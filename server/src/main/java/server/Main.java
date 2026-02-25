@@ -8,7 +8,7 @@ package server;//package server;
 //        System.out.println("♕ 240 Chess Server: " + piece);
 //    }
 //}
-import server.Server;
+
 
 public class Main {
     public static void main(String[] args) {

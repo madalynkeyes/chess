@@ -8,14 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RAMGameDAO implements GameDAO{
+public class RAMGameDAO implements GameDAO {
     private final Map<String, GameData> gamesByName = new HashMap<>();
-    private final Map<Integer,GameData> gamesByID = new HashMap<>();
+    private final Map<Integer, GameData> gamesByID = new HashMap<>();
+
     @Override
     public void createGame(GameData gameData) {
 
-        gamesByName.put(gameData.gameName(),gameData);
-        gamesByID.put((gameData.gameId()),gameData);
+        gamesByName.put(gameData.gameName(), gameData);
+        gamesByID.put((gameData.gameId()), gameData);
     }
 
     @Override
@@ -35,9 +36,9 @@ public class RAMGameDAO implements GameDAO{
 
     @Override
     public List<GameListFormat> listGames() {
-        List<GameListFormat>gameInfoList = new ArrayList<>();
-        for (GameData gameData:gamesByName.values()){
-            gameInfoList.add(new GameListFormat(gameData.gameId(),gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName()));
+        List<GameListFormat> gameInfoList = new ArrayList<>();
+        for (GameData gameData : gamesByName.values()) {
+            gameInfoList.add(new GameListFormat(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName()));
         }
         return gameInfoList;
     }

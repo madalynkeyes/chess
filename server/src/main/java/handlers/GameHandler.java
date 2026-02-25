@@ -5,6 +5,7 @@ import server.Serializer;
 import service.GameService;
 import service.Requests.CreateGameRequest;
 import service.Requests.JoinGameRequest;
+import service.Requests.LogoutOrListGamesRequest;
 
 public class GameHandler {
     private final GameService gameService;
@@ -15,7 +16,10 @@ public class GameHandler {
 
     public void listGames(Javalin javalin) {
         javalin.get("/game", ctx ->
-                HandlerUtil.handle(ctx, c -> c.header("Authorization"), gameService::listGames));
+                HandlerUtil.handle(ctx, c -> {
+                    String authToken = c.header("Authorization");
+                    return new LogoutOrListGamesRequest(authToken);
+                }, gameService::listGames));
     }
 
     public void createGame(Javalin javalin) {
@@ -26,14 +30,13 @@ public class GameHandler {
                 }, gameService::createGame));
     }
 
-    public void joinGame(Javalin javalin){
-        javalin.put("/game", ctx->
-                HandlerUtil.handle(ctx, c->{
+    public void joinGame(Javalin javalin) {
+        javalin.put("/game", ctx ->
+                HandlerUtil.handle(ctx, c -> {
                     String authToken = c.header("Authorization");
                     String playerColor = Serializer.fromJson(c.body(), JoinGameRequest.class).playerColor();
-//                    System.out.println(playerColor=="WHITE");
-                    int gameID = Serializer.fromJson(c.body(),JoinGameRequest.class).gameID();
-                    return new JoinGameRequest(authToken,playerColor,gameID);
-                },gameService::joinGame));
+                    int gameID = Serializer.fromJson(c.body(), JoinGameRequest.class).gameID();
+                    return new JoinGameRequest(authToken, playerColor, gameID);
+                }, gameService::joinGame));
     }
 }
