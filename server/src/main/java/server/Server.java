@@ -1,12 +1,9 @@
 package server;
 
 import dataaccess.*;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.*;
 //import handlers.LoginHandler;
 //import handlers.RegisterHandler;
-import dataaccess.exceptions.NotFoundException;
 import handlers.ClearHandler;
 import handlers.GameHandler;
 import handlers.UserHandler;
@@ -22,7 +19,13 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-        UserDAO userDAO = new RAMUserDAO();
+//        UserDAO userDAO = new RAMUserDAO();
+        UserDAO userDAO;
+        try {
+            userDAO = new SQLUserDAO();
+        } catch (ResponseException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         AuthDAO authDAO = new RAMAuthDAO();
         GameDAO gameDAO = new RAMGameDAO();
         InitializeServiceMethods services = getInitializeServiceMethods(userDAO, authDAO, gameDAO);
