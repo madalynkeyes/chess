@@ -21,12 +21,14 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 //        UserDAO userDAO = new RAMUserDAO();
         UserDAO userDAO;
+        AuthDAO authDAO;
         try {
             userDAO = new SQLUserDAO();
+            authDAO = new SQLAuthDAO();
         } catch (ResponseException | DataAccessException e) {
             throw new RuntimeException(e);
         }
-        AuthDAO authDAO = new RAMAuthDAO();
+//        AuthDAO authDAO = new RAMAuthDAO();
         GameDAO gameDAO = new RAMGameDAO();
         InitializeServiceMethods services = getInitializeServiceMethods(userDAO, authDAO, gameDAO);
         createHandlers(services);

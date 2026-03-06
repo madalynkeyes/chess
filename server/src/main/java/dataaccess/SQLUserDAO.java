@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO{
 
@@ -70,18 +69,7 @@ public class SQLUserDAO implements UserDAO{
     private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-
-                        //  else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
+                SQLAuthDAO.readParams(ps, params);
 //                ps.executeUpdate();
                 if(ps.executeUpdate()==1){
                     System.out.println("Added user!");
@@ -111,15 +99,6 @@ public class SQLUserDAO implements UserDAO{
     };
 
     private void configureUserDB() throws ResponseException, DataAccessException {
-        DatabaseManager.createDatabase();
-        try(Connection conn = DatabaseManager.getConnection()){
-            for(String stmt : createStatements) {
-                try(var preparedStatement = conn.prepareStatement(stmt)){
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException | DataAccessException e){
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to configure user database: %s",e.getMessage()));
-        }
+        SQLAuthDAO.configureDB(createStatements);
     }
 }
