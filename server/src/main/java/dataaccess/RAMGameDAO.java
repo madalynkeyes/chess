@@ -1,8 +1,11 @@
 package dataaccess;
 
+import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.ResponseException;
 import model.GameData;
 import service.responses.GameListFormat;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,11 +16,15 @@ public class RAMGameDAO implements GameDAO {
     private final Map<Integer, GameData> gamesByID = new HashMap<>();
 
     @Override
-    public GameData createGame(GameData gameData) {
+    public void createGame(GameData gameData) {
 
         gamesByName.put(gameData.gameName(), gameData);
         gamesByID.put((gameData.gameId()), gameData);
-        return gameData;
+    }
+
+    @Override
+    public void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException {
+        createGame(gameData);
     }
 
     @Override

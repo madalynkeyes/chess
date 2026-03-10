@@ -102,10 +102,10 @@ public class SQLAuthDAO implements AuthDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 readParams(ps, params);
-//                ps.executeUpdate();
-                if(ps.executeUpdate()==1){
-                    System.out.println("Added auth!");
-                } else {System.out.println("Failed to add auth :(");
+                ps.executeUpdate();
+//                if(ps.executeUpdate()==1){
+//                    System.out.println("Added auth!");
+//                } else {System.out.println("Failed to add auth :(");
                     ResultSet rs = ps.getGeneratedKeys();
                     if (rs.next()) {
                         rs.getInt(1);
@@ -115,7 +115,7 @@ public class SQLAuthDAO implements AuthDAO{
             } catch (SQLException e) {
                 throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
             }
-        }}
+        }
 
     static void readParams(PreparedStatement ps, Object[] params) throws SQLException {
         for (int i = 0; i < params.length; i++) {

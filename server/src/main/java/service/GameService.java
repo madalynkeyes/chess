@@ -2,9 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.AuthDAO;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.NotFoundException;
+import dataaccess.exceptions.*;
 import dataaccess.GameDAO;
 import model.GameData;
 import service.requests.CreateGameRequest;
@@ -15,6 +13,7 @@ import service.responses.GameListFormat;
 import service.responses.JoinClearLogoutResponse;
 import service.responses.ListGamesResponse;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -88,7 +87,11 @@ public class GameService extends Service {
         GameData gameData = gameDAO.getGameByID(request.gameID());
         String username = authDAO.getUserByToken(request.authToken());
         GameData newGame = updateGameByColor(request, gameData, username);
-        gameDAO.createGame(newGame);
+        try {
+            gameDAO.updateGame(newGame,username, request.playerColor());
+        } catch (ResponseException | SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         return new JoinClearLogoutResponse("{}");
     }

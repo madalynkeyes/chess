@@ -70,10 +70,10 @@ public class SQLUserDAO implements UserDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 SQLAuthDAO.readParams(ps, params);
-//                ps.executeUpdate();
-                if(ps.executeUpdate()==1){
-                    System.out.println("Added user!");
-                } else {System.out.println("Failed to add user :(");
+                ps.executeUpdate();
+//                if(ps.executeUpdate()==1){
+//                    System.out.println("Added user!");
+//                } else {System.out.println("Failed to add user :(");
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     rs.getInt(1);
@@ -83,7 +83,7 @@ public class SQLUserDAO implements UserDAO{
         } catch (SQLException e) {
             throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
-    }}
+    }
 
     private final String[] createStatements = {
             """

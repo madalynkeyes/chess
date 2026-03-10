@@ -1,6 +1,7 @@
 package dataaccess;
 
 import com.google.gson.Gson;
+import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ResponseException;
 import model.GameData;
@@ -21,17 +22,26 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData createGame(GameData gameData) {
-        var statement = "INSERT INTO games (gameName, whiteUsername, blackUsername, json) VALUES (?, ?, ?, ?)";
+    public void createGame(GameData gameData) {
+        var statement = "INSERT INTO games (gameId, gameName, whiteUsername, blackUsername, json) VALUES (?, ?, ?, ?, ?)";
         String json = new Gson().toJson(gameData);
-        int gameId;
         try {
-            gameId = executeUpdate(statement, gameData.gameName(), gameData.whiteUsername(), gameData.blackUsername(), json);
+            executeUpdate(statement, gameData.gameId(), gameData.gameName(), gameData.whiteUsername(), gameData.blackUsername(), json);
         } catch (DataAccessException | SQLException | ResponseException e) {
             throw new RuntimeException(e);
         }
-        return new GameData(gameId, gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),gameData.game());
     }
+
+    @Override
+    public void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException {
+            String statement;
+            if (color.equals("WHITE")) {
+                statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
+            } else {
+                statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
+            }
+            executeUpdate(statement, username, gameData.gameId());
+        }
 
     @Override
     public GameData getGameByID(int gameID) {
@@ -81,28 +91,11 @@ public class SQLGameDAO implements GameDAO{
     public void clear() {
         var statement = "TRUNCATE games";
         try {
-            executeUpdate(statement);
+            executeClear(statement);
         } catch (ResponseException | DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
-//    public GameList gameList() throws ResponseException{
-//        var result = new GameList();
-//        try(Connection conn = DatabaseManager.getConnection()){
-//            var statement = "SELECT gameID, json FROM games";
-//            try(PreparedStatement ps = conn.prepareStatement(statement)){
-//                try(ResultSet rs = ps.executeQuery()){
-//                    while(rs.next()){
-//                        result.add(readGame(rs));
-//                    }
-//                }
-//            }
-//        } catch (SQLException | DataAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return result;
-//    }
 
     @Override
     public List<GameListFormat> listGames() {
@@ -130,7 +123,6 @@ public class SQLGameDAO implements GameDAO{
         }
         return result;
     }
-
     private GameData readGame(ResultSet rs) throws SQLException{
         var gameID = rs.getInt("gameID");
         var json = rs.getString("json");
@@ -138,21 +130,36 @@ public class SQLGameDAO implements GameDAO{
         return gameData.setId(gameID);
     }
 
-    private int executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
+    private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 SQLAuthDAO.readParams(ps, params);
-                ps.executeUpdate();
-
+                if(ps.executeUpdate()==0){
+                    throw new AlreadyTakenException("Error: color already taken");
+                }
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     rs.getInt(1);
                 }
-                return 0;
             } catch (SQLException e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            }
         }
     }
+
+    private void executeClear(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                SQLAuthDAO.readParams(ps, params);
+                ps.executeUpdate();
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    rs.getInt(1);
+                }
+            } catch (SQLException e) {
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            }
+        }
     }
 
     private final String[] createStatements = {
