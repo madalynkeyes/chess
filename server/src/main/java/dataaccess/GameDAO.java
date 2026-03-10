@@ -6,7 +6,7 @@ import service.responses.GameListFormat;
 import java.util.List;
 
 public interface GameDAO {
-    void createGame(GameData gameData);
+    GameData createGame(GameData gameData);
 
     GameData getGameByID(int gameID);
 

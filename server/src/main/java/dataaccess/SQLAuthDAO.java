@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ResponseException;
 import model.AuthData;
+import model.GameData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -122,6 +123,7 @@ public class SQLAuthDAO implements AuthDAO{
             switch (param) {
                 case String p -> ps.setString(i + 1, p);
                 case Integer p -> ps.setInt(i + 1, p);
+                case GameData p -> ps.setString(i + 1, p.toString());
                 case null -> ps.setNull(i + 1, NULL);
                 default -> {
                 }

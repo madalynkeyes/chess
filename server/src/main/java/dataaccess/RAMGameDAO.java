@@ -13,10 +13,11 @@ public class RAMGameDAO implements GameDAO {
     private final Map<Integer, GameData> gamesByID = new HashMap<>();
 
     @Override
-    public void createGame(GameData gameData) {
+    public GameData createGame(GameData gameData) {
 
         gamesByName.put(gameData.gameName(), gameData);
         gamesByID.put((gameData.gameId()), gameData);
+        return gameData;
     }
 
     @Override
