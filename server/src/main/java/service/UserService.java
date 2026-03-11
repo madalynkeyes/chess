@@ -7,6 +7,7 @@ import dataaccess.exceptions.NotAuthorizedException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.requests.LoginRequest;
 import service.requests.LogoutOrListGamesRequest;
 import service.requests.RegisterRequest;
@@ -46,9 +47,10 @@ public class UserService extends Service {
         if (userDAO.getUser(request.username()) != null) {
             throw new AlreadyTakenException("Error: username already taken");
         }
+        String hashedPassword = BCrypt.hashpw(request.password(), BCrypt.gensalt());
         UserData userData = new UserData(
                 request.username(),
-                request.password(),
+                hashedPassword,
                 request.email()
         );
         userDAO.createUser(userData);
@@ -63,6 +65,7 @@ public class UserService extends Service {
         );
 
     }
+
 
     /**
      * Login Service Class
@@ -79,7 +82,7 @@ public class UserService extends Service {
         }
         if (userDAO.getUser(request.username()) != null) {
             String password = userDAO.getUser(request.username()).password();
-            if (!request.password().equals(password)) {
+            if (!BCrypt.checkpw(request.password(),password)) {
                 throw new NotAuthorizedException("Error: unauthorized");
             }
             AuthData authData = new AuthData(
@@ -96,6 +99,7 @@ public class UserService extends Service {
             throw new NotAuthorizedException("Error: unauthorized");
         }
     }
+
 
     /**
      * Logout Service Class

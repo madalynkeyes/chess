@@ -27,24 +27,28 @@ public class SQLGameDAO implements GameDAO{
         String json = new Gson().toJson(gameData);
         try {
             executeUpdate(statement, gameData.gameId(), gameData.gameName(), gameData.whiteUsername(), gameData.blackUsername(), json);
-        } catch (DataAccessException | SQLException | ResponseException e) {
+        } catch (ResponseException | DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException {
-            String statement;
-            if (color.equals("WHITE")) {
-                statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
-            } else {
-                statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
-            }
-            executeUpdate(statement, username, gameData.gameId());
+    public void updateGame(GameData gameData, String username, String color) {
+        String statement;
+        if (color.equals("WHITE")) {
+            statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
+        } else {
+            statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
         }
+        try {
+            executeUpdate(statement, username, gameData.gameId());
+        } catch (ResponseException | DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
-    public GameData getGameByID(int gameID) {
+    public GameData getGameByID(int gameID){
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM games WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
