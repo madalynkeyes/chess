@@ -13,7 +13,6 @@ import service.responses.GameListFormat;
 import service.responses.JoinClearLogoutResponse;
 import service.responses.ListGamesResponse;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -38,13 +37,13 @@ public class GameService extends Service {
      * @param request list game request
      * @return list game response
      */
-    public ListGamesResponse listGames(LogoutOrListGamesRequest request) {
+    public ListGamesResponse listGames(LogoutOrListGamesRequest request) throws ResponseException {
         hasAuthToken(request.authToken());
         List<GameListFormat> games = gameDAO.listGames();
         return new ListGamesResponse(games);
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request) {
+    public CreateGameResponse createGame(CreateGameRequest request) throws ResponseException {
         String authToken = request.authToken();
         hasAuthToken(authToken);
         if (request.gameName() == null) {
@@ -76,7 +75,7 @@ public class GameService extends Service {
      * @param request join game request
      * @return join game response
      */
-    public JoinClearLogoutResponse joinGame(JoinGameRequest request) {
+    public JoinClearLogoutResponse joinGame(JoinGameRequest request) throws ResponseException {
         hasAuthToken(request.authToken());
         if (request.gameID() < 0) {
             throw new BadRequestException("Error: please enter gameID");
@@ -89,8 +88,11 @@ public class GameService extends Service {
         GameData newGame = updateGameByColor(request, gameData, username);
         try {
             gameDAO.updateGame(newGame,username, request.playerColor());
-        } catch (ResponseException | SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
+        } catch (AlreadyTakenException e){
+            throw new AlreadyTakenException("Error: unable to join game cuz color is already stolen");
+        }
+        catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to join game");
         }
 
         return new JoinClearLogoutResponse("{}");

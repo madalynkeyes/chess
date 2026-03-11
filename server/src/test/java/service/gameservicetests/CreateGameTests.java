@@ -4,6 +4,7 @@ import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ public class CreateGameTests extends GameServiceTests {
     }
 
     @Test
-    public void createGameValidSuccess() {
+    public void createGameValidSuccess() throws ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(request);
         int idValue = createGameResponse.gameID();
@@ -28,7 +29,7 @@ public class CreateGameTests extends GameServiceTests {
     }
 
     @Test
-    public void createMultipleGamesSuccess() {
+    public void createMultipleGamesSuccess() throws ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(request);
         int idValue = createGameResponse.gameID();
@@ -58,7 +59,7 @@ public class CreateGameTests extends GameServiceTests {
     }
 
     @Test
-    public void createGameGameNameAlreadyTakenThrowsException() throws AlreadyTakenException {
+    public void createGameGameNameAlreadyTakenThrowsException() throws AlreadyTakenException, ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         gameService.createGame(request);
         CreateGameRequest request2 = new CreateGameRequest(response.authToken(), "gameName");

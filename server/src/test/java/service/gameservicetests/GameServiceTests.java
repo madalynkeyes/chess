@@ -1,6 +1,7 @@
 package service.gameservicetests;
 
 import dataaccess.*;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import service.GameService;
 import service.UserService;
@@ -18,7 +19,7 @@ public abstract class GameServiceTests {
     protected RegisterLoginResponse response;
 
     @BeforeEach
-    public void baseSetup() {
+    public void baseSetup() throws ResponseException {
         userDAO = new RAMUserDAO();
         authDAO = new RAMAuthDAO();
         gameDAO = new RAMGameDAO();

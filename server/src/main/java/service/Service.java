@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.ResponseException;
 
 public class Service {
     private final AuthDAO authDAO;
@@ -16,7 +17,7 @@ public class Service {
     /**
      * checks if auth token is valid
      */
-    void hasAuthToken(String authToken) {
+    void hasAuthToken(String authToken) throws ResponseException {
         if (authToken == null) {
             throw new BadRequestException("Error: auth token not entered");
         }

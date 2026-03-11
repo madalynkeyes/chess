@@ -16,18 +16,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SQLGameTests extends SQLTests{
-    private SQLUserDAO userDAO;
-    private SQLAuthDAO authDAO;
-    private SQLGameDAO gameDAO;
-    private UserService userService;
     private GameService gameService;
     private RegisterLoginResponse response;
     @BeforeEach
     public void setup() throws ResponseException, DataAccessException {
-        userDAO = new SQLUserDAO();
-        authDAO = new SQLAuthDAO();
-        gameDAO = new SQLGameDAO();
-        userService = new UserService(userDAO, authDAO);
+        SQLUserDAO userDAO = new SQLUserDAO();
+        SQLAuthDAO authDAO = new SQLAuthDAO();
+        SQLGameDAO gameDAO = new SQLGameDAO();
+        UserService userService = new UserService(userDAO, authDAO);
         gameService = new GameService(authDAO, gameDAO);
         RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(request);
@@ -37,7 +33,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void createGameValidSuccess() {
+    public void createGameValidSuccess() throws ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(request);
         int idValue = createGameResponse.gameID();
@@ -45,7 +41,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void createMultipleGamesSuccess() {
+    public void createMultipleGamesSuccess() throws ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(request);
         int idValue = createGameResponse.gameID();
@@ -75,7 +71,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void createGameGameNameAlreadyTakenThrowsException() throws AlreadyTakenException {
+    public void createGameGameNameAlreadyTakenThrowsException() throws AlreadyTakenException, ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         gameService.createGame(request);
         CreateGameRequest request2 = new CreateGameRequest(response.authToken(), "gameName");
@@ -83,7 +79,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void joinGameWhiteValidSuccess() {
+    public void joinGameWhiteValidSuccess() throws ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());
@@ -98,7 +94,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void joinGameBlackValidSuccess() {
+    public void joinGameBlackValidSuccess() throws ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "BLACK", createGameResponse.gameID());
@@ -113,7 +109,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void joinGameNotAuthorizedThrowsException() throws NotAuthorizedException {
+    public void joinGameNotAuthorizedThrowsException() throws NotAuthorizedException, ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
         JoinGameRequest request = new JoinGameRequest("abc", "WHITE", createGameResponse.gameID());
@@ -121,7 +117,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void joinGameGameNotFoundThrowsException() throws NotFoundException {
+    public void joinGameGameNotFoundThrowsException() throws NotFoundException, ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", 1234);
@@ -129,7 +125,7 @@ public class SQLGameTests extends SQLTests{
     }
 
     @Test
-    public void joinGameColorAlreadyTakenThrowsException() throws AlreadyTakenException {
+    public void joinGameColorAlreadyTakenThrowsException() throws AlreadyTakenException, ResponseException {
         CreateGameResponse createGameResponse = joinGameSetUp();
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());
         gameService.joinGame(request);
@@ -137,29 +133,28 @@ public class SQLGameTests extends SQLTests{
         assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(request2));
     }
 
-    private CreateGameResponse joinGameSetUp() {
+    private CreateGameResponse joinGameSetUp() throws ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
-        CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
-        return createGameResponse;
+        return gameService.createGame(createGameRequest);
     }
 
     @Test
-    public void listGameValidSuccess() {
+    public void listGameValidSuccess() throws ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse response1 = gameService.createGame(request);
         CreateGameRequest request1 = new CreateGameRequest(response.authToken(), "gameName1");
         CreateGameResponse response2 = gameService.createGame(request1);
         LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
         ListGamesResponse listGamesResponse = gameService.listGames(listGamesRequest);
-        String expected = "{\"games\":[{\"gameID\":" + response2.gameID() +
-                ",\"gameName\":\"gameName1\"}," +
-                "{\"gameID\":" + response1.gameID() + ",\"gameName\":\"gameName\"}]}";
+        String expected = "{\"games\":[{\"gameID\":" + response1.gameID() +
+                ",\"gameName\":\"gameName\"}," +
+                "{\"gameID\":" + response2.gameID() + ",\"gameName\":\"gameName1\"}]}";
         String actualJson = Serializer.toJson(listGamesResponse);
         assertEquals(expected, actualJson);
     }
 
     @Test
-    public void listGameEmptySuccess() {
+    public void listGameEmptySuccess() throws ResponseException {
         LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
         ListGamesResponse listGamesResponse = gameService.listGames(listGamesRequest);
         assertTrue(listGamesResponse.games().isEmpty());

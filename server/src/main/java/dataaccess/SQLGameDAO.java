@@ -22,29 +22,35 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void createGame(GameData gameData) {
+    public void createGame(GameData gameData) throws ResponseException {
         var statement = "INSERT INTO games (gameId, gameName, whiteUsername, blackUsername, json) VALUES (?, ?, ?, ?, ?)";
         String json = new Gson().toJson(gameData);
         try {
             executeUpdate(statement, gameData.gameId(), gameData.gameName(), gameData.whiteUsername(), gameData.blackUsername(), json);
-        } catch (DataAccessException | SQLException | ResponseException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to create game");
         }
     }
 
     @Override
-    public void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException {
-            String statement;
-            if (color.equals("WHITE")) {
-                statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
-            } else {
-                statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
-            }
-            executeUpdate(statement, username, gameData.gameId());
+    public void updateGame(GameData gameData, String username, String color) throws ResponseException {
+        String statement;
+        if (color.equals("WHITE")) {
+            statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
+        } else {
+            statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
         }
+        try {
+            executeUpdate(statement, username, gameData.gameId());
+        } catch (AlreadyTakenException e){
+            throw new AlreadyTakenException("Error: can't update game cuz color is taken");
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to update game");
+        }
+    }
 
     @Override
-    public GameData getGameByID(int gameID) {
+    public GameData getGameByID(int gameID) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM games WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -56,17 +62,13 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (Exception e) {
-            try {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-            } catch (ResponseException ex) {
-                throw new RuntimeException(ex);
-            }
+            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public GameData getGameByName(String gameName) {
+    public GameData getGameByName(String gameName) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM games WHERE gameName=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -78,27 +80,23 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (Exception e) {
-            try {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-            } catch (ResponseException ex) {
-                throw new RuntimeException(ex);
-            }
+            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResponseException {
         var statement = "TRUNCATE games";
         try {
             executeClear(statement);
-        } catch (ResponseException | DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to clear games");
         }
     }
 
     @Override
-    public List<GameListFormat> listGames() {
+    public List<GameListFormat> listGames() throws ResponseException {
         List<GameListFormat> result = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameId, whiteUsername, blackUsername, gameName FROM games";
@@ -115,11 +113,7 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (Exception e) {
-            try {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-            } catch (ResponseException ex) {
-                throw new RuntimeException(ex);
-            }
+            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return result;
     }
@@ -142,7 +136,7 @@ public class SQLGameDAO implements GameDAO{
                     rs.getInt(1);
                 }
             } catch (SQLException e) {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
             }
         }
     }
@@ -157,7 +151,7 @@ public class SQLGameDAO implements GameDAO{
                     rs.getInt(1);
                 }
             } catch (SQLException e) {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
             }
         }
     }

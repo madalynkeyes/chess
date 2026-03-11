@@ -4,6 +4,7 @@ import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.NotAuthorizedException;
 import dataaccess.exceptions.NotFoundException;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
@@ -18,13 +19,13 @@ public class JoinGameTests extends GameServiceTests {
     CreateGameResponse createGameResponse;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
         createGameResponse = gameService.createGame(createGameRequest);
     }
 
     @Test
-    public void joinGameWhiteValidSuccess() {
+    public void joinGameWhiteValidSuccess() throws ResponseException {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());
         JoinClearLogoutResponse joinGameResponse = gameService.joinGame(request);
         assertEquals("{}", joinGameResponse.message());
@@ -37,7 +38,7 @@ public class JoinGameTests extends GameServiceTests {
     }
 
     @Test
-    public void joinGameBlackValidSuccess() {
+    public void joinGameBlackValidSuccess() throws ResponseException {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "BLACK", createGameResponse.gameID());
         JoinClearLogoutResponse joinGameResponse = gameService.joinGame(request);
         assertEquals("{}", joinGameResponse.message());
@@ -62,7 +63,7 @@ public class JoinGameTests extends GameServiceTests {
     }
 
     @Test
-    public void joinGameColorAlreadyTakenThrowsException() throws AlreadyTakenException {
+    public void joinGameColorAlreadyTakenThrowsException() throws AlreadyTakenException, ResponseException {
         JoinGameRequest request = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());
         gameService.joinGame(request);
         JoinGameRequest request2 = new JoinGameRequest(response.authToken(), "WHITE", createGameResponse.gameID());

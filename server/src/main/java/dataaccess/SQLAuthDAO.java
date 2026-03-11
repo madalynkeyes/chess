@@ -21,18 +21,18 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void createAuth(AuthData authData) {
+    public void createAuth(AuthData authData) throws ResponseException {
         var statement = "INSERT INTO auth (username, authToken, json) VALUES (?, ?, ?)";
         String json = new Gson().toJson(authData);
         try {
             executeUpdate(statement, authData.username(), authData.authToken(), json);
-        } catch (DataAccessException | SQLException | ResponseException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to create new auth");
         }
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM auth WHERE authToken=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -47,17 +47,13 @@ public class SQLAuthDAO implements AuthDAO{
                 }
             }
         } catch (Exception e) {
-            try {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-            } catch (ResponseException ex) {
-                throw new RuntimeException(ex);
-            }
+           throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public String getUserByToken(String authToken) {
+    public String getUserByToken(String authToken) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username FROM auth WHERE authToken=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -69,43 +65,36 @@ public class SQLAuthDAO implements AuthDAO{
                 }
             }
         } catch (Exception e) {
-            try {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-            } catch (ResponseException ex) {
-                throw new RuntimeException(ex);
-            }
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResponseException {
         var statement = "TRUNCATE auth";
         try {
             executeUpdate(statement);
-        } catch (ResponseException | DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to clear");
         }
     }
 
     @Override
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws ResponseException {
         var statement = "DELETE FROM auth WHERE authToken=?";
         try {
             executeUpdate(statement,authToken);
-        } catch (ResponseException | DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to clear");
         }
     }
 
-    private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
+    private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 readParams(ps, params);
                 ps.executeUpdate();
-//                if(ps.executeUpdate()==1){
-//                    System.out.println("Added auth!");
-//                } else {System.out.println("Failed to add auth :(");
                     ResultSet rs = ps.getGeneratedKeys();
                     if (rs.next()) {
                         rs.getInt(1);
@@ -113,7 +102,7 @@ public class SQLAuthDAO implements AuthDAO{
 
                 }
             } catch (SQLException e) {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
             }
         }
 
@@ -143,11 +132,11 @@ public class SQLAuthDAO implements AuthDAO{
             """
     };
 
-    private void configureAuthDB() throws ResponseException, DataAccessException {
+    private void configureAuthDB() throws ResponseException {
         configureDB(createStatements);
     }
 
-    static void configureDB(String[] createStatements) throws DataAccessException, ResponseException {
+    static void configureDB(String[] createStatements) throws ResponseException {
         DatabaseManager.createDatabase();
         try(Connection conn = DatabaseManager.getConnection()){
             for(String stmt : createStatements) {

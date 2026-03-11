@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.requests.*;
@@ -17,7 +18,7 @@ public class ClearServiceTests {
     RegisterLoginResponse response;
 
     @BeforeEach
-    public void initialize() {
+    public void initialize() throws ResponseException {
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
         GameDAO gameDAO = new RAMGameDAO();
@@ -37,7 +38,7 @@ public class ClearServiceTests {
     }
 
     @Test
-    public void clearSuccessNoLongerAuthorized() {
+    public void clearSuccessNoLongerAuthorized() throws ResponseException {
         clearService.clear();
         LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
         assertThrows(NotAuthorizedException.class, () -> userService.login(loginRequest));
@@ -48,7 +49,7 @@ public class ClearServiceTests {
     }
 
     @Test
-    public void clearSuccessGamesListEmpty() {
+    public void clearSuccessGamesListEmpty() throws ResponseException {
         clearService.clear();
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);

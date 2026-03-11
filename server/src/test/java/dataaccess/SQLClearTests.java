@@ -18,18 +18,15 @@ import service.responses.RegisterLoginResponse;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLClearTests extends SQLTests{
-    private SQLUserDAO userDAO;
-    private SQLAuthDAO authDAO;
-    private SQLGameDAO gameDAO;
     private UserService userService;
     private GameService gameService;
     private ClearService clearService;
     private RegisterLoginResponse response;
     @BeforeEach
     public void initialize() throws ResponseException, DataAccessException {
-        userDAO = new SQLUserDAO();
-        authDAO = new SQLAuthDAO();
-        gameDAO = new SQLGameDAO();
+        SQLUserDAO userDAO = new SQLUserDAO();
+        SQLAuthDAO authDAO = new SQLAuthDAO();
+        SQLGameDAO gameDAO = new SQLGameDAO();
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(authDAO, gameDAO);
         clearService = new ClearService(userDAO, authDAO, gameDAO);
@@ -46,7 +43,7 @@ public class SQLClearTests extends SQLTests{
     }
 
     @Test
-    public void clearSuccessNoLongerAuthorized() {
+    public void clearSuccessNoLongerAuthorized() throws ResponseException {
         clearService.clear();
         LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
         assertThrows(NotAuthorizedException.class, () -> userService.login(loginRequest));
@@ -57,7 +54,7 @@ public class SQLClearTests extends SQLTests{
     }
 
     @Test
-    public void clearSuccessGamesListEmpty() {
+    public void clearSuccessGamesListEmpty() throws ResponseException {
         clearService.clear();
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);

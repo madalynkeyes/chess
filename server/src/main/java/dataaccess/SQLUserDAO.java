@@ -20,18 +20,18 @@ public class SQLUserDAO implements UserDAO{
     }
 
     @Override
-    public void createUser(UserData userData) {
+    public void createUser(UserData userData) throws ResponseException {
         var statement = "INSERT INTO users (username, password, email, json) VALUES (?, ?, ?, ?)";
         String json = new Gson().toJson(userData);
         try {
             executeUpdate(statement, userData.username(), userData.password(), userData.email(), json);
-        } catch (DataAccessException | SQLException | ResponseException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to create user");
         }
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM users WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -47,26 +47,22 @@ public class SQLUserDAO implements UserDAO{
                 }
             }
         } catch (Exception e) {
-            try {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-            } catch (ResponseException ex) {
-                throw new RuntimeException(ex);
-            }
+                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResponseException {
         var statement = "TRUNCATE users";
         try {
             executeUpdate(statement);
-        } catch (ResponseException | DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to clear users");
         }
     }
 
-    private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
+    private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 SQLAuthDAO.readParams(ps, params);
@@ -81,7 +77,7 @@ public class SQLUserDAO implements UserDAO{
 
             }
         } catch (SQLException e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -98,7 +94,7 @@ public class SQLUserDAO implements UserDAO{
             """
     };
 
-    private void configureUserDB() throws ResponseException, DataAccessException {
+    private void configureUserDB() throws ResponseException {
         SQLAuthDAO.configureDB(createStatements);
     }
 }

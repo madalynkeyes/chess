@@ -9,15 +9,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface GameDAO {
-    void createGame(GameData gameData);
+    void createGame(GameData gameData) throws ResponseException;
 
-    public void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException;
+    void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException;
 
-    GameData getGameByID(int gameID);
+    GameData getGameByID(int gameID) throws ResponseException;
 
-    GameData getGameByName(String gameName);
+    GameData getGameByName(String gameName) throws ResponseException;
 
-    void clear();
+    void clear() throws ResponseException;
 
-    List<GameListFormat> listGames();
+    List<GameListFormat> listGames() throws ResponseException;
 }

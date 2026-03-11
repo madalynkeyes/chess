@@ -15,18 +15,17 @@ import service.responses.RegisterLoginResponse;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLUserTests extends SQLTests{
-    private SQLUserDAO userDAO;
     private SQLAuthDAO authDAO;
     private UserService userService;
     @BeforeEach
     public void setup() throws ResponseException, DataAccessException {
-        userDAO = new SQLUserDAO();
+        SQLUserDAO userDAO = new SQLUserDAO();
         authDAO = new SQLAuthDAO();
         userService = new UserService(userDAO, authDAO);
     }
 
     @Test
-    public void registerValidSuccess() {
+    public void registerValidSuccess() throws ResponseException {
         RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         RegisterLoginResponse response = userService.register(request);
         assertEquals("mkeyes", response.username());
@@ -36,7 +35,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void registerUsernameTakenThrowsException() throws AlreadyTakenException {
+    public void registerUsernameTakenThrowsException() throws AlreadyTakenException, ResponseException {
         RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(request);
         RegisterRequest request2 = new RegisterRequest("mkeyes", "123", "m@gmail.com");
@@ -62,7 +61,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void loginValidSuccess() throws NotAuthorizedException {
+    public void loginValidSuccess() throws NotAuthorizedException, ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);
         LoginRequest request = new LoginRequest("mkeyes", "123");
@@ -74,7 +73,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void loginNotAuthorizedThrowsException() throws NotAuthorizedException {
+    public void loginNotAuthorizedThrowsException() throws NotAuthorizedException, ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);
         LoginRequest request = new LoginRequest("mke", "123");
@@ -82,7 +81,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void loginNoUsernameThrowsException() throws BadRequestException {
+    public void loginNoUsernameThrowsException() throws BadRequestException, ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);
         LoginRequest request = new LoginRequest(null, "123");
@@ -90,7 +89,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void loginNoPasswordThrowsException() throws BadRequestException {
+    public void loginNoPasswordThrowsException() throws BadRequestException, ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);
         LoginRequest request = new LoginRequest("mkeyes", null);
@@ -98,7 +97,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void loginWrongPasswordThrowsException() throws NotAuthorizedException {
+    public void loginWrongPasswordThrowsException() throws NotAuthorizedException, ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);
         LoginRequest request = new LoginRequest("mkeyes", "123!");
@@ -106,7 +105,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void logoutValidSuccess() {
+    public void logoutValidSuccess() throws ResponseException {
         RegisterLoginResponse response = setUpLogout();
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest(response.authToken());
         JoinClearLogoutResponse logoutResponse = userService.logout(request);
@@ -115,7 +114,7 @@ public class SQLUserTests extends SQLTests{
     }
 
     @NotNull
-    private RegisterLoginResponse setUpLogout() {
+    private RegisterLoginResponse setUpLogout() throws ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
         userService.register(registerRequest);
         LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
@@ -126,14 +125,14 @@ public class SQLUserTests extends SQLTests{
     }
 
     @Test
-    public void logoutNoAuthToken() throws BadRequestException {
+    public void logoutNoAuthToken() throws BadRequestException, ResponseException {
         setUpLogout();
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest(null);
         assertThrows(BadRequestException.class, () -> userService.logout(request));
     }
 
     @Test
-    public void logoutWrongAuthToken() throws NotAuthorizedException {
+    public void logoutWrongAuthToken() throws NotAuthorizedException, ResponseException {
         setUpLogout();
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest("abc");
         assertThrows(NotAuthorizedException.class, () -> userService.logout(request));

@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import dataaccess.exceptions.ResponseException;
 import service.responses.JoinClearLogoutResponse;
 
 public class ClearService extends Service {
@@ -23,7 +24,7 @@ public class ClearService extends Service {
      *
      * @return clear response
      */
-    public JoinClearLogoutResponse clear() {
+    public JoinClearLogoutResponse clear() throws ResponseException {
         userDAO.clear();
         authDAO.clear();
         gameDAO.clear();

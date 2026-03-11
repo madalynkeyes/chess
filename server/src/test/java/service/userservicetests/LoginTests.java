@@ -3,6 +3,7 @@ package service.userservicetests;
 import dataaccess.*;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
@@ -17,7 +18,7 @@ public class LoginTests {
     UserService userService;
 
     @BeforeEach
-    public void initialize() {
+    public void initialize() throws ResponseException {
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
         userService = new UserService(userDAO, authDAO);
@@ -26,7 +27,7 @@ public class LoginTests {
     }
 
     @Test
-    public void loginValidSuccess() throws NotAuthorizedException {
+    public void loginValidSuccess() throws NotAuthorizedException, ResponseException {
         LoginRequest request = new LoginRequest("mkeyes", "123");
         RegisterLoginResponse response = userService.login(request);
         assertEquals("mkeyes", response.username());

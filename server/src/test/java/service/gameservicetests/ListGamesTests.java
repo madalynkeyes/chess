@@ -3,6 +3,7 @@ package service.gameservicetests;
 import dataaccess.*;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
@@ -21,7 +22,7 @@ public class ListGamesTests extends GameServiceTests {
     }
 
     @Test
-    public void listGameValidSuccess() {
+    public void listGameValidSuccess() throws ResponseException {
         CreateGameRequest request = new CreateGameRequest(response.authToken(), "gameName");
         CreateGameResponse response1 = gameService.createGame(request);
         CreateGameRequest request1 = new CreateGameRequest(response.authToken(), "gameName1");
@@ -36,7 +37,7 @@ public class ListGamesTests extends GameServiceTests {
     }
 
     @Test
-    public void listGameEmptySuccess() {
+    public void listGameEmptySuccess() throws ResponseException {
         LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
         ListGamesResponse listGamesResponse = gameService.listGames(listGamesRequest);
         assertTrue(listGamesResponse.games().isEmpty());

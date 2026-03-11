@@ -3,6 +3,7 @@ package service.userservicetests;
 import dataaccess.*;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.*;
@@ -20,7 +21,7 @@ public class LogoutTests {
     AuthDAO authDAO = new RAMAuthDAO();
 
     @BeforeEach
-    public void initialize() {
+    public void initialize() throws ResponseException {
         UserDAO userDAO = new RAMUserDAO();
         AuthDAO authDAO = new RAMAuthDAO();
         userService = new UserService(userDAO, authDAO);
@@ -33,7 +34,7 @@ public class LogoutTests {
     }
 
     @Test
-    public void logoutValidSuccess() {
+    public void logoutValidSuccess() throws ResponseException {
         LogoutOrListGamesRequest request = new LogoutOrListGamesRequest(response.authToken());
         JoinClearLogoutResponse logoutResponse = userService.logout(request);
         assertEquals("{}", logoutResponse.message());
