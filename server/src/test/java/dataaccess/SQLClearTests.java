@@ -1,69 +1,38 @@
 package dataaccess;
 
 import dataaccess.exceptions.DataAccessException;
-import dataaccess.exceptions.NotAuthorizedException;
+
 import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import service.ClearService;
-import service.GameService;
-import service.UserService;
-import service.requests.CreateGameRequest;
-import service.requests.LoginRequest;
-import service.requests.LogoutOrListGamesRequest;
-import service.requests.RegisterRequest;
-import service.responses.ListGamesResponse;
-import service.responses.RegisterLoginResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
+import service.shared.ClearTests;
 
-public class SQLClearTests extends SQLTests{
-    private UserService userService;
-    private GameService gameService;
-    private ClearService clearService;
-    private RegisterLoginResponse response;
+
+
+public class SQLClearTests extends ClearTests {
     @BeforeEach
-    public void initialize() throws ResponseException, DataAccessException {
-        SQLUserDAO userDAO = new SQLUserDAO();
-        SQLAuthDAO authDAO = new SQLAuthDAO();
-        SQLGameDAO gameDAO = new SQLGameDAO();
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(authDAO, gameDAO);
-        clearService = new ClearService(userDAO, authDAO, gameDAO);
-        RegisterRequest request = new RegisterRequest("mkeyes", "123", "m@gmail.com");
-        userService.register(request);
-        LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
-        userService.login(loginRequest);
-        response = userService.login(loginRequest);
-        CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
-        gameService.createGame(createGameRequest);
-        LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
-        ListGamesResponse listGamesResponse = gameService.listGames(listGamesRequest);
-        assertFalse(listGamesResponse.games().isEmpty());
+    public void baseSetup(){
+        try {
+            new SQLUserDAO().clear();
+            new SQLGameDAO().clear();
+            new SQLAuthDAO().clear();
+        } catch (ResponseException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Test
-    public void clearSuccessNoLongerAuthorized() throws ResponseException {
-        clearService.clear();
-        LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
-        assertThrows(NotAuthorizedException.class, () -> userService.login(loginRequest));
-        CreateGameRequest createGameRequest = new CreateGameRequest(response.authToken(), "gameName");
-        assertThrows(NotAuthorizedException.class, () -> gameService.createGame(createGameRequest));
-        LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
-        assertThrows(NotAuthorizedException.class, () -> gameService.listGames(listGamesRequest));
+    @Override
+    protected UserDAO createUserDAO() throws Exception {
+        return new SQLUserDAO();
     }
 
-    @Test
-    public void clearSuccessGamesListEmpty() throws ResponseException {
-        clearService.clear();
-        RegisterRequest registerRequest = new RegisterRequest("mkeyes", "123", "m@gmail.com");
-        userService.register(registerRequest);
-        LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
-        userService.login(loginRequest);
-        response = userService.login(loginRequest);
-        LogoutOrListGamesRequest listGamesRequest = new LogoutOrListGamesRequest(response.authToken());
-        ListGamesResponse listGamesResponse = gameService.listGames(listGamesRequest);
-        assertTrue(listGamesResponse.games().isEmpty());
+    @Override
+    protected AuthDAO createAuthDAO() throws Exception {
+        return new SQLAuthDAO();
+    }
 
+    @Override
+    protected GameDAO createGameDAO() throws Exception {
+        return new SQLGameDAO();
     }
 }

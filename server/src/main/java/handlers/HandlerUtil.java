@@ -8,18 +8,18 @@ import java.util.function.Function;
 
 public class HandlerUtil {
 @FunctionalInterface
-public interface ServiceFunction<Req, Res> {
-    Res apply(Req request) throws ResponseException;
+public interface ServiceFunction<T, R> {
+    R apply(T request) throws ResponseException;
 }
 
-    public static <Req, Res> void handle(
+    public static <T, R> void handle(
             Context ctx,
-            Function<Context, Req> requestBuilder,
-            ServiceFunction<Req, Res> serviceFunction
+            Function<Context, T> requestBuilder,
+            ServiceFunction<T, R> serviceFunction
     ) {
         try {
-            Req request = requestBuilder.apply(ctx);
-            Res result = serviceFunction.apply(request);
+            T request = requestBuilder.apply(ctx);
+            R result = serviceFunction.apply(request);
             ctx.status(200);
             ctx.result(Serializer.toJson(result));
         } catch (ResponseException ex) {

@@ -62,7 +62,8 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
@@ -80,7 +81,8 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
@@ -113,7 +115,8 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return result;
     }
@@ -136,7 +139,8 @@ public class SQLGameDAO implements GameDAO{
                     rs.getInt(1);
                 }
             } catch (SQLException e) {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError,
+                        String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
             }
         }
     }
@@ -151,7 +155,8 @@ public class SQLGameDAO implements GameDAO{
                     rs.getInt(1);
                 }
             } catch (SQLException e) {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError,
+                        String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
             }
         }
     }

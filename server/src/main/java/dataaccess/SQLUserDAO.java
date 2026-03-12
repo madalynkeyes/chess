@@ -47,7 +47,8 @@ public class SQLUserDAO implements UserDAO{
                 }
             }
         } catch (Exception e) {
-                throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to read data: %s", e.getMessage()));
+                throw new ResponseException(ResponseException.Code.ServerError,
+                        String.format("Error: unable to read data: %s", e.getMessage()));
         }
         return null;
     }
@@ -67,9 +68,6 @@ public class SQLUserDAO implements UserDAO{
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 SQLAuthDAO.readParams(ps, params);
                 ps.executeUpdate();
-//                if(ps.executeUpdate()==1){
-//                    System.out.println("Added user!");
-//                } else {System.out.println("Failed to add user :(");
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     rs.getInt(1);
@@ -77,7 +75,8 @@ public class SQLUserDAO implements UserDAO{
 
             }
         } catch (SQLException e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
