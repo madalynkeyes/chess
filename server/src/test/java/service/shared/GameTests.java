@@ -11,6 +11,7 @@ import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Serializer;
+import service.ClearService;
 import service.GameService;
 import service.UserService;
 import service.requests.*;
@@ -39,7 +40,7 @@ public abstract class GameTests {
         userDAO = createUserDAO();
         authDAO = createAuthDAO();
         gameDAO = createGameDAO();
-
+        new ClearService(userDAO, authDAO, gameDAO).clear();
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(authDAO, gameDAO);
 

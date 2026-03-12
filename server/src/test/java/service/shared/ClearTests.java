@@ -36,6 +36,8 @@ public abstract class ClearTests {
         authDAO = createAuthDAO();
         gameDAO = createGameDAO();
 
+        new ClearService(userDAO, authDAO, gameDAO).clear();
+
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(authDAO, gameDAO);
         clearService = new ClearService(userDAO, authDAO, gameDAO);
@@ -44,7 +46,6 @@ public abstract class ClearTests {
         userService.register(request);
 
         LoginRequest loginRequest = new LoginRequest("mkeyes", "123");
-        userService.login(loginRequest);
         response = userService.login(loginRequest);
 
         CreateGameRequest createGameRequest =
