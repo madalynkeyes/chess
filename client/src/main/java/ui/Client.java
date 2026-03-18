@@ -20,7 +20,6 @@ public class Client {
     public final ServerFacade serverFacade;
 
     public Client(String url) {
-//        ServerFacade serverFacade = new ServerFacade(url);
         serverFacade = new ServerFacade(url);
     }
 
@@ -53,11 +52,12 @@ public class Client {
                         registerPrompt();
                         break;
                     case 3:
-                        System.out.printf("You chose: %d. Quit\n",selectedNumber);
+                        System.out.println("Thanks for playing! Exiting the game.");
                         System.exit(0);
                         break;
                     case 4:
-                        System.out.printf("You chose: %d. Help\n",selectedNumber);
+                        helpPrompt();
+                        mainMenu();
                         break;
                     default:
                         System.out.println("Please choose a number: 1,2,3, or 4");
@@ -72,6 +72,11 @@ public class Client {
             }
 
         }
+    }
+
+    private static void helpPrompt() {
+        System.out.println("Tips: Please enter a number for the option you would like to choose.");
+        System.out.println("Type the number and then press the 'enter' key on your keyboard.");
     }
 
     public void loginPrompt() throws Exception {
@@ -109,7 +114,6 @@ public class Client {
         System.out.println(" 3. Observe Game");
         System.out.println(" 4. Logout");
         System.out.println(" 5. Help");
-//        while (true) {
             try {
                 System.out.print(">>> ");
                 int selectedNumber = scanner.nextInt();
@@ -129,7 +133,8 @@ public class Client {
                         mainMenu();
                         break;
                     case 5:
-                        System.out.println("Please help me");
+                        helpPrompt();
+                        postLoginPrompt();
                         break;
                 }
             } catch (InputMismatchException ex){
@@ -139,7 +144,6 @@ public class Client {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-//        }
     }
 
     public void logoutPrompt() throws Exception {
