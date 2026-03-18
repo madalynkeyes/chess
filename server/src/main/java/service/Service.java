@@ -22,7 +22,7 @@ public class Service {
             throw new BadRequestException("Error: auth token not entered");
         }
         if (authDAO.getAuth(authToken) == null) {
-            throw new NotAuthorizedException("Error: not authorized");
+            throw new NotAuthorizedException("Error: not authorized for this token");
         }
     }
 

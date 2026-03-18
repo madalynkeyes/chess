@@ -1,13 +1,14 @@
 package ui;
 
 import dataaccess.exceptions.ResponseException;
-import model.UserData;
+
 import server.ServerFacade;
+import service.requests.LoginRequest;
+
 import service.requests.RegisterRequest;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
+
 import java.nio.charset.StandardCharsets;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -27,6 +28,11 @@ public class Client {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         System.out.println("♕ Welcome to Chess CS 240 ♕");
+        mainMenu();
+
+    }
+
+    private void mainMenu() {
         System.out.println("Please Enter Number To Select Option:");
         System.out.println(" 1. Login");
         System.out.println(" 2. Register");
@@ -42,11 +48,9 @@ public class Client {
                 switch(selectedNumber){
                     case 1:
                         loginPrompt();
-                        System.out.printf("You chose: %d. Login\n",selectedNumber);
                         break;
                     case 2:
                         registerPrompt();
-                        System.out.printf("You chose: %d. Register\n",selectedNumber);
                         break;
                     case 3:
                         System.out.printf("You chose: %d. Quit\n",selectedNumber);
@@ -63,31 +67,89 @@ public class Client {
                 System.out.println("Please enter an number");
             } catch (ResponseException e){
                 System.out.println("Error");
-            } catch (URISyntaxException | InterruptedException | IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
         }
-
     }
 
-    public void loginPrompt() {
-        System.out.print("Please Type Username >>> ");
-        String username = scanner.next();
-        System.out.print("Please Type Password >>> ");
-        String password = scanner.next();
+    public void loginPrompt() throws Exception {
+        try {
+            System.out.print("Please Type Username >>> ");
+            String username = scanner.next();
+            System.out.print("Please Type Password >>> ");
+            String password = scanner.next();
+            LoginRequest loginRequest = new LoginRequest(username,password);
+            serverFacade.login(loginRequest);
+            System.out.printf("Welcome %s! Please choose an option:%n", username);
+            postLoginPrompt();
+        } catch (ResponseException e) {
+            System.out.println("Username or Password incorrect. Please try again or register an account.");
+            mainMenu();
+        }
     }
 
-    public void registerPrompt() throws ResponseException, URISyntaxException, IOException, InterruptedException {
+    public void registerPrompt() throws Exception {
         System.out.print("Please Type Username >>> ");
         String username = scanner.next();
         System.out.print("Please Type Password >>> ");
         String password = scanner.next();
         System.out.print("Please Type Email >>> ");
         String email = scanner.next();
-//        UserData userData = new UserData(username,password,email);
         RegisterRequest registerRequest = new RegisterRequest(username,password,email);
         serverFacade.register(registerRequest);
-        System.out.printf("Thank you for registering %s",username);
+        System.out.printf("Account for %s has been created. Please log in.",username);
+        loginPrompt();
+    }
+
+    public void postLoginPrompt() {
+        System.out.println(" 1. Create Game");
+        System.out.println(" 2. Join Game");
+        System.out.println(" 3. Observe Game");
+        System.out.println(" 4. Logout");
+        System.out.println(" 5. Help");
+//        while (true) {
+            try {
+                System.out.print(">>> ");
+                int selectedNumber = scanner.nextInt();
+
+                switch(selectedNumber){
+                    case 1:
+                        System.out.println("You chose to create a game");
+                        break;
+                    case 2:
+                        System.out.println("You join game");
+                        break;
+                    case 3:
+                        System.out.println("observe a gameee");
+                        break;
+                    case 4:
+                        logoutPrompt();
+                        mainMenu();
+                        break;
+                    case 5:
+                        System.out.println("Please help me");
+                        break;
+                }
+            } catch (InputMismatchException ex){
+                System.out.println("Please enter an number 1-5: ");
+            } catch (ResponseException e){
+                System.out.println("Error");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+//        }
+    }
+
+    public void logoutPrompt() throws Exception {
+        try {
+//            LogoutOrListGamesRequest logoutRequest = new LogoutOrListGamesRequest(authToken);
+            serverFacade.logout();
+            System.out.println("You have logged out.");
+        } catch (ResponseException e) {
+            System.out.println("Log out failed.");
+        }
+
     }
 }
