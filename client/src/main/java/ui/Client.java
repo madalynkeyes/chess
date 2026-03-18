@@ -3,6 +3,7 @@ package ui;
 import dataaccess.exceptions.ResponseException;
 
 import server.ServerFacade;
+import service.requests.CreateGameRequest;
 import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
@@ -66,7 +67,7 @@ public class Client {
             catch (InputMismatchException ex){
                 System.out.println("Please enter an number");
             } catch (ResponseException e){
-                System.out.println("Error");
+                System.out.println(e.getMessage());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -96,16 +97,22 @@ public class Client {
     }
 
     public void registerPrompt() throws Exception {
-        System.out.print("Please Type Username >>> ");
-        String username = scanner.next();
-        System.out.print("Please Type Password >>> ");
-        String password = scanner.next();
-        System.out.print("Please Type Email >>> ");
-        String email = scanner.next();
-        RegisterRequest registerRequest = new RegisterRequest(username,password,email);
-        serverFacade.register(registerRequest);
-        System.out.printf("Account for %s has been created. Please log in.",username);
-        loginPrompt();
+        try {
+            System.out.print("Please Type Username >>> ");
+            String username = scanner.next();
+            System.out.print("Please Type Password >>> ");
+            String password = scanner.next();
+            System.out.print("Please Type Email >>> ");
+            String email = scanner.next();
+            RegisterRequest registerRequest = new RegisterRequest(username,password,email);
+            serverFacade.register(registerRequest);
+            System.out.printf("Account for %s has been created.%n",username);
+            postLoginPrompt();
+        } catch (Exception e) {
+            System.out.println("Error: username already taken. Please login or register different username.");
+            mainMenu();
+        }
+
     }
 
     public void postLoginPrompt() {
@@ -120,6 +127,7 @@ public class Client {
 
                 switch(selectedNumber){
                     case 1:
+                        createGamePrompt();
                         System.out.println("You chose to create a game");
                         break;
                     case 2:
@@ -148,12 +156,25 @@ public class Client {
 
     public void logoutPrompt() throws Exception {
         try {
-//            LogoutOrListGamesRequest logoutRequest = new LogoutOrListGamesRequest(authToken);
             serverFacade.logout();
             System.out.println("You have logged out.");
-        } catch (ResponseException e) {
+        } catch(Exception e){
             System.out.println("Log out failed.");
         }
 
+    }
+
+    public void createGamePrompt(){
+        try {
+            System.out.print("Please Type New Game Name >>> ");
+            String gameName = scanner.next();
+            CreateGameRequest createGameRequest = new CreateGameRequest("123",gameName);
+            serverFacade.createGame(createGameRequest);
+            System.out.println("Game Created.");
+            postLoginPrompt();
+        } catch (Exception e) {
+            System.out.println("Game name already exists. Please join game or create different game name.");
+            postLoginPrompt();
+        }
     }
 }

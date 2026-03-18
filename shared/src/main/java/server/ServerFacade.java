@@ -1,8 +1,10 @@
 package server;
 
 import dataaccess.exceptions.ResponseException;
+import service.requests.CreateGameRequest;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
+import service.responses.CreateGameResponse;
 import service.responses.RegisterLoginResponse;
 
 import java.io.IOException;
@@ -24,8 +26,8 @@ public class ServerFacade {
 
     public void register(RegisterRequest registerRequest) throws Exception {
         String body = Serializer.toJson(registerRequest);
-        doPost(serverUrl,"/user",body);
-        RegisterLoginResponse registerResponse = Serializer.fromJson(body, RegisterLoginResponse.class);
+        String responseBody = doPost(serverUrl,"/user",body);
+        RegisterLoginResponse registerResponse = Serializer.fromJson(responseBody, RegisterLoginResponse.class);
         this.authToken = registerResponse.authToken();
     }
 
@@ -40,15 +42,32 @@ public class ServerFacade {
         doDelete(serverUrl,"/session");
     }
 
+    public void createGame(CreateGameRequest createGameRequest) throws Exception {
+        String body = Serializer.toJson(createGameRequest);
+        doPost(serverUrl,"/session",body);
+
+    }
+
     public String doPost(String url, String urlPath, String message) throws Exception {
         String urlString = String.format("%s%s", url, urlPath);
 
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
-                .header("Content-Type", "application/json")
-                .POST(BodyPublishers.ofString(message))
-                .build();
+                .header("Content-Type", "application/json");
+
+        if(authToken!=null){
+            builder.header("authorization",authToken);
+        }
+        if (message!= null) {
+            builder.POST(HttpRequest.BodyPublishers.ofString(message));
+        } else {
+            builder.POST(HttpRequest.BodyPublishers.noBody());
+        }
+
+        HttpRequest request = builder.build();
+//                .POST(BodyPublishers.ofString(message))
+//                .build();
 
         return getHttpResponse(request);
     }
