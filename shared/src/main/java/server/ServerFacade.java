@@ -5,6 +5,7 @@ import dataaccess.exceptions.ResponseException;
 import service.requests.CreateGameRequest;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
+import service.responses.CreateGameResponse;
 import service.responses.RegisterLoginResponse;
 
 import java.io.IOException;
@@ -23,32 +24,48 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public void register(RegisterRequest registerRequest) throws Exception {
+    public String register(RegisterRequest registerRequest) throws Exception {
         String body = Serializer.toJson(registerRequest);
         String responseBody = doPost(serverUrl,"/user",body);
         RegisterLoginResponse registerResponse = Serializer.fromJson(responseBody, RegisterLoginResponse.class);
         this.authToken = registerResponse.authToken();
+        return authToken;
     }
 
-    public void login(LoginRequest loginRequest) throws Exception {
+    public String login(LoginRequest loginRequest) throws Exception {
         String body = Serializer.toJson(loginRequest);
         String responseBody = doPost(serverUrl,"/session",body);
         RegisterLoginResponse loginResponse = Serializer.fromJson(responseBody, RegisterLoginResponse.class);
         this.authToken = loginResponse.authToken();
+        return authToken;
     }
 
-    public void logout() throws Exception {
+    public String logout() throws Exception {
         doDelete(serverUrl,"/session");
+        authToken = null;
+        return authToken;
     }
 
-    public void createGame(CreateGameRequest createGameRequest) throws Exception {
+    public void clear() throws Exception {
+        String urlString = String.format("%s%s", serverUrl, "/db");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+//                .timeout(java.time.Duration.ofMillis(5000))
+//                .header("authorization", authToken)
+                .DELETE()
+                .build();
+        getHttpResponse(request);
+    }
+
+    public int createGame(CreateGameRequest createGameRequest) throws Exception {
         if(authToken==null){
             throw new NotAuthorizedException("Error: Not Authorized");
         }
         String body = Serializer.toJson(createGameRequest);
 //        String body = createGameRequest.gameName();
-        doPost(serverUrl,"/game",body);
-
+        String responseBody = doPost(serverUrl,"/game",body);
+        CreateGameResponse createGameResponse = Serializer.fromJson(responseBody, CreateGameResponse.class);
+        return createGameResponse.gameID();
     }
 
     public String doPost(String url, String urlPath, String message) throws Exception {

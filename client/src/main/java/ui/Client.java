@@ -96,7 +96,7 @@ public class Client {
         }
     }
 
-    public void registerPrompt() throws Exception {
+    public void registerPrompt(){
         try {
             System.out.print("Please Type Username >>> ");
             String username = scanner.next();
@@ -119,8 +119,9 @@ public class Client {
         System.out.println(" 1. Create Game");
         System.out.println(" 2. Join Game");
         System.out.println(" 3. Observe Game");
-        System.out.println(" 4. Logout");
-        System.out.println(" 5. Help");
+        System.out.println(" 4. List Games");
+        System.out.println(" 5. Logout");
+        System.out.println(" 6. Help");
         while (true) {
             System.out.print(">>> ");
             try {
@@ -138,10 +139,12 @@ public class Client {
                         System.out.println("observe a gameee");
                         break;
                     case 4:
+                        System.out.println("You want to list the games");
+                    case 5:
                         logoutPrompt();
                         mainMenu();
                         break;
-                    case 5:
+                    case 6:
                         helpPrompt();
                         postLoginPrompt();
                         break;
@@ -158,7 +161,7 @@ public class Client {
         }
     }
 
-    public void logoutPrompt() throws Exception {
+    public void logoutPrompt(){
         try {
             serverFacade.logout();
             System.out.println("You have logged out.");
@@ -174,7 +177,7 @@ public class Client {
             String gameName = scanner.next();
             CreateGameRequest createGameRequest = new CreateGameRequest(null,gameName);
             serverFacade.createGame(createGameRequest);
-            System.out.println("Game Created.");
+            System.out.printf("Game Created: %s%n",gameName);
             postLoginPrompt();
         } catch (Exception e) {
 //            System.out.println(e.getMessage());
