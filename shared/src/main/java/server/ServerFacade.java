@@ -1,16 +1,15 @@
 package server;
 
+import dataaccess.exceptions.NotAuthorizedException;
 import dataaccess.exceptions.ResponseException;
 import service.requests.CreateGameRequest;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
-import service.responses.CreateGameResponse;
 import service.responses.RegisterLoginResponse;
 
 import java.io.IOException;
 import java.net.*;
 import java.net.http.*;
-import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 
@@ -43,8 +42,12 @@ public class ServerFacade {
     }
 
     public void createGame(CreateGameRequest createGameRequest) throws Exception {
+        if(authToken==null){
+            throw new NotAuthorizedException("Error: Not Authorized");
+        }
         String body = Serializer.toJson(createGameRequest);
-        doPost(serverUrl,"/session",body);
+//        String body = createGameRequest.gameName();
+        doPost(serverUrl,"/game",body);
 
     }
 

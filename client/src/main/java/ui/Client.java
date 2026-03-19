@@ -58,14 +58,14 @@ public class Client {
                         break;
                     case 4:
                         helpPrompt();
-                        mainMenu();
                         break;
                     default:
                         System.out.println("Please choose a number: 1,2,3, or 4");
                 }
             }
             catch (InputMismatchException ex){
-                System.out.println("Please enter an number");
+                System.out.println("Please enter an number 1-4: ");
+                scanner.nextLine();
             } catch (ResponseException e){
                 System.out.println(e.getMessage());
             } catch (Exception e) {
@@ -121,11 +121,12 @@ public class Client {
         System.out.println(" 3. Observe Game");
         System.out.println(" 4. Logout");
         System.out.println(" 5. Help");
+        while (true) {
+            System.out.print(">>> ");
             try {
-                System.out.print(">>> ");
                 int selectedNumber = scanner.nextInt();
 
-                switch(selectedNumber){
+                switch (selectedNumber) {
                     case 1:
                         createGamePrompt();
                         System.out.println("You chose to create a game");
@@ -145,13 +146,16 @@ public class Client {
                         postLoginPrompt();
                         break;
                 }
-            } catch (InputMismatchException ex){
+            } catch (InputMismatchException ex) {
                 System.out.println("Please enter an number 1-5: ");
-            } catch (ResponseException e){
-                System.out.println("Error");
+                scanner.nextLine();
+            } catch (ResponseException e) {
+//                System.out.println("Error");
+                postLoginPrompt();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        }
     }
 
     public void logoutPrompt() throws Exception {
@@ -164,17 +168,18 @@ public class Client {
 
     }
 
-    public void createGamePrompt(){
+    public void createGamePrompt() throws ResponseException {
         try {
             System.out.print("Please Type New Game Name >>> ");
             String gameName = scanner.next();
-            CreateGameRequest createGameRequest = new CreateGameRequest("123",gameName);
+            CreateGameRequest createGameRequest = new CreateGameRequest(null,gameName);
             serverFacade.createGame(createGameRequest);
             System.out.println("Game Created.");
             postLoginPrompt();
         } catch (Exception e) {
+//            System.out.println(e.getMessage());
             System.out.println("Game name already exists. Please join game or create different game name.");
-            postLoginPrompt();
+            throw new ResponseException(ResponseException.Code.ServerError,"game name already taken");
         }
     }
 }
