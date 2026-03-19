@@ -6,6 +6,8 @@ import service.requests.CreateGameRequest;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.responses.CreateGameResponse;
+import service.responses.GameListFormat;
+import service.responses.ListGamesResponse;
 import service.responses.RegisterLoginResponse;
 
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.util.List;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -68,6 +71,16 @@ public class ServerFacade {
         return createGameResponse.gameID();
     }
 
+    public List<GameListFormat> listGames() throws Exception{
+        if(authToken==null){
+            throw new NotAuthorizedException("Error: Not Authorized");
+        }
+        String responseBody = doGet(serverUrl,"/game");
+//        System.out.println(responseBody);
+        ListGamesResponse listGamesResponse = Serializer.fromJson(responseBody, ListGamesResponse.class);
+        return listGamesResponse.games();
+    }
+
     public String doPost(String url, String urlPath, String message) throws Exception {
         String urlString = String.format("%s%s", url, urlPath);
 
@@ -92,24 +105,25 @@ public class ServerFacade {
         return getHttpResponse(request);
     }
 
-    public void doGet(String url, String urlPath) throws URISyntaxException, IOException, InterruptedException, ResponseException {
+    public String doGet(String url, String urlPath) throws URISyntaxException, IOException, InterruptedException, ResponseException {
         String urlString = String.format("%s%s", url, urlPath);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
-                .header("authorization", "abc123")
+                .header("authorization", authToken)
                 .GET()
                 .build();
 
-        getHttpResponse(request);
+        return getHttpResponse(request);
+//        return urlString;
     }
 
     public void doDelete(String url, String urlPath) throws Exception {
         String urlString = String.format("%s%s", url, urlPath);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
-//                .timeout(java.time.Duration.ofMillis(5000))
+                .timeout(java.time.Duration.ofMillis(5000))
                 .header("authorization", authToken)
                 .DELETE()
                 .build();

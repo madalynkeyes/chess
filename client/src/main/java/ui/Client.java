@@ -7,11 +7,13 @@ import service.requests.CreateGameRequest;
 import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
+import service.responses.GameListFormat;
 
 import java.io.PrintStream;
 
 import java.nio.charset.StandardCharsets;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ERASE_SCREEN;
@@ -116,6 +118,7 @@ public class Client {
     }
 
     public void postLoginPrompt() {
+        System.out.println("Please Enter Number To Select Option:");
         System.out.println(" 1. Create Game");
         System.out.println(" 2. Join Game");
         System.out.println(" 3. Observe Game");
@@ -139,6 +142,7 @@ public class Client {
                         System.out.println("observe a gameee");
                         break;
                     case 4:
+                        listGamesPrompt();
                         System.out.println("You want to list the games");
                     case 5:
                         logoutPrompt();
@@ -183,6 +187,37 @@ public class Client {
 //            System.out.println(e.getMessage());
             System.out.println("Game name already exists. Please join game or create different game name.");
             throw new ResponseException(ResponseException.Code.ServerError,"game name already taken");
+        }
+    }
+
+    public void listGamesPrompt(){
+        try{
+            List<GameListFormat> gamesList = serverFacade.listGames();
+//            System.out.println(gamesList);
+            printGamesList(gamesList);
+
+            postLoginPrompt();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void printGamesList(List<GameListFormat> gamesList) {
+        int counter = 1;
+        for (GameListFormat game: gamesList){
+//            System.out.println(game);
+            System.out.printf("%d. Game Name: %s%n",counter++,game.gameName());
+            if(game.whiteUsername()==null){
+                System.out.println("   White Player: Available");
+            } else{
+                System.out.printf("   White Player: %s%n",game.whiteUsername());
+            }
+            if (game.blackUsername()==null){
+                System.out.println("   Black Player: Available");
+            }
+            else{
+                System.out.printf("   Black Player: %s%n",game.blackUsername());
+            }
         }
     }
 }
