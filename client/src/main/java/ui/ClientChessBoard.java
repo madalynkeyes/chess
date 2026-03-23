@@ -1,10 +1,11 @@
 package ui;
 
+import chess.ChessGame;
+import model.GameData;
+import server.Serializer;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.InputMismatchException;
-import java.util.Random;
-import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
@@ -19,11 +20,9 @@ public class ClientChessBoard {
     // Padded characters.
     private static final String EMPTY = "   ";
     private static final String EMPTY2 = " ";
-    private static final String X = " X ";
-    private static final String O = " O ";
 
-    private static Random rand = new Random();
-
+    //Default board
+//    private static String defaultBoard =
 
     public static void main() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -33,7 +32,7 @@ public class ClientChessBoard {
         drawChessBoard(out);
         drawChessHeaders(out);
 
-        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_WHITE);
 
     }
@@ -43,13 +42,13 @@ public class ClientChessBoard {
         setBlack(out);
 
         String[] headers = { "a","b","c","d","e","f","g","h" };
-        setRed(out);
+        setDarkGrey(out);
         out.print(EMPTY.repeat(1));
         for (int boardCol = 0; boardCol < CHESS_SQUARES_NUM; ++boardCol) {
-            setRedSquare(out, headers[boardCol]);
+            setBorderSquare(out, headers[boardCol]);
         }
         out.print(EMPTY.repeat(1));
-        setBlack(out);
+        setDarkGrey(out);
         out.println();
     }
 
@@ -63,7 +62,7 @@ public class ClientChessBoard {
 
     private static void drawChessBoard(PrintStream out) {
         for (int boardRow = 8; boardRow > 0; boardRow--){
-            setRedSquare(out, String.valueOf(boardRow));
+            setBorderSquare(out, String.valueOf(boardRow));
             drawRowOfChessSquares(out,boardRow);
 
         }
@@ -72,17 +71,19 @@ public class ClientChessBoard {
     private static void drawRowOfChessSquares(PrintStream out, int boardRow) {
         for (int boardCol = 0; boardCol <CHESS_SQUARES_NUM; boardCol++){
             setSquareColor(out, boardRow, boardCol);
-            printPiece(out, rand.nextBoolean() ? X : O);
+//            GameData game = defaultBoard();
+//            System.out.println(game.);
+            printPiece(out, " E ");
 
         }
-        setRedSquare(out, String.valueOf(boardRow));
-        setBlack(out);
+        setBorderSquare(out, String.valueOf(boardRow));
+        setDarkGrey(out);
         out.println();
     }
 
-    private static void setRedSquare(PrintStream out, String boardRow) {
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_BLACK);
+    private static void setBorderSquare(PrintStream out, String boardRow) {
+        out.print(SET_BG_COLOR_LIGHT_WHITE);
+        out.print(SET_TEXT_COLOR_DARK_BLUE);
         out.print(SET_TEXT_BOLD);
         printChessHeader(out, boardRow);
         out.print(RESET_TEXT_BOLD_FAINT);
@@ -92,18 +93,18 @@ public class ClientChessBoard {
     private static void setSquareColor(PrintStream out, int boardRow, int boardCol) {
         if(boardRow %2 != 0){ //odd row 1,3,5,7
             if(boardCol %2==0){
-                out.print(SET_BG_COLOR_DARK_GREY);
+                out.print(SET_BG_COLOR_LIGHT_YELLOW);
                 out.print(SET_TEXT_COLOR_WHITE);
             } else{
-                out.print(SET_BG_COLOR_LIGHT_GREY);
+                out.print(SET_BG_COLOR_LIGHT_BLUE);
                 out.print(SET_TEXT_COLOR_BLACK);
             }
         } else{
             if(boardCol %2==0){
-                out.print(SET_BG_COLOR_LIGHT_GREY);
+                out.print(SET_BG_COLOR_LIGHT_BLUE);
                 out.print(SET_TEXT_COLOR_BLACK);
             } else {
-                out.print(SET_BG_COLOR_DARK_GREY);
+                out.print(SET_BG_COLOR_LIGHT_YELLOW);
                 out.print(SET_TEXT_COLOR_WHITE);
             }
         }
@@ -119,13 +120,13 @@ public class ClientChessBoard {
             setBlack(out);
             out.print(EMPTY.repeat(boardSizeInSpaces));
 
-            setBlack(out);
+            setDarkGrey(out);
             out.println();
         }
     }
 
     private static void setWhite(PrintStream out) {
-        out.print(SET_BG_COLOR_WHITE);
+        out.print(SET_BG_COLOR_LIGHT_WHITE);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
@@ -139,11 +140,24 @@ public class ClientChessBoard {
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
+    private static void setDarkGrey(PrintStream out){
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
+    }
+
+    private static void setBlue(PrintStream out){
+        out.print(SET_BG_COLOR_BLUE);
+        out.print(SET_TEXT_COLOR_BLUE);
+    }
+
 
     private static void printPiece(PrintStream out, String piece){
         out.print(piece);
     }
 
+    private static GameData defaultBoard(){
+        return new GameData(0,null,null,"name",new ChessGame());
+    }
 
 }
 

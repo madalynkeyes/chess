@@ -1,10 +1,13 @@
 package ui;
 
+import chess.ChessGame;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.NotFoundException;
 import dataaccess.exceptions.ResponseException;
 
+import model.GameData;
+import server.Serializer;
 import server.ServerFacade;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
@@ -251,4 +254,6 @@ public class Client {
             postLoginPrompt();
         }
     }
+
+
 }
