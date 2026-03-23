@@ -28,8 +28,11 @@ public interface ServiceFunction<T, R> {
         }catch (AlreadyTakenException e) {
             ctx.status(403);
             ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
-        }catch (BadRequestException | NotFoundException e) {
+        }catch (BadRequestException e) {
             ctx.status(400);
+            ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
+        }catch (NotFoundException e){
+            ctx.status(404);
             ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
         } catch (NotAuthorizedException e){
             ctx.status(401);

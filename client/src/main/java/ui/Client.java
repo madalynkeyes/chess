@@ -1,9 +1,13 @@
 package ui;
 
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.NotFoundException;
 import dataaccess.exceptions.ResponseException;
 
 import server.ServerFacade;
 import service.requests.CreateGameRequest;
+import service.requests.JoinGameRequest;
 import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
@@ -136,6 +140,7 @@ public class Client {
                         System.out.println("You chose to create a game");
                         break;
                     case 2:
+                        joinGamePrompt();
                         System.out.println("You join game");
                         break;
                     case 3:
@@ -218,6 +223,32 @@ public class Client {
             else{
                 System.out.printf("   Black Player: %s%n",game.blackUsername());
             }
+        }
+    }
+
+    public void joinGamePrompt(){
+        try{
+            System.out.print("Please Type Game Number You Would Like To Join >>> ");
+            int gameID = scanner.nextInt();
+            System.out.print("Please Type Which Player Color You Would Like To Be: WHITE/BLACK >>> ");
+            String playerColor = scanner.next();
+            JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
+            serverFacade.joinGame(joinGameRequest);
+            System.out.printf("Successfully Joined %d as %s Player%n",gameID,playerColor);
+            postLoginPrompt();
+        } catch (AlreadyTakenException e) {
+            System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
+            postLoginPrompt();
+        }catch (BadRequestException e) {
+            System.out.println(e);
+            System.out.println("Error: Please Specify Player Color. Enter 'WHITE' or 'BLACK'.");
+            postLoginPrompt();
+        }catch (NotFoundException e){
+            System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
+            System.out.println("Tip: To see existing games, choose 'List Games' option.");
+            postLoginPrompt();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

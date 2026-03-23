@@ -83,7 +83,7 @@ public class Server {
         });
 
         javalin.exception(NotFoundException.class, (e, ctx) -> {
-            ctx.status(400);
+            ctx.status(404);
             ctx.result("{\"message\":\"" + e.getMessage() + "\"}");
         });
     }

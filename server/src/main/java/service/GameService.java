@@ -75,7 +75,7 @@ public class GameService extends Service {
      * @param request join game request
      * @return join game response
      */
-    public JoinClearLogoutResponse joinGame(JoinGameRequest request) throws ResponseException {
+    public JoinClearLogoutResponse joinGame(JoinGameRequest request) throws BadRequestException,AlreadyTakenException,NotFoundException, ResponseException {
         hasAuthToken(request.authToken());
         if (request.gameID() < 0) {
             throw new BadRequestException("Error: please enter gameID");
@@ -90,6 +90,11 @@ public class GameService extends Service {
             gameDAO.updateGame(newGame,username, request.playerColor());
         } catch (AlreadyTakenException e){
             throw new AlreadyTakenException("Error: unable to join game cuz color is already stolen");
+        } catch (NotFoundException e){
+            throw new NotFoundException("Error: game not found");
+        }
+        catch (BadRequestException e){
+            throw new BadRequestException("Error: please enter valid gameID");
         }
         catch (Exception e) {
             throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to join game");
