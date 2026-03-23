@@ -16,15 +16,14 @@ import service.responses.GameListFormat;
 import java.io.PrintStream;
 
 import java.nio.charset.StandardCharsets;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class Client {
     private static final Scanner scanner = new Scanner(System.in);
     public final ServerFacade serverFacade;
+    private Map<Integer,Integer> gameIDmap = new HashMap<>();
 
     public Client(String url) {
         serverFacade = new ServerFacade(url);
@@ -162,7 +161,6 @@ public class Client {
                 System.out.println("Please enter an number 1-5: ");
                 scanner.nextLine();
             } catch (ResponseException e) {
-//                System.out.println("Error");
                 postLoginPrompt();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -189,7 +187,6 @@ public class Client {
             System.out.printf("Game Created: %s%n",gameName);
             postLoginPrompt();
         } catch (Exception e) {
-//            System.out.println(e.getMessage());
             System.out.println("Game name already exists. Please join game or create different game name.");
             throw new ResponseException(ResponseException.Code.ServerError,"game name already taken");
         }
@@ -198,7 +195,6 @@ public class Client {
     public void listGamesPrompt(){
         try{
             List<GameListFormat> gamesList = serverFacade.listGames();
-//            System.out.println(gamesList);
             printGamesList(gamesList);
 
             postLoginPrompt();
@@ -209,8 +205,9 @@ public class Client {
 
     private void printGamesList(List<GameListFormat> gamesList) {
         int counter = 1;
+        gameIDmap.clear();
         for (GameListFormat game: gamesList){
-//            System.out.println(game);
+            gameIDmap.put(counter,game.gameID());
             System.out.printf("%d. Game Name: %s%n",counter++,game.gameName());
             if(game.whiteUsername()==null){
                 System.out.println("   White Player: Available");
@@ -228,27 +225,30 @@ public class Client {
 
     public void joinGamePrompt(){
         try{
+            if(gameIDmap.isEmpty()){
+                List<GameListFormat> gamesList = serverFacade.listGames();
+                printGamesList(gamesList);
+            }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
-            int gameID = scanner.nextInt();
+            int inputGameNum = scanner.nextInt();
+            int gameID = gameIDmap.get(inputGameNum);
+//            System.out.printf("Getting gameID: %d, with input: %d",gameID,inputGameNum);
             System.out.print("Please Type Which Player Color You Would Like To Be: WHITE/BLACK >>> ");
             String playerColor = scanner.next();
             JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
-            System.out.printf("Successfully Joined %d as %s Player%n",gameID,playerColor);
+            System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
             postLoginPrompt();
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
             postLoginPrompt();
         }catch (BadRequestException e) {
-            System.out.println(e);
             System.out.println("Error: Please Specify Player Color. Enter 'WHITE' or 'BLACK'.");
             postLoginPrompt();
-        }catch (NotFoundException e){
+        }catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
             postLoginPrompt();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }
