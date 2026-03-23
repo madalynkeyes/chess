@@ -75,6 +75,7 @@ public class ServerFacade {
         String responseBody = doGet(serverUrl,"/game");
 //        System.out.println(responseBody);
         ListGamesResponse listGamesResponse = Serializer.fromJson(responseBody, ListGamesResponse.class);
+
         return listGamesResponse.games();
     }
 
@@ -170,7 +171,6 @@ public class ServerFacade {
 //            System.out.println(httpResponse.body());
             throw new ResponseException(ResponseException.Code.ClientError,httpResponse.body());
         }
-
         return httpResponse.body();
     }
 

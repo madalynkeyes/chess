@@ -238,7 +238,7 @@ public class Client {
             JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
-            postLoginPrompt();
+            ClientChessBoard.main();
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
             postLoginPrompt();
