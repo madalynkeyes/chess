@@ -1,13 +1,9 @@
 package ui;
 
-import chess.ChessGame;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.NotFoundException;
 import dataaccess.exceptions.ResponseException;
 
-import model.GameData;
-import server.Serializer;
 import server.ServerFacade;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
@@ -86,6 +82,7 @@ public class Client {
     private static void helpPrompt() {
         System.out.println("Tips: Please enter a number for the option you would like to choose.");
         System.out.println("Type the number and then press the 'enter' key on your keyboard.");
+        System.out.println("If at any time you want to exit or go back, type 'exit'.");
     }
 
     public void loginPrompt() throws Exception {
@@ -228,10 +225,10 @@ public class Client {
 
     public void joinGamePrompt(){
         try{
-            if(gameIDmap.isEmpty()){
+//            if(gameIDmap.isEmpty()){
                 List<GameListFormat> gamesList = serverFacade.listGames();
                 printGamesList(gamesList);
-            }
+//            }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
             int inputGameNum = scanner.nextInt();
             int gameID = gameIDmap.get(inputGameNum);
@@ -241,7 +238,8 @@ public class Client {
             JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
-            ClientChessBoard.main();
+            ClientChessBoard.draw(playerColor);
+            postLoginPrompt();
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
             postLoginPrompt();
