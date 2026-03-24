@@ -115,13 +115,13 @@ public class ClientChessBoard {
 
 
     private static void drawRowOfChessSquaresBlack(PrintStream out, int boardRow) {
-        for (int boardCol = 0; boardCol <CHESS_SQUARES_NUM; boardCol++){
+        for (int boardCol = 7; boardCol >-1; boardCol--){
             setSquareColorBlack(out, boardRow, boardCol);
             String pieceCode = BLACK_PAWN;
             pieceCode = getPieceCode(out, boardRow + 1, boardCol, pieceCode);
             printPiece(out, pieceCode);
         }
-        setBorderSquare(out, String.valueOf(boardRow));
+        setBorderSquare(out, String.valueOf(boardRow+1));
         setDarkGrey(out);
         out.println();
     }
