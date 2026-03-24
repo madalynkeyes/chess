@@ -1,5 +1,6 @@
 package handlers;
 
+import dataaccess.exceptions.BadRequestException;
 import io.javalin.Javalin;
 import server.Serializer;
 import service.GameService;
@@ -34,8 +35,12 @@ public class GameHandler {
         javalin.put("/game", ctx ->
                 HandlerUtil.handle(ctx, c -> {
                     String authToken = c.header("Authorization");
-                    String playerColor = Serializer.fromJson(c.body(), JoinGameRequest.class).playerColor();
-                    int gameID = Serializer.fromJson(c.body(), JoinGameRequest.class).gameID();
+                    JoinGameRequest request = Serializer.fromJson(c.body(), JoinGameRequest.class);
+                    String playerColor = request.playerColor();
+                    Integer gameID = request.gameID();
+                    if (playerColor==null || request.gameID() ==null){
+                        throw new BadRequestException("Error: gameID or player color null");
+                    }
                     return new JoinGameRequest(authToken, playerColor, gameID);
                 }, gameService::joinGame));
     }

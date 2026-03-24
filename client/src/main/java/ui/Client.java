@@ -81,7 +81,7 @@ public class Client {
     private static void helpPrompt() {
         System.out.println("Tips: Please enter a number for the option you would like to choose.");
         System.out.println("Type the number and then press the 'enter' key on your keyboard.");
-        System.out.println("If at any time you want to exit or go back, type 'exit'.");
+        System.out.println("If at any time you want to exit or go back, type 'quit' or 'back'.");
     }
 
     public boolean loginPrompt()  {
@@ -252,7 +252,7 @@ public class Client {
             int gameID = gameIDmap.get(inputGameNum);
 //            System.out.printf("Getting gameID: %d, with input: %d",gameID,inputGameNum);
             System.out.print("Please Type Which Player Color You Would Like To Be: WHITE/BLACK >>> ");
-            String playerColor = SCANNER.nextLine();
+            String playerColor = SCANNER.nextLine().toUpperCase();
             if (isBackOrQuit(playerColor)){
                 return;
             }
