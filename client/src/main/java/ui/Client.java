@@ -224,6 +224,10 @@ public class Client {
         try{
             List<GameListFormat> gamesList = serverFacade.listGames();
             printGamesList(gamesList);
+            if(gamesList.isEmpty()){
+                System.out.println("No games have been created. Please create a game.");
+                postLoginPrompt();
+            }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
             int inputGameNum = scanner.nextInt();
             int gameID = gameIDmap.get(inputGameNum);
@@ -252,6 +256,10 @@ public class Client {
         try{
             List<GameListFormat> gamesList = serverFacade.listGames();
             printGamesList(gamesList);
+            if(gamesList.isEmpty()){
+                System.out.println("No games have been created. Please create a game.");
+                postLoginPrompt();
+            }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
             int inputGameNum = scanner.nextInt();
             int gameID = gameIDmap.get(inputGameNum);

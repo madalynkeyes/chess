@@ -1,13 +1,17 @@
 package client;
 
+import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.NotAuthorizedException;
+import dataaccess.exceptions.NotFoundException;
 import dataaccess.exceptions.ResponseException;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
-import service.requests.CreateGameRequest;
-import service.requests.LoginRequest;
-import service.requests.RegisterRequest;
+import service.requests.*;
+import service.responses.GameListFormat;
+import service.responses.JoinClearLogoutResponse;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,7 +57,7 @@ public class ServerFacadeTests {
     public void registerUsernameTakenThrowsException() throws Exception{
         facade.register(registerRequest);
         RegisterRequest registerRequest2 = new RegisterRequest("mkeyes","mkeyes","mk");
-        assertThrows(ResponseException.class, ()->facade.register(registerRequest2));
+        assertThrows(AlreadyTakenException.class, ()->facade.register(registerRequest2));
     }
 
     @Test
@@ -106,7 +110,45 @@ public class ServerFacadeTests {
         CreateGameRequest createGameRequest = new CreateGameRequest(authToken,"GameName");
         facade.createGame(createGameRequest);
         CreateGameRequest createGameRequest2 = new CreateGameRequest(authToken,"GameName");
-        assertThrows(ResponseException.class,()->facade.createGame(createGameRequest2));
+        assertThrows(AlreadyTakenException.class,()->facade.createGame(createGameRequest2));
+    }
+
+    @Test
+    public void listGamesValid() throws Exception{
+        facade.register(registerRequest);
+        String authToken = facade.login(loginRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken,"GameName");
+        facade.createGame(createGameRequest);
+        CreateGameRequest createGameRequest2 = new CreateGameRequest(authToken,"GameName2");
+        facade.createGame(createGameRequest2);
+        List<GameListFormat> gamesList = facade.listGames();
+        assertEquals(2, gamesList.size());
+    }
+
+    @Test
+    public void listGamesNotAuthorized(){
+        assertThrows(ResponseException.class,()->facade.listGames());
+    }
+
+    @Test
+    public void joinGameValid() throws Exception{
+        facade.register(registerRequest);
+        String authToken = facade.login(loginRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken,"GameName");
+        int gameID = facade.createGame(createGameRequest);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(authToken,"WHITE",gameID);
+        JoinClearLogoutResponse response = facade.joinGame(joinGameRequest);
+        assertEquals("{}",response.message());
+    }
+
+    @Test
+    public void joinGameNotFoundThrowsException() throws Exception{
+        facade.register(registerRequest);
+        String authToken = facade.login(loginRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken,"GameName");
+        facade.createGame(createGameRequest);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(authToken,"WHITE",2);
+        assertThrows(NotFoundException.class,()->facade.joinGame(joinGameRequest));
     }
 
 }
