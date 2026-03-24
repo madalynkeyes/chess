@@ -75,7 +75,8 @@ public class GameService extends Service {
      * @param request join game request
      * @return join game response
      */
-    public JoinClearLogoutResponse joinGame(JoinGameRequest request) throws BadRequestException,AlreadyTakenException,NotFoundException, ResponseException {
+    public JoinClearLogoutResponse joinGame(JoinGameRequest request)
+            throws BadRequestException,AlreadyTakenException,NotFoundException, ResponseException {
         hasAuthToken(request.authToken());
         if (request.gameID() < 0) {
             throw new BadRequestException("Error: please enter gameID");

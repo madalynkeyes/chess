@@ -157,41 +157,37 @@ public class ClientChessBoard {
 
     private static void setSquareColorWhite(PrintStream out, int boardRow, int boardCol) {
         if(boardRow %2 != 0){ //odd row 1,3,5,7
-            if(boardCol %2==0){
-                out.print(SET_BG_COLOR_LIGHT_YELLOW);
-                out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
-            } else{
-                out.print(SET_BG_COLOR_LIGHT_BLUE);
-                out.print(SET_TEXT_COLOR_LIGHT_BLUE);
-            }
+            setColorOdd(out, boardCol);
         } else{
-            if(boardCol %2==0){
-                out.print(SET_BG_COLOR_LIGHT_BLUE);
-                out.print(SET_TEXT_COLOR_LIGHT_BLUE);
-            } else {
-                out.print(SET_BG_COLOR_LIGHT_YELLOW);
-                out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
-            }
+            SetColorEven(out, boardCol);
+        }
+    }
+
+    private static void SetColorEven(PrintStream out, int boardCol) {
+        if(boardCol %2==0){
+            out.print(SET_BG_COLOR_LIGHT_BLUE);
+            out.print(SET_TEXT_COLOR_LIGHT_BLUE);
+        } else {
+            out.print(SET_BG_COLOR_LIGHT_YELLOW);
+            out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
+        }
+    }
+
+    private static void setColorOdd(PrintStream out, int boardCol) {
+        if(boardCol %2==0){
+            out.print(SET_BG_COLOR_LIGHT_YELLOW);
+            out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
+        } else{
+            out.print(SET_BG_COLOR_LIGHT_BLUE);
+            out.print(SET_TEXT_COLOR_LIGHT_BLUE);
         }
     }
 
     private static void setSquareColorBlack(PrintStream out, int boardRow, int boardCol) {
         if(boardRow %2 == 0){ //odd row 1,3,5,7
-            if(boardCol %2==0){
-                out.print(SET_BG_COLOR_LIGHT_YELLOW);
-                out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
-            } else{
-                out.print(SET_BG_COLOR_LIGHT_BLUE);
-                out.print(SET_TEXT_COLOR_LIGHT_BLUE);
-            }
+            setColorOdd(out, boardCol);
         } else{
-            if(boardCol %2==0){
-                out.print(SET_BG_COLOR_LIGHT_BLUE);
-                out.print(SET_TEXT_COLOR_LIGHT_BLUE);
-            } else {
-                out.print(SET_BG_COLOR_LIGHT_YELLOW);
-                out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
-            }
+            SetColorEven(out, boardCol);
         }
     }
 

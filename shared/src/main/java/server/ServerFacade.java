@@ -75,7 +75,8 @@ public class ServerFacade {
         return listGamesResponse.games();
     }
 
-    public JoinClearLogoutResponse joinGame(JoinGameRequest joinGameRequest) throws ResponseException, URISyntaxException, IOException, InterruptedException {
+    public JoinClearLogoutResponse joinGame(JoinGameRequest joinGameRequest)
+            throws ResponseException, URISyntaxException, IOException, InterruptedException {
         if(authToken==null){
             throw new NotAuthorizedException("Error: Not Authorized");
         }

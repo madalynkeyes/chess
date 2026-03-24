@@ -22,7 +22,7 @@ import java.util.*;
 import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class Client {
-    private static final Scanner scanner = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
     public final ServerFacade serverFacade;
     private final Map<Integer,Integer> gameIDmap = new HashMap<>();
 
@@ -46,7 +46,7 @@ public class Client {
             System.out.println(" 3. Quit");
             System.out.println(" 4. Help");
             System.out.print(">>> ");
-            String input = scanner.nextLine();
+            String input = SCANNER.nextLine();
             if(input.equalsIgnoreCase("quit") || input.equals("3")){
                 System.out.println("Thanks for playing! Exiting the game.");
                 return;
@@ -56,15 +56,11 @@ public class Client {
                 switch (option){
                     case 1 -> {
                         boolean loginSuccess = loginPrompt();
-                        if (loginSuccess){
-                            postLoginPrompt();
-                        }
+                        promptToPostLogin(loginSuccess);
                     }
                     case 2 -> {
                         boolean registerSuccess = registerPrompt();
-                        if (registerSuccess){
-                            postLoginPrompt();
-                        }
+                        promptToPostLogin(registerSuccess);
                     }
                     case 4 -> helpPrompt();
                     default ->  System.out.println("Please enter an number 1-4: ");
@@ -72,6 +68,12 @@ public class Client {
             } catch (Exception e) {
                 System.out.println("Please enter a number or type 'quit' to exit.");
             }
+        }
+    }
+
+    private void promptToPostLogin(boolean loginSuccess) {
+        if (loginSuccess){
+            postLoginPrompt();
         }
     }
 
@@ -85,12 +87,12 @@ public class Client {
     public boolean loginPrompt()  {
         try {
             System.out.print("Please Type Username >>> ");
-            String username = scanner.nextLine();
+            String username = SCANNER.nextLine();
             if (isBackOrQuit(username)){
                 return false;
             }
             System.out.print("Please Type Password >>> ");
-            String password = scanner.nextLine();
+            String password = SCANNER.nextLine();
             if (isBackOrQuit(password)){
                 return false;
             }
@@ -107,17 +109,17 @@ public class Client {
     public boolean registerPrompt(){
         try {
             System.out.print("Please Type Username >>> ");
-            String username = scanner.nextLine();
+            String username = SCANNER.nextLine();
             if (isBackOrQuit(username)){
                 return false;
             }
             System.out.print("Please Type Password >>> ");
-            String password = scanner.nextLine();
+            String password = SCANNER.nextLine();
             if (isBackOrQuit(password)){
                 return false;
             }
             System.out.print("Please Type Email >>> ");
-            String email = scanner.nextLine();
+            String email = SCANNER.nextLine();
             if (isBackOrQuit(email)){
                 return false;
             }
@@ -148,7 +150,7 @@ public class Client {
             System.out.println(" 5. Logout");
             System.out.println(" 6. Help");
             System.out.print(">>> ");
-            String input = scanner.nextLine();
+            String input = SCANNER.nextLine();
             if (isBackOrQuit(input)) {
                 return;
             }
@@ -189,7 +191,7 @@ public class Client {
 
         try {
             System.out.print("Please Type New Game Name >>> ");
-            String gameName = scanner.nextLine();
+            String gameName = SCANNER.nextLine();
             if (isBackOrQuit(gameName)){
                 return;
             }
@@ -242,7 +244,7 @@ public class Client {
                 return;
             }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
-            String input = scanner.nextLine();
+            String input = SCANNER.nextLine();
             if (isBackOrQuit(input)){
                 return;
             }
@@ -250,7 +252,7 @@ public class Client {
             int gameID = gameIDmap.get(inputGameNum);
 //            System.out.printf("Getting gameID: %d, with input: %d",gameID,inputGameNum);
             System.out.print("Please Type Which Player Color You Would Like To Be: WHITE/BLACK >>> ");
-            String playerColor = scanner.nextLine();
+            String playerColor = SCANNER.nextLine();
             if (isBackOrQuit(playerColor)){
                 return;
             }
@@ -277,7 +279,7 @@ public class Client {
                 return;
             }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
-            String input = scanner.nextLine();
+            String input = SCANNER.nextLine();
             if (isBackOrQuit(input)){
                 return;
             }

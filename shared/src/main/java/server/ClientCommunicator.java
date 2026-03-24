@@ -14,9 +14,10 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public class ClientCommunicator {
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
-    public static String doPost(String url, String urlPath, String message, String authToken) throws ResponseException, URISyntaxException, IOException, InterruptedException {
+    public static String doPost(String url, String urlPath, String message, String authToken)
+            throws ResponseException, URISyntaxException, IOException, InterruptedException {
         String urlString = String.format("%s%s", url, urlPath);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -40,7 +41,8 @@ public class ClientCommunicator {
         return getHttpResponse(request);
     }
 
-    public static String doPut(String url, String urlPath, String message, String authToken) throws URISyntaxException, ResponseException, IOException, InterruptedException {
+    public static String doPut(String url, String urlPath, String message, String authToken)
+            throws URISyntaxException, ResponseException, IOException, InterruptedException {
         String urlString = String.format("%s%s", url, urlPath);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -56,7 +58,8 @@ public class ClientCommunicator {
         return getHttpResponse(request);
     }
 
-    public static String doGet(String url, String urlPath, String authToken) throws URISyntaxException, ResponseException, IOException, InterruptedException {
+    public static String doGet(String url, String urlPath, String authToken)
+            throws URISyntaxException, ResponseException, IOException, InterruptedException {
         String urlString = String.format("%s%s", url, urlPath);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -70,7 +73,8 @@ public class ClientCommunicator {
 //        return urlString;
     }
 
-    public static void doDelete(String url, String urlPath, String authToken) throws ResponseException, IOException, InterruptedException, URISyntaxException {
+    public static void doDelete(String url, String urlPath, String authToken)
+            throws ResponseException, IOException, InterruptedException, URISyntaxException {
         String urlString = String.format("%s%s", url, urlPath);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
@@ -82,8 +86,9 @@ public class ClientCommunicator {
 
     }
 
-    public static String getHttpResponse(HttpRequest request) throws IOException, InterruptedException, ResponseException {
-        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+    public static String getHttpResponse(HttpRequest request)
+            throws IOException, InterruptedException, ResponseException {
+        HttpResponse<String> httpResponse = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         if(httpResponse.statusCode()==403){
             throw new AlreadyTakenException(httpResponse.body());
         }
