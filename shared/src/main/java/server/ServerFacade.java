@@ -62,7 +62,6 @@ public class ServerFacade {
             throw new NotAuthorizedException("Error: Not Authorized");
         }
         String body = Serializer.toJson(createGameRequest);
-//        String body = createGameRequest.gameName();
         String responseBody = doPost(serverUrl,"/game",body);
         CreateGameResponse createGameResponse = Serializer.fromJson(responseBody, CreateGameResponse.class);
         return createGameResponse.gameID();

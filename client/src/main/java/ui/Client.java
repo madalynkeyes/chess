@@ -22,7 +22,7 @@ import static ui.EscapeSequences.ERASE_SCREEN;
 public class Client {
     private static final Scanner scanner = new Scanner(System.in);
     public final ServerFacade serverFacade;
-    private Map<Integer,Integer> gameIDmap = new HashMap<>();
+    private final Map<Integer,Integer> gameIDmap = new HashMap<>();
 
     public Client(String url) {
         serverFacade = new ServerFacade(url);
@@ -136,18 +136,15 @@ public class Client {
                 switch (selectedNumber) {
                     case 1:
                         createGamePrompt();
-                        System.out.println("You chose to create a game");
                         break;
                     case 2:
                         joinGamePrompt();
-                        System.out.println("You join game");
                         break;
                     case 3:
-                        System.out.println("observe a gameee");
+                        observeGamePrompt();
                         break;
                     case 4:
                         listGamesPrompt();
-                        System.out.println("You want to list the games");
                     case 5:
                         logoutPrompt();
                         mainMenu();
@@ -225,10 +222,8 @@ public class Client {
 
     public void joinGamePrompt(){
         try{
-//            if(gameIDmap.isEmpty()){
-                List<GameListFormat> gamesList = serverFacade.listGames();
-                printGamesList(gamesList);
-//            }
+            List<GameListFormat> gamesList = serverFacade.listGames();
+            printGamesList(gamesList);
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
             int inputGameNum = scanner.nextInt();
             int gameID = gameIDmap.get(inputGameNum);
@@ -247,6 +242,24 @@ public class Client {
             System.out.println("Error: Please Specify Player Color. Enter 'WHITE' or 'BLACK'.");
             postLoginPrompt();
         }catch (Exception e) {
+            System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
+            System.out.println("Tip: To see existing games, choose 'List Games' option.");
+            postLoginPrompt();
+        }
+    }
+
+    public void observeGamePrompt(){
+        try{
+            List<GameListFormat> gamesList = serverFacade.listGames();
+            printGamesList(gamesList);
+            System.out.print("Please Type Game Number You Would Like To Join >>> ");
+            int inputGameNum = scanner.nextInt();
+            int gameID = gameIDmap.get(inputGameNum);
+            //need to get the game board data somehow
+            //for now we will just use default board
+            ClientChessBoard.draw("WHITE");
+            postLoginPrompt();
+        } catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
             postLoginPrompt();
