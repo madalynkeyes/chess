@@ -7,6 +7,7 @@ import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.responses.*;
 
+import java.io.IOException;
 import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpRequest;
@@ -23,7 +24,7 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public String register(RegisterRequest registerRequest) throws Exception {
+    public String register(RegisterRequest registerRequest) throws ResponseException, URISyntaxException, IOException, InterruptedException {
         String body = Serializer.toJson(registerRequest);
         String responseBody = doPost(serverUrl,"/user",body,authToken);
         RegisterLoginResponse registerResponse = Serializer.fromJson(responseBody, RegisterLoginResponse.class);
@@ -31,7 +32,7 @@ public class ServerFacade {
         return authToken;
     }
 
-    public String login(LoginRequest loginRequest) throws Exception {
+    public String login(LoginRequest loginRequest) throws ResponseException, URISyntaxException, IOException, InterruptedException {
         String body = Serializer.toJson(loginRequest);
         String responseBody = doPost(serverUrl,"/session",body,authToken);
         RegisterLoginResponse loginResponse = Serializer.fromJson(responseBody, RegisterLoginResponse.class);
@@ -39,13 +40,13 @@ public class ServerFacade {
         return authToken;
     }
 
-    public String logout() throws Exception {
+    public String logout() throws ResponseException, IOException, URISyntaxException, InterruptedException {
         ClientCommunicator.doDelete(serverUrl,"/session",authToken);
         authToken = null;
         return authToken;
     }
 
-    public void clear() throws Exception {
+    public void clear() throws URISyntaxException, ResponseException, IOException, InterruptedException {
         String urlString = String.format("%s%s", serverUrl, "/db");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
@@ -55,7 +56,7 @@ public class ServerFacade {
         ClientCommunicator.getHttpResponse(request);
     }
 
-    public int createGame(CreateGameRequest createGameRequest) throws Exception {
+    public int createGame(CreateGameRequest createGameRequest) throws ResponseException, URISyntaxException, IOException, InterruptedException {
         if(authToken==null){
             throw new NotAuthorizedException("Error: Not Authorized");
         }
@@ -65,7 +66,7 @@ public class ServerFacade {
         return createGameResponse.gameID();
     }
 
-    public List<GameListFormat> listGames() throws Exception{
+    public List<GameListFormat> listGames() throws ResponseException, URISyntaxException, IOException, InterruptedException {
         if(authToken==null){
             throw new NotAuthorizedException("Error: Not Authorized");
         }
@@ -74,7 +75,7 @@ public class ServerFacade {
         return listGamesResponse.games();
     }
 
-    public JoinClearLogoutResponse joinGame(JoinGameRequest joinGameRequest) throws Exception{
+    public JoinClearLogoutResponse joinGame(JoinGameRequest joinGameRequest) throws ResponseException, URISyntaxException, IOException, InterruptedException {
         if(authToken==null){
             throw new NotAuthorizedException("Error: Not Authorized");
         }

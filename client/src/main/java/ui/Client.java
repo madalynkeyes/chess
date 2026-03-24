@@ -12,8 +12,10 @@ import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.responses.GameListFormat;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -37,47 +39,42 @@ public class Client {
     }
 
     private void mainMenu() {
-        System.out.println("Please Enter Number To Select Option:");
-        System.out.println(" 1. Login");
-        System.out.println(" 2. Register");
-        System.out.println(" 3. Quit");
-        System.out.println(" 4. Help");
-
-        while (true) {
+        while(true){
+            System.out.println("Please Enter Number To Select Option:");
+            System.out.println(" 1. Login");
+            System.out.println(" 2. Register");
+            System.out.println(" 3. Quit");
+            System.out.println(" 4. Help");
             System.out.print(">>> ");
-
-            try{
-                int selectedNumber = scanner.nextInt();
-
-                switch(selectedNumber){
-                    case 1:
-                        loginPrompt();
-                        break;
-                    case 2:
-                        registerPrompt();
-                        break;
-                    case 3:
-                        System.out.println("Thanks for playing! Exiting the game.");
-                        System.exit(0);
-                        break;
-                    case 4:
-                        helpPrompt();
-                        break;
-                    default:
-                        System.out.println("Please choose a number: 1,2,3, or 4");
+            String input = scanner.nextLine();
+            if(input.equalsIgnoreCase("quit") || input.equals("3")){
+                System.out.println("Thanks for playing! Exiting the game.");
+                return;
+            }
+            try {
+                int option = Integer.parseInt(input);
+                switch (option){
+                    case 1 -> {
+                        boolean loginSuccess = loginPrompt();
+                        if (loginSuccess){
+                            postLoginPrompt();
+                        }
+                    }
+                    case 2 -> {
+                        boolean registerSuccess = registerPrompt();
+                        if (registerSuccess){
+                            postLoginPrompt();
+                        }
+                    }
+                    case 4 -> helpPrompt();
+                    default ->  System.out.println("Please enter an number 1-4: ");
                 }
-            }
-            catch (InputMismatchException ex){
-                System.out.println("Please enter an number 1-4: ");
-                scanner.nextLine();
-            } catch (ResponseException e){
-                System.out.println(e.getMessage());
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.out.println("Please enter a number or type 'quit' to exit.");
             }
-
         }
     }
+
 
     private static void helpPrompt() {
         System.out.println("Tips: Please enter a number for the option you would like to choose.");
@@ -85,85 +82,98 @@ public class Client {
         System.out.println("If at any time you want to exit or go back, type 'exit'.");
     }
 
-    public void loginPrompt() throws Exception {
+    public boolean loginPrompt()  {
         try {
             System.out.print("Please Type Username >>> ");
-            String username = scanner.next();
+            String username = scanner.nextLine();
+            if (isBackOrQuit(username)){
+                return false;
+            }
             System.out.print("Please Type Password >>> ");
-            String password = scanner.next();
+            String password = scanner.nextLine();
+            if (isBackOrQuit(password)){
+                return false;
+            }
             LoginRequest loginRequest = new LoginRequest(username,password);
             serverFacade.login(loginRequest);
             System.out.printf("Welcome %s! Please choose an option:%n", username);
-            postLoginPrompt();
-        } catch (ResponseException e) {
+            return true;
+        } catch (ResponseException | URISyntaxException | IOException | InterruptedException e) {
             System.out.println("Username or Password incorrect. Please try again or register an account.");
-            mainMenu();
+            return false;
         }
     }
 
-    public void registerPrompt(){
+    public boolean registerPrompt(){
         try {
             System.out.print("Please Type Username >>> ");
-            String username = scanner.next();
+            String username = scanner.nextLine();
+            if (isBackOrQuit(username)){
+                return false;
+            }
             System.out.print("Please Type Password >>> ");
-            String password = scanner.next();
+            String password = scanner.nextLine();
+            if (isBackOrQuit(password)){
+                return false;
+            }
             System.out.print("Please Type Email >>> ");
-            String email = scanner.next();
+            String email = scanner.nextLine();
+            if (isBackOrQuit(email)){
+                return false;
+            }
             RegisterRequest registerRequest = new RegisterRequest(username,password,email);
             serverFacade.register(registerRequest);
             System.out.printf("Account for %s has been created.%n",username);
-            postLoginPrompt();
+            return true;
+        } catch (AlreadyTakenException e) {
+            System.out.println("Error: username already taken. Please login or choose a different username.");
+            return false;
+        } catch (BadRequestException e) {
+            System.out.println("Error: invalid input.");
+            return false;
         } catch (Exception e) {
-            System.out.println("Error: username already taken. Please login or register different username.");
-            mainMenu();
+            System.out.println("Error: " + e.getMessage());
+            return false;
         }
 
     }
 
     public void postLoginPrompt() {
-        System.out.println("Please Enter Number To Select Option:");
-        System.out.println(" 1. Create Game");
-        System.out.println(" 2. Join Game");
-        System.out.println(" 3. Observe Game");
-        System.out.println(" 4. List Games");
-        System.out.println(" 5. Logout");
-        System.out.println(" 6. Help");
         while (true) {
+            System.out.println("Please Enter Number To Select Option:");
+            System.out.println(" 1. Create Game");
+            System.out.println(" 2. Join Game");
+            System.out.println(" 3. Observe Game");
+            System.out.println(" 4. List Games");
+            System.out.println(" 5. Logout");
+            System.out.println(" 6. Help");
             System.out.print(">>> ");
+            String input = scanner.nextLine();
+            if (isBackOrQuit(input)) {
+                return;
+            }
             try {
-                int selectedNumber = scanner.nextInt();
-
-                switch (selectedNumber) {
-                    case 1:
-                        createGamePrompt();
-                        break;
-                    case 2:
-                        joinGamePrompt();
-                        break;
-                    case 3:
-                        observeGamePrompt();
-                        break;
-                    case 4:
-                        listGamesPrompt();
-                    case 5:
+                int option = Integer.parseInt(input);
+                switch (option) {
+                    case 1 -> createGamePrompt();
+                    case 2 -> joinGamePrompt();
+                    case 3 -> observeGamePrompt();
+                    case 4 -> listGamesPrompt();
+                    case 5 -> {
                         logoutPrompt();
-                        mainMenu();
-                        break;
-                    case 6:
-                        helpPrompt();
-                        postLoginPrompt();
-                        break;
+                        return;
+                    }
+                    case 6 -> helpPrompt();
+                    default -> System.out.println("Please enter an number 1-6: ");
                 }
-            } catch (InputMismatchException ex) {
-                System.out.println("Please enter an number 1-5: ");
-                scanner.nextLine();
-            } catch (ResponseException e) {
-                postLoginPrompt();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number or type 'quit' to exit.");
+            } catch (AlreadyTakenException e){
+                System.out.println("Please choose diff username");
             }
         }
     }
+
 
     public void logoutPrompt(){
         try {
@@ -175,26 +185,29 @@ public class Client {
 
     }
 
-    public void createGamePrompt() throws ResponseException {
+    public void createGamePrompt() {
+
         try {
             System.out.print("Please Type New Game Name >>> ");
-            String gameName = scanner.next();
+            String gameName = scanner.nextLine();
+            if (isBackOrQuit(gameName)){
+                return;
+            }
             CreateGameRequest createGameRequest = new CreateGameRequest(null,gameName);
             serverFacade.createGame(createGameRequest);
             System.out.printf("Game Created: %s%n",gameName);
-            postLoginPrompt();
-        } catch (Exception e) {
+        } catch (AlreadyTakenException | URISyntaxException | IOException | InterruptedException | ResponseException e) {
             System.out.println("Game name already exists. Please join game or create different game name.");
-            throw new ResponseException(ResponseException.Code.ServerError,"game name already taken");
         }
     }
 
     public void listGamesPrompt(){
         try{
             List<GameListFormat> gamesList = serverFacade.listGames();
+            if (gamesList.isEmpty()){
+                System.out.println("No active games. Please create a game.");
+            }
             printGamesList(gamesList);
-
-            postLoginPrompt();
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -226,29 +239,32 @@ public class Client {
             printGamesList(gamesList);
             if(gamesList.isEmpty()){
                 System.out.println("No games have been created. Please create a game.");
-                postLoginPrompt();
+                return;
             }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
-            int inputGameNum = scanner.nextInt();
+            String input = scanner.nextLine();
+            if (isBackOrQuit(input)){
+                return;
+            }
+            int inputGameNum = Integer.parseInt(input);
             int gameID = gameIDmap.get(inputGameNum);
 //            System.out.printf("Getting gameID: %d, with input: %d",gameID,inputGameNum);
             System.out.print("Please Type Which Player Color You Would Like To Be: WHITE/BLACK >>> ");
-            String playerColor = scanner.next();
+            String playerColor = scanner.nextLine();
+            if (isBackOrQuit(playerColor)){
+                return;
+            }
             JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
             ClientChessBoard.draw(playerColor);
-            postLoginPrompt();
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
-            postLoginPrompt();
         }catch (BadRequestException e) {
             System.out.println("Error: Please Specify Player Color. Enter 'WHITE' or 'BLACK'.");
-            postLoginPrompt();
         }catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
-            postLoginPrompt();
         }
     }
 
@@ -258,20 +274,26 @@ public class Client {
             printGamesList(gamesList);
             if(gamesList.isEmpty()){
                 System.out.println("No games have been created. Please create a game.");
-                postLoginPrompt();
+                return;
             }
             System.out.print("Please Type Game Number You Would Like To Join >>> ");
-            int inputGameNum = scanner.nextInt();
+            String input = scanner.nextLine();
+            if (isBackOrQuit(input)){
+                return;
+            }
+            int inputGameNum = Integer.parseInt(input);
             int gameID = gameIDmap.get(inputGameNum);
             //need to get the game board data somehow
             //for now we will just use default board
             ClientChessBoard.draw("WHITE");
-            postLoginPrompt();
         } catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
-            postLoginPrompt();
         }
+    }
+
+    public boolean isBackOrQuit(String input){
+        return input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("back");
     }
 
 
