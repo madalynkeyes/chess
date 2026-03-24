@@ -159,27 +159,33 @@ public class ClientChessBoard {
         if(boardRow %2 != 0){ //odd row 1,3,5,7
             setColorOdd(out, boardCol);
         } else{
-            SetColorEven(out, boardCol);
+            setColorEven(out, boardCol);
         }
     }
 
-    private static void SetColorEven(PrintStream out, int boardCol) {
+    private static void setColorEven(PrintStream out, int boardCol) {
         if(boardCol %2==0){
-            out.print(SET_BG_COLOR_LIGHT_BLUE);
-            out.print(SET_TEXT_COLOR_LIGHT_BLUE);
+            setLightBlue(out);
         } else {
-            out.print(SET_BG_COLOR_LIGHT_YELLOW);
-            out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
+            setLightYellow(out);
         }
+    }
+
+    private static void setLightYellow(PrintStream out) {
+        out.print(SET_BG_COLOR_LIGHT_YELLOW);
+        out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
+    }
+
+    private static void setLightBlue(PrintStream out) {
+        out.print(SET_BG_COLOR_LIGHT_BLUE);
+        out.print(SET_TEXT_COLOR_LIGHT_BLUE);
     }
 
     private static void setColorOdd(PrintStream out, int boardCol) {
         if(boardCol %2==0){
-            out.print(SET_BG_COLOR_LIGHT_YELLOW);
-            out.print(SET_TEXT_COLOR_LIGHT_YELLOW);
+            setLightYellow(out);
         } else{
-            out.print(SET_BG_COLOR_LIGHT_BLUE);
-            out.print(SET_TEXT_COLOR_LIGHT_BLUE);
+            setLightBlue(out);
         }
     }
 
@@ -187,7 +193,7 @@ public class ClientChessBoard {
         if(boardRow %2 == 0){ //odd row 1,3,5,7
             setColorOdd(out, boardCol);
         } else{
-            SetColorEven(out, boardCol);
+            setColorEven(out, boardCol);
         }
     }
 
