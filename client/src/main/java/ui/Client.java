@@ -1,5 +1,6 @@
 package ui;
 
+import client.websocket.WebSocketFacade;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.ResponseException;
@@ -24,10 +25,12 @@ import static ui.EscapeSequences.ERASE_SCREEN;
 public class Client {
     private static final Scanner SCANNER = new Scanner(System.in);
     public final ServerFacade serverFacade;
+    private WebSocketFacade ws;
     private final Map<Integer,Integer> gameIDmap = new HashMap<>();
 
-    public Client(String url) {
+    public Client(String url, WebSocketFacade ws) {
         serverFacade = new ServerFacade(url);
+        ws = new WebSocketFacade(url,this);
     }
 
     public void run() {
