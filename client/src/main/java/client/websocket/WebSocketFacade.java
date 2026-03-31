@@ -13,13 +13,14 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
+    NotificationHandler notificationHandler;
 
 
-    public WebSocketFacade(String url) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-//            this.notificationHandler = notificationHandler;
+            this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -30,24 +31,7 @@ public class WebSocketFacade extends Endpoint {
                 public void onMessage(String message) {
                     UserGameCommand userGameCommand = Serializer.fromJson(message, UserGameCommand.class);
                     switch (userGameCommand.getCommandType()){
-                        case CONNECT -> {
-                            if(userGameCommand.getAuthToken()==null){
-                                try {
-                                    send("Error: not authorized");
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                            if(userGameCommand.getGameID()==null){
-                                try {
-                                    send("Error: game doesn't exist");
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-
-
-                        }
+                        case CONNECT -> {}
                         case MAKE_MOVE -> {
                         }
                         case LEAVE -> {

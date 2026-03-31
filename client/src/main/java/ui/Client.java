@@ -1,5 +1,6 @@
 package ui;
 
+import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
@@ -13,6 +14,7 @@ import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.responses.GameListFormat;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,7 +25,7 @@ import java.util.*;
 
 import static ui.EscapeSequences.ERASE_SCREEN;
 
-public class Client {
+public class Client implements NotificationHandler {
     private static final Scanner SCANNER = new Scanner(System.in);
     public final ServerFacade serverFacade;
     private WebSocketFacade ws;
@@ -31,7 +33,7 @@ public class Client {
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
-        ws = new WebSocketFacade(url);
+        ws = new WebSocketFacade(url,this);
     }
 
     public void run() {
@@ -304,4 +306,8 @@ public class Client {
     }
 
 
+    @Override
+    public void notify(ServerMessage message) {
+
+    }
 }

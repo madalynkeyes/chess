@@ -17,6 +17,7 @@ import service.UserService;
 public class Server {
 
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -39,6 +40,7 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
+        webSocketHandler = new WebSocketHandler();
     }
 
     private void createHandlers(InitializeServiceMethods services) {
@@ -49,7 +51,7 @@ public class Server {
         services.gameHandler().createGame(javalin);
         services.gameHandler().joinGame(javalin);
         services.clearHandler().clear(javalin);
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
+//        WebSocketHandler webSocketHandler = new WebSocketHandler();
         javalin.ws("/ws",ws -> {
             ws.onConnect(webSocketHandler);
             ws.onClose(webSocketHandler);
