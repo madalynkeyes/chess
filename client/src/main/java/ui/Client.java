@@ -12,6 +12,7 @@ import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
 import service.responses.GameListFormat;
+import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -28,9 +29,9 @@ public class Client {
     private WebSocketFacade ws;
     private final Map<Integer,Integer> gameIDmap = new HashMap<>();
 
-    public Client(String url, WebSocketFacade ws) {
+    public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
-        ws = new WebSocketFacade(url,this);
+        ws = new WebSocketFacade(url);
     }
 
     public void run() {
@@ -262,6 +263,7 @@ public class Client {
             JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
+            ws.sendConnectMsg(null,gameID);
             ClientChessBoard.draw(playerColor);
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");

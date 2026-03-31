@@ -9,6 +9,7 @@ import handlers.GameHandler;
 import handlers.UserHandler;
 import io.javalin.*;
 import org.jetbrains.annotations.NotNull;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -48,6 +49,12 @@ public class Server {
         services.gameHandler().createGame(javalin);
         services.gameHandler().joinGame(javalin);
         services.clearHandler().clear(javalin);
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        javalin.ws("/ws",ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onClose(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+        });
     }
 
     @NotNull
