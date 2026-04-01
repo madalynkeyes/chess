@@ -40,7 +40,7 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
     }
 
     private void createHandlers(InitializeServiceMethods services) {

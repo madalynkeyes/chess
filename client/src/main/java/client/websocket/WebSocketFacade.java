@@ -6,6 +6,7 @@ import server.Serializer;
 import ui.Client;
 import ui.ClientChessBoard;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,21 +30,8 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    UserGameCommand userGameCommand = Serializer.fromJson(message, UserGameCommand.class);
-                    switch (userGameCommand.getCommandType()){
-                        case CONNECT -> {}
-                        case MAKE_MOVE -> {
-                        }
-                        case LEAVE -> {
-                        }
-                        case RESIGN -> {
-                        }
-                    }
-                    System.out.println(userGameCommand);
-//                    System.out.println(Serializer.fromJson(message));
-//                    Notification notification = Serializer.fromJson(message, Notification.class);
-//                    notificationHandler.notify(notification);
-                    System.out.println("Something happensed in websocket facade?");
+                    ServerMessage serverMessage = Serializer.fromJson(message,ServerMessage.class);
+                    notificationHandler.notify(serverMessage);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -60,9 +48,9 @@ public class WebSocketFacade extends Endpoint {
         session.getBasicRemote().sendText(message);
     }
 
-    public void sendConnectMsg(String authToken, int gameID) throws ResponseException {
+    public void sendConnectMsg(String authToken, int gameID, String playerType) throws ResponseException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT,authToken,gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT,authToken,gameID,playerType);
             this.session.getBasicRemote().sendText(Serializer.toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());

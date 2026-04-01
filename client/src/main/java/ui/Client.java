@@ -265,7 +265,7 @@ public class Client implements NotificationHandler {
             JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
-            ws.sendConnectMsg(null,gameID);
+            ws.sendConnectMsg(null,gameID,playerColor);
             ClientChessBoard.draw(playerColor);
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");

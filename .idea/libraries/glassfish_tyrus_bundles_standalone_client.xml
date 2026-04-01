@@ -5,6 +5,9 @@
       <root url="jar://$MAVEN_REPOSITORY$/org/glassfish/tyrus/bundles/tyrus-standalone-client/2.1.4/tyrus-standalone-client-2.1.4.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/glassfish/tyrus/bundles/tyrus-standalone-client/2.1.4/tyrus-standalone-client-2.1.4.jar!/" />
+      <root url="jar://$USER_HOME$/.ideaLibSources/tyrus-standalone-client-2.1.4-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
