@@ -4,7 +4,6 @@ import server.Serializer;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -38,7 +37,12 @@ public class ConnectionManager {
 
     public void broadcastToAll(int gameID, ServerMessage message) throws IOException {
         var gameConnections = connections.get(gameID);
+        System.out.println("The game connections is:" + gameConnections);
         for (Session c : gameConnections.keySet()) {
+            System.out.println("key:"+gameConnections.keySet());
+            System.out.println("c"+c);
+            System.out.println(message.toString());
+            System.out.println(Serializer.toJson(message));
             if (c.isOpen()) {
                 c.getRemote().sendString(Serializer.toJson(message));
             }

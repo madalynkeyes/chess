@@ -35,12 +35,17 @@ public class Server {
 //        AuthDAO authDAO = new RAMAuthDAO();
 //        GameDAO gameDAO = new RAMGameDAO();
         InitializeServiceMethods services = getInitializeServiceMethods(userDAO, authDAO, gameDAO);
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
+        javalin.ws("/ws",ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onClose(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+        });
         createHandlers(services);
         checkGlobalExceptions();
 
         // Register your endpoints and exception handlers here.
 
-        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
     }
 
     private void createHandlers(InitializeServiceMethods services) {
@@ -52,11 +57,7 @@ public class Server {
         services.gameHandler().joinGame(javalin);
         services.clearHandler().clear(javalin);
 //        WebSocketHandler webSocketHandler = new WebSocketHandler();
-        javalin.ws("/ws",ws -> {
-            ws.onConnect(webSocketHandler);
-            ws.onClose(webSocketHandler);
-            ws.onMessage(webSocketHandler);
-        });
+
     }
 
     @NotNull

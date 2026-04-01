@@ -1,7 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
-import chess.ChessGame;
+
 import chess.ChessPiece;
 import chess.ChessPosition;
 
@@ -20,7 +20,8 @@ public class ClientChessBoard {
     public static String color = "WHITE";
     private static ChessBoard board;
 
-    public static void draw(String playerColor) {
+    public static void draw(ChessBoard loadGameBoard, String playerColor) {
+        board = loadGameBoard;
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         System.setProperty("file.encoding", "UTF-8");
         color = playerColor;
@@ -84,7 +85,7 @@ public class ClientChessBoard {
 
 
     private static void drawChessBoardWhite(PrintStream out) {
-        board = defaultBoard();
+//        board = defaultBoard();
         for (int boardRow = 8; boardRow > 0; boardRow--){
             setBorderSquare(out, String.valueOf(boardRow));
             drawRowOfChessSquaresWhite(out,boardRow);
@@ -93,7 +94,7 @@ public class ClientChessBoard {
     }
 
     private static void drawChessBoardBlack(PrintStream out) {
-        board = defaultBoard();
+//        board = defaultBoard();
         for (int boardRow = 0; boardRow <8; boardRow++){
             setBorderSquare(out, String.valueOf(boardRow+1));
             drawRowOfChessSquaresBlack(out,boardRow);
@@ -212,10 +213,10 @@ public class ClientChessBoard {
         out.print(piece);
     }
 
-    private static ChessBoard defaultBoard(){
-        ChessGame defaultGame = new ChessGame();
-        return defaultGame.getBoard();
-    }
+//    private static ChessBoard defaultBoard(){
+//        ChessGame defaultGame = new ChessGame();
+//        return defaultGame.getBoard();
+//    }
 
 }
 

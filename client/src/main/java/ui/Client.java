@@ -13,8 +13,7 @@ import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
 import service.responses.GameListFormat;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -28,8 +27,9 @@ import static ui.EscapeSequences.ERASE_SCREEN;
 public class Client implements NotificationHandler {
     private static final Scanner SCANNER = new Scanner(System.in);
     public final ServerFacade serverFacade;
-    private WebSocketFacade ws;
+    private final WebSocketFacade ws;
     private final Map<Integer,Integer> gameIDmap = new HashMap<>();
+    private String authToken;
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
@@ -103,7 +103,7 @@ public class Client implements NotificationHandler {
                 return false;
             }
             LoginRequest loginRequest = new LoginRequest(username,password);
-            serverFacade.login(loginRequest);
+            authToken = serverFacade.login(loginRequest);
             System.out.printf("Welcome %s! Please choose an option:%n", username);
             return true;
         } catch (ResponseException | URISyntaxException | IOException | InterruptedException e) {
@@ -130,7 +130,7 @@ public class Client implements NotificationHandler {
                 return false;
             }
             RegisterRequest registerRequest = new RegisterRequest(username,password,email);
-            serverFacade.register(registerRequest);
+            authToken = serverFacade.register(registerRequest);
             System.out.printf("Account for %s has been created.%n",username);
             return true;
         } catch (AlreadyTakenException e) {
@@ -201,7 +201,7 @@ public class Client implements NotificationHandler {
             if (isBackOrQuit(gameName)){
                 return;
             }
-            CreateGameRequest createGameRequest = new CreateGameRequest(null,gameName);
+            CreateGameRequest createGameRequest = new CreateGameRequest(authToken,gameName);
             serverFacade.createGame(createGameRequest);
             System.out.printf("Game Created: %s%n",gameName);
         } catch (AlreadyTakenException | URISyntaxException | IOException | InterruptedException | ResponseException e) {
@@ -262,11 +262,11 @@ public class Client implements NotificationHandler {
             if (isBackOrQuit(playerColor)){
                 return;
             }
-            JoinGameRequest joinGameRequest = new JoinGameRequest(null, playerColor,gameID);
+            JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, playerColor,gameID);
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
-            ws.sendConnectMsg(null,gameID,playerColor);
-            ClientChessBoard.draw(playerColor);
+            ws.sendConnectMsg(authToken,gameID,playerColor);
+//            ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(), playerColor);
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
         }catch (BadRequestException e) {
@@ -294,7 +294,7 @@ public class Client implements NotificationHandler {
             int gameID = gameIDmap.get(inputGameNum);
             //need to get the game board data somehow
             //for now we will just use default board
-            ClientChessBoard.draw("WHITE");
+//            ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(), "WHITE");
         } catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
@@ -307,7 +307,8 @@ public class Client implements NotificationHandler {
 
 
     @Override
-    public void notify(ServerMessage message) {
+    public void notify(NotificationMessage message) {
+        System.out.println(message.getMessage());
 
     }
 }
