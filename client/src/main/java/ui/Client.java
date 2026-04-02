@@ -177,7 +177,7 @@ public class Client implements NotificationHandler {
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a number or type 'quit' to exit.");
             } catch (AlreadyTakenException e){
-                System.out.println("Please choose diff username");
+                System.out.println("Please choose different username");
             }
         }
     }
@@ -256,7 +256,6 @@ public class Client implements NotificationHandler {
             }
             int inputGameNum = Integer.parseInt(input);
             int gameID = gameIDmap.get(inputGameNum);
-//            System.out.printf("Getting gameID: %d, with input: %d",gameID,inputGameNum);
             System.out.print("Please Type Which Player Color You Would Like To Be: WHITE/BLACK >>> ");
             String playerColor = SCANNER.nextLine().toUpperCase();
             if (isBackOrQuit(playerColor)){
@@ -266,7 +265,7 @@ public class Client implements NotificationHandler {
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
             ws.sendConnectMsg(authToken,gameID,playerColor);
-//            ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(), playerColor);
+            gameplayPrompt();
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
         }catch (BadRequestException e) {
@@ -292,12 +291,44 @@ public class Client implements NotificationHandler {
             }
             int inputGameNum = Integer.parseInt(input);
             int gameID = gameIDmap.get(inputGameNum);
-            //need to get the game board data somehow
-            //for now we will just use default board
+            ws.sendConnectMsg(authToken,gameID,"OBSERVER");
 //            ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(), "WHITE");
         } catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
+        }
+    }
+
+    public void gameplayPrompt() {
+        while (true) {
+            System.out.println("Please Enter Number To Select Option:");
+            System.out.println(" 1. Make Move");
+            System.out.println(" 2. Highlight Legal Moves");
+            System.out.println(" 3. Redraw Chessboard");
+            System.out.println(" 4. Leave Game");
+            System.out.println(" 5. Resign");
+            System.out.println(" 6. Help");
+            System.out.print(">>> ");
+            String input = SCANNER.nextLine();
+//            if (isBackOrQuit(input)) {
+//                return;
+//            }
+            try {
+                int option = Integer.parseInt(input);
+                switch (option) {
+                    case 1 -> System.out.println("You want to move?");
+                    case 2 -> System.out.println("Lets get the highlighter :)");
+                    case 3 -> System.out.println("Redraw borad please");
+                    case 4 -> System.out.println("Losers like to leave");
+                    case 5 -> System.out.println("Resigning is worse");
+                    case 6 -> helpPrompt();
+                    default -> System.out.println("Please enter an number 1-6: ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number or type 'quit' to exit.");
+            } catch (AlreadyTakenException e){
+                System.out.println("Please choose diff username");
+            }
         }
     }
 

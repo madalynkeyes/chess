@@ -26,7 +26,7 @@ public class ClientChessBoard {
         System.setProperty("file.encoding", "UTF-8");
         color = playerColor;
         out.print(ERASE_SCREEN);
-        if(Objects.equals(playerColor, "WHITE")) {
+        if(Objects.equals(playerColor, "WHITE") || Objects.equals(playerColor,"OBSERVER")) {
             drawChessboardWhite(out);
         } else {
             drawChessboardBlack(out);
