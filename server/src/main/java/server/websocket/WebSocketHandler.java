@@ -40,6 +40,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 switch (userGameCommand.getCommandType()) {
                     case CONNECT -> connect(userGameCommand,ctx.session);
                     case LEAVE -> leave(userGameCommand,ctx.session);
+                    case MAKE_MOVE -> makeMove(userGameCommand,ctx.session);
                 }
             } catch (Exception e) {
                 System.out.println("WEBSOCKET ERROR:");
@@ -77,6 +78,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String message = String.format("   %s has left the game",username);
             var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
             connections.broadcast(userGameCommand.getGameID(),session,notification);
+        }
+
+        public void makeMove(UserGameCommand userGameCommand,Session session){
+
         }
 
 }

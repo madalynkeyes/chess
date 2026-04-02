@@ -14,7 +14,6 @@ import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
 import service.responses.GameListFormat;
-import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
@@ -24,7 +23,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static ui.ClientChessBoard.draw;
 import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class Client implements NotificationHandler {
@@ -33,7 +31,6 @@ public class Client implements NotificationHandler {
     private final WebSocketFacade ws;
     private final Map<Integer,Integer> gameIDmap = new HashMap<>();
     private String authToken;
-    ChessBoard currentBoard;
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
@@ -244,15 +241,6 @@ public class Client implements NotificationHandler {
             }
         }
     }
-//
-//    private void updateGamesList(String color) throws ResponseException, URISyntaxException, IOException, InterruptedException {
-//        List<GameListFormat> gamesList = serverFacade.listGames();
-//        for (GameListFormat game: gamesList){
-//            if(Objects.equals(color, "WHITE")){
-//                game.whiteUsername=null;
-//            }
-//        }
-//    }
 
     public void joinGamePrompt(){
         try{
@@ -306,7 +294,6 @@ public class Client implements NotificationHandler {
             int gameID = gameIDmap.get(inputGameNum);
             ws.sendConnectMsg(authToken,gameID,"OBSERVER");
             observeGamePlayPrompt(authToken,gameID,"OBSERVER");
-//            ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(), "WHITE");
         } catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
@@ -361,7 +348,7 @@ public class Client implements NotificationHandler {
             try {
                 int option = Integer.parseInt(input);
                 switch (option) {
-                    case 1 -> System.out.println("You want to move?");
+                    case 1 -> makeMovePrompt(gameID);
                     case 2 -> System.out.println("Lets get the highlighter :)");
                     case 3 -> WebSocketFacade.drawBoard(null,null);
                     case 4 -> {
@@ -380,6 +367,13 @@ public class Client implements NotificationHandler {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void makeMovePrompt(int gameID) throws ResponseException {
+        System.out.println("What move would you like to make?");
+        String inputMove = SCANNER.nextLine().toUpperCase();
+        ws.sendMoveMsg(authToken,gameID,inputMove);
+        //TODO: make sure it is their turn, create makeMoveCommand that will send the message, then access the game data & change it to make the move
     }
 
     public boolean isBackOrQuit(String input){

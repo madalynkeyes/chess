@@ -86,4 +86,14 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
+
+    public void sendMoveMsg(String authToken, int gameID, String move) throws ResponseException {
+//        try {
+////            var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,gameID,playerType);
+//            //moveCommand
+////            this.session.getBasicRemote().sendText(Serializer.toJson(action));
+//        } catch (IOException ex) {
+//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+//        }
+    }
 }
