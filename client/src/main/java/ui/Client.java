@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import dataaccess.exceptions.AlreadyTakenException;
@@ -13,6 +14,7 @@ import service.requests.LoginRequest;
 
 import service.requests.RegisterRequest;
 import service.responses.GameListFormat;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static ui.ClientChessBoard.draw;
 import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class Client implements NotificationHandler {
@@ -30,6 +33,7 @@ public class Client implements NotificationHandler {
     private final WebSocketFacade ws;
     private final Map<Integer,Integer> gameIDmap = new HashMap<>();
     private String authToken;
+    ChessBoard currentBoard;
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
@@ -265,7 +269,7 @@ public class Client implements NotificationHandler {
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
             ws.sendConnectMsg(authToken,gameID,playerColor);
-            gameplayPrompt();
+            gamePlayPrompt();
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
         }catch (BadRequestException e) {
@@ -299,7 +303,7 @@ public class Client implements NotificationHandler {
         }
     }
 
-    public void gameplayPrompt() {
+    public void gamePlayPrompt() {
         while (true) {
             System.out.println("Please Enter Number To Select Option:");
             System.out.println(" 1. Make Move");
@@ -318,7 +322,7 @@ public class Client implements NotificationHandler {
                 switch (option) {
                     case 1 -> System.out.println("You want to move?");
                     case 2 -> System.out.println("Lets get the highlighter :)");
-                    case 3 -> System.out.println("Redraw borad please");
+                    case 3 -> ws.drawBoard(null,null);
                     case 4 -> System.out.println("Losers like to leave");
                     case 5 -> System.out.println("Resigning is worse");
                     case 6 -> helpPrompt();
@@ -341,5 +345,11 @@ public class Client implements NotificationHandler {
     public void notify(NotificationMessage message) {
         System.out.println(message.getMessage());
 
+    }
+
+    public void loadGame(LoadGameMessage loadGameMessage){
+        currentBoard=loadGameMessage.getGameData().game().getBoard();
+        draw(currentBoard,loadGameMessage.getPlayerType());
+        gamePlayPrompt();
     }
 }

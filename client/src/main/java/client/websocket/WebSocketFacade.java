@@ -1,5 +1,6 @@
 package client.websocket;
 
+import chess.ChessBoard;
 import dataaccess.exceptions.ResponseException;
 import jakarta.websocket.*;
 import server.Serializer;
@@ -16,6 +17,8 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
     Session session;
     NotificationHandler notificationHandler;
+    static ChessBoard currentBoard;
+    static String playerType;
 
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
@@ -37,17 +40,27 @@ public class WebSocketFacade extends Endpoint {
                         NotificationMessage notification = Serializer.fromJson(message, NotificationMessage.class);
                         notificationHandler.notify(notification);
                     } else if (serverMessage.getServerMessageType()== ServerMessage.ServerMessageType.LOAD_GAME) {
-
                         LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
-                        String playerType = loadGameMessage.getPlayerType();
-                        System.out.println();
-                        ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(),playerType);
+                        playerType = loadGameMessage.getPlayerType();
+                        currentBoard = loadGameMessage.getGameData().game().getBoard();
+                        drawBoard(currentBoard, playerType);
                     }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
+    }
+
+    public static void drawBoard(ChessBoard board, String player) {
+        if(board==null){
+            board = currentBoard;
+        }
+        if(player==null){
+            player=playerType;
+        }
+        System.out.println();
+        ClientChessBoard.draw(board, player);
     }
 
     @Override
