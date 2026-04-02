@@ -305,10 +305,42 @@ public class Client implements NotificationHandler {
             int inputGameNum = Integer.parseInt(input);
             int gameID = gameIDmap.get(inputGameNum);
             ws.sendConnectMsg(authToken,gameID,"OBSERVER");
+            observeGamePlayPrompt(authToken,gameID,"OBSERVER");
 //            ClientChessBoard.draw(loadGameMessage.getGameData().game().getBoard(), "WHITE");
         } catch (Exception e) {
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
+        }
+    }
+
+    public void observeGamePlayPrompt(String authToken,int gameID, String playerType){
+        while(true){
+            System.out.println("Please Enter Number To Select Option:");
+            System.out.println(" 1. Highlight Legal Moves");
+            System.out.println(" 2. Redraw Chessboard");
+            System.out.println(" 3. Leave Game");
+            System.out.println(" 4. Help");
+            System.out.print(">>> ");
+            String input = SCANNER.nextLine();
+            try {
+                int option = Integer.parseInt(input);
+                switch (option) {
+                    case 1 -> System.out.println("highlighhtht");
+                    case 2 -> WebSocketFacade.drawBoard(null,null);
+                    case 3 -> {
+                        ws.sendLeaveMsg(authToken,gameID,playerType);
+                        return;
+                    }
+                    case 4 -> helpPrompt();
+                    default -> System.out.println("Please enter an number 1-4: ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number or type 'quit' to exit.");
+            } catch (AlreadyTakenException e){
+                System.out.println("Please choose diff username");
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -361,9 +393,4 @@ public class Client implements NotificationHandler {
 
     }
 
-    public void loadGame(LoadGameMessage loadGameMessage){
-        currentBoard=loadGameMessage.getGameData().game().getBoard();
-        draw(currentBoard,loadGameMessage.getPlayerType());
-        gamePlayPrompt(authToken,loadGameMessage.getGameData().gameId(),loadGameMessage.getPlayerType());
-    }
 }

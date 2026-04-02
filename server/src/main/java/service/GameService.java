@@ -105,12 +105,8 @@ public class GameService extends Service {
         return new JoinClearLogoutResponse("{}");
     }
 
-    public static void leaveGame(int gameID, String username) throws ResponseException{
+    public static void leaveGame(int gameID, String username, String color) throws ResponseException{
         GameData game = gameDAO.getGameByID(gameID);
-        String color;
-        if (username.equals(game.whiteUsername())){
-            color = "WHITE";
-        } else {color = "BLACK";}
         gameDAO.leaveUpdateGame(game,username,color);
     }
 

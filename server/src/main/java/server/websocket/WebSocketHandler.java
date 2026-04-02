@@ -15,6 +15,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     private final ConnectionManager connections = new ConnectionManager();
@@ -70,7 +71,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         public void leave(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
             connections.remove(userGameCommand.getGameID(), session);
             String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
-            GameService.leaveGame(userGameCommand.getGameID(),username);
+            if(Objects.equals(userGameCommand.getPlayerType(), "WHITE") || Objects.equals(userGameCommand.getPlayerType(), "BLACK")) {
+                GameService.leaveGame(userGameCommand.getGameID(), username, userGameCommand.getPlayerType());
+            }
             String message = String.format("   %s has left the game",username);
             var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
             connections.broadcast(userGameCommand.getGameID(),session,notification);
