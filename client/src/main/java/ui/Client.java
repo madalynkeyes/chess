@@ -244,6 +244,15 @@ public class Client implements NotificationHandler {
             }
         }
     }
+//
+//    private void updateGamesList(String color) throws ResponseException, URISyntaxException, IOException, InterruptedException {
+//        List<GameListFormat> gamesList = serverFacade.listGames();
+//        for (GameListFormat game: gamesList){
+//            if(Objects.equals(color, "WHITE")){
+//                game.whiteUsername=null;
+//            }
+//        }
+//    }
 
     public void joinGamePrompt(){
         try{
@@ -269,7 +278,7 @@ public class Client implements NotificationHandler {
             serverFacade.joinGame(joinGameRequest);
             System.out.printf("Successfully Joined Game #%d as %s Player.%n",inputGameNum,playerColor);
             ws.sendConnectMsg(authToken,gameID,playerColor);
-            gamePlayPrompt();
+            gamePlayPrompt(authToken,gameID,playerColor);
         } catch (AlreadyTakenException e) {
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
         }catch (BadRequestException e) {
@@ -303,7 +312,7 @@ public class Client implements NotificationHandler {
         }
     }
 
-    public void gamePlayPrompt() {
+    public void gamePlayPrompt(String authToken, int gameID, String playerType) {
         while (true) {
             System.out.println("Please Enter Number To Select Option:");
             System.out.println(" 1. Make Move");
@@ -322,8 +331,11 @@ public class Client implements NotificationHandler {
                 switch (option) {
                     case 1 -> System.out.println("You want to move?");
                     case 2 -> System.out.println("Lets get the highlighter :)");
-                    case 3 -> ws.drawBoard(null,null);
-                    case 4 -> System.out.println("Losers like to leave");
+                    case 3 -> WebSocketFacade.drawBoard(null,null);
+                    case 4 -> {
+                        ws.sendLeaveMsg(authToken,gameID,playerType);
+                        return;
+                    }
                     case 5 -> System.out.println("Resigning is worse");
                     case 6 -> helpPrompt();
                     default -> System.out.println("Please enter an number 1-6: ");
@@ -332,6 +344,8 @@ public class Client implements NotificationHandler {
                 System.out.println("Please enter a number or type 'quit' to exit.");
             } catch (AlreadyTakenException e){
                 System.out.println("Please choose diff username");
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -350,6 +364,6 @@ public class Client implements NotificationHandler {
     public void loadGame(LoadGameMessage loadGameMessage){
         currentBoard=loadGameMessage.getGameData().game().getBoard();
         draw(currentBoard,loadGameMessage.getPlayerType());
-        gamePlayPrompt();
+        gamePlayPrompt(authToken,loadGameMessage.getGameData().gameId(),loadGameMessage.getPlayerType());
     }
 }

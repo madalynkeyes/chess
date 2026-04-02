@@ -1,11 +1,8 @@
 package dataaccess;
 
-import dataaccess.exceptions.DataAccessException;
-import dataaccess.exceptions.ResponseException;
 import model.GameData;
 import service.responses.GameListFormat;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +20,7 @@ public class RAMGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException {
+    public void updateGame(GameData gameData, String username, String color) {
         createGame(gameData);
     }
 
@@ -49,5 +46,10 @@ public class RAMGameDAO implements GameDAO {
             gameInfoList.add(new GameListFormat(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName()));
         }
         return gameInfoList;
+    }
+
+    @Override
+    public void leaveUpdateGame(GameData game, String username,String color) {
+
     }
 }

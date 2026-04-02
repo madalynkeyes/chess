@@ -20,4 +20,6 @@ public interface GameDAO {
     void clear() throws ResponseException;
 
     List<GameListFormat> listGames() throws ResponseException;
+
+    void leaveUpdateGame(GameData game, String username, String color) throws ResponseException;
 }

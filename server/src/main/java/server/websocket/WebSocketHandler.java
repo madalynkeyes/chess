@@ -8,6 +8,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import server.Serializer;
+import service.GameService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -37,6 +38,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 UserGameCommand userGameCommand = Serializer.fromJson(ctx.message(), UserGameCommand.class);
                 switch (userGameCommand.getCommandType()) {
                     case CONNECT -> connect(userGameCommand,ctx.session);
+                    case LEAVE -> leave(userGameCommand,ctx.session);
                 }
             } catch (Exception e) {
                 System.out.println("WEBSOCKET ERROR:");
@@ -50,8 +52,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         public void connect(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
-            //I need some way to validate the auth token and get the username so I can send a notification
-            System.out.println();
+            //I need some way to validate the auth token and get the username, so I can send a notification
             String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
             connections.add(userGameCommand.getGameID(), session, username);
             GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
@@ -64,6 +65,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
             connections.broadcast(userGameCommand.getGameID(),session,notification);
 
+        }
+
+        public void leave(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
+            connections.remove(userGameCommand.getGameID(), session);
+            String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
+            GameService.leaveGame(userGameCommand.getGameID(),username);
+            String message = String.format("   %s has left the game",username);
+            var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
+            connections.broadcast(userGameCommand.getGameID(),session,notification);
         }
 
 }

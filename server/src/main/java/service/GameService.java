@@ -13,13 +13,14 @@ import service.responses.GameListFormat;
 import service.responses.JoinClearLogoutResponse;
 import service.responses.ListGamesResponse;
 
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
 public class GameService extends Service {
 
-    private final GameDAO gameDAO;
+    private static GameDAO gameDAO;
     private final AuthDAO authDAO;
 
     public GameService(AuthDAO authDAO, GameDAO gameDAO) {
@@ -102,6 +103,15 @@ public class GameService extends Service {
         }
 
         return new JoinClearLogoutResponse("{}");
+    }
+
+    public static void leaveGame(int gameID, String username) throws ResponseException{
+        GameData game = gameDAO.getGameByID(gameID);
+        String color;
+        if (username.equals(game.whiteUsername())){
+            color = "WHITE";
+        } else {color = "BLACK";}
+        gameDAO.leaveUpdateGame(game,username,color);
     }
 
     /**

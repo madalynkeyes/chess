@@ -120,6 +120,22 @@ public class SQLGameDAO implements GameDAO{
         }
         return result;
     }
+
+    @Override
+    public void leaveUpdateGame(GameData game,String username, String color) throws ResponseException {
+        String statement;
+        if (color.equals("WHITE")) {
+            statement = "UPDATE games SET whiteUsername=NULL WHERE gameID=? AND whiteUsername=?";
+        } else {
+            statement = "UPDATE games SET blackUsername=NULL WHERE gameID=? AND blackUsername=?";
+        }
+        try {
+            executeUpdate(statement, game.gameId(), username);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to update game");
+        }
+    }
+
     private GameData readGame(ResultSet rs) throws SQLException{
         var gameID = rs.getInt("gameID");
         var json = rs.getString("json");
