@@ -5,6 +5,7 @@ import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ResponseException;
 import model.GameData;
+import server.Serializer;
 import service.responses.GameListFormat;
 
 import java.sql.Connection;
@@ -32,8 +33,19 @@ public class SQLGameDAO implements GameDAO{
         }
     }
 
+    public GameData updateGameData(GameData gameData) throws ResponseException {
+        var statement = "UPDATE games SET json=? WHERE gameID=?";
+        String json = Serializer.toJson(gameData);
+        try{
+            executeUpdate(statement,json,gameData.gameId());
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to update game");
+        }
+        return gameData;
+    }
+
     @Override
-    public void updateGame(GameData gameData, String username, String color) throws ResponseException {
+    public void updatePlayerNames(GameData gameData, String username, String color) throws ResponseException {
         String statement;
         if (color.equals("WHITE")) {
             statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
@@ -45,9 +57,11 @@ public class SQLGameDAO implements GameDAO{
         } catch (AlreadyTakenException e){
             throw new AlreadyTakenException("Error: can't update game cuz color is taken");
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to update game");
+            throw new ResponseException(ResponseException.Code.ServerError,"Error: unable to update player names");
         }
     }
+
+
 
     @Override
     public GameData getGameByID(int gameID) throws ResponseException {

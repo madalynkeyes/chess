@@ -1,5 +1,6 @@
 package dataaccess;
 
+import dataaccess.exceptions.ResponseException;
 import model.GameData;
 import service.responses.GameListFormat;
 
@@ -20,7 +21,7 @@ public class RAMGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData gameData, String username, String color) {
+    public void updatePlayerNames(GameData gameData, String username, String color) {
         createGame(gameData);
     }
 
@@ -51,5 +52,11 @@ public class RAMGameDAO implements GameDAO {
     @Override
     public void leaveUpdateGame(GameData game, String username,String color) {
 
+    }
+
+    @Override
+    public GameData updateGameData(GameData gameData) throws ResponseException {
+
+        return gameData;
     }
 }

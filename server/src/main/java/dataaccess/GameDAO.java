@@ -11,7 +11,7 @@ import java.util.List;
 public interface GameDAO {
     void createGame(GameData gameData) throws ResponseException;
 
-    void updateGame(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException;
+    void updatePlayerNames(GameData gameData, String username, String color) throws ResponseException, SQLException, DataAccessException;
 
     GameData getGameByID(int gameID) throws ResponseException;
 
@@ -22,4 +22,6 @@ public interface GameDAO {
     List<GameListFormat> listGames() throws ResponseException;
 
     void leaveUpdateGame(GameData game, String username, String color) throws ResponseException;
+
+    GameData updateGameData(GameData gameData) throws ResponseException;
 }

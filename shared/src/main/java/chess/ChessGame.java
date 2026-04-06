@@ -90,12 +90,14 @@ public class ChessGame {
             if (canMove) {
                 currentBoard.movePiece(startPosition, endPosition, move.getPromotionPiece());
             } else {
-                throw new InvalidMoveException("Move not valid");
+                throw new InvalidMoveException("Error: Move not valid");
             }
             currentTeam = (currentTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
             boardCopy = new ChessBoard(currentBoard);
+        } else if (piece == null){
+            throw new InvalidMoveException("Error: Move not valid.");
         } else {
-            throw new InvalidMoveException("Move not valid");
+            throw new InvalidMoveException("Error: Please wait for your turn.");
         }
     }
 

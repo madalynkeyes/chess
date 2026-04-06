@@ -89,7 +89,7 @@ public class GameService extends Service {
         String username = authDAO.getUserByToken(request.authToken());
         GameData newGame = updateGameByColor(request, gameData, username);
         try {
-            gameDAO.updateGame(newGame,username, request.playerColor());
+            gameDAO.updatePlayerNames(newGame,username, request.playerColor());
         } catch (AlreadyTakenException e){
             throw new AlreadyTakenException("Error: unable to join game cuz color is already stolen");
         } catch (NotFoundException e){

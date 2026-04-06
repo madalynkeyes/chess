@@ -2,6 +2,7 @@ package server.websocket;
 
 import chess.ChessMove;
 import chess.ChessPosition;
+import chess.InvalidMoveException;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.ResponseException;
@@ -84,7 +85,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(userGameCommand.getGameID(),session,notification);
         }
 
-        public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException {
+        public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException, InvalidMoveException {
             ChessMove move = moveCommand.getMove();
             String username = authDAO.getUserByToken(moveCommand.getAuthToken());
             String message = makeMoveNotification(move, username);
@@ -92,7 +93,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = gameDAO.getGameByID(moveCommand.getGameID());
             String playerType = moveCommand.getPlayerType();
 
+            try {
+                game.game().makeMove(move);
+                game = gameDAO.updateGameData(game);
+
+            } catch (InvalidMoveException e) {
+                throw new InvalidMoveException(e.getMessage());
+                //put error message her with the e.getMessage()
+            } catch (ResponseException e) {
+                throw new ResponseException(ResponseException.Code.ServerError,e.getMessage());
+            }
+
             var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game,playerType);
+            System.out.println(game);
+            System.out.println(loadGameMsg);
             session.getRemote().sendString(Serializer.toJson(loadGameMsg));
 
 
