@@ -1,6 +1,7 @@
 package ui;
 
-import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import dataaccess.exceptions.AlreadyTakenException;
@@ -372,8 +373,27 @@ public class Client implements NotificationHandler {
     private void makeMovePrompt(int gameID) throws ResponseException {
         System.out.println("What move would you like to make?");
         String inputMove = SCANNER.nextLine().toUpperCase();
-        ws.sendMoveMsg(authToken,gameID,inputMove);
+        ChessMove move = translateToChessMove(inputMove);
+        System.out.println(move);
+        ws.sendMoveMsg(authToken,gameID,move);
         //TODO: make sure it is their turn, create makeMoveCommand that will send the message, then access the game data & change it to make the move
+    }
+
+    private ChessMove translateToChessMove(String inputMove) {
+        List<Integer>positions = new ArrayList<>();
+        for (char c: inputMove.toCharArray()){
+            if (Character.isLetter(c)){
+                int value = c - 'A'+1;
+                positions.add(value);
+            } else if (Character.isDigit(c)) {
+                positions.add(Character.getNumericValue(c));
+            } else{
+               throw new BadRequestException("Error: not valid move. Please enter move like 'c3d4'");
+            }
+        }
+        ChessPosition startPos = new ChessPosition(positions.get(1), positions.get(0));
+        ChessPosition endPos = new ChessPosition(positions.get(3),positions.get(2));
+        return new ChessMove(startPos,endPos,null);
     }
 
     public boolean isBackOrQuit(String input){

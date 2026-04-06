@@ -1,10 +1,12 @@
 package client.websocket;
 
 import chess.ChessBoard;
+import chess.ChessMove;
 import dataaccess.exceptions.ResponseException;
 import jakarta.websocket.*;
 import server.Serializer;
 import ui.ClientChessBoard;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -65,7 +67,7 @@ public class WebSocketFacade extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-
+        //this method doesn't need anything inside it
     }
 
 
@@ -87,13 +89,12 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void sendMoveMsg(String authToken, int gameID, String move) throws ResponseException {
-//        try {
-////            var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,gameID,playerType);
-//            //moveCommand
-////            this.session.getBasicRemote().sendText(Serializer.toJson(action));
-//        } catch (IOException ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
+    public void sendMoveMsg(String authToken, int gameID, ChessMove move) throws ResponseException {
+        try {
+            var action = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,gameID,playerType,move);
+            this.session.getBasicRemote().sendText(Serializer.toJson(action));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
     }
 }

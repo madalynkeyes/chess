@@ -1,5 +1,7 @@
 package server.websocket;
 
+import chess.ChessMove;
+import chess.ChessPosition;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.ResponseException;
@@ -9,6 +11,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import server.Serializer;
 import service.GameService;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -37,10 +40,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             //the server recieves the message and decides what to do with it
             try {
                 UserGameCommand userGameCommand = Serializer.fromJson(ctx.message(), UserGameCommand.class);
+                MoveCommand moveCommand = Serializer.fromJson(ctx.message(), MoveCommand.class);
                 switch (userGameCommand.getCommandType()) {
                     case CONNECT -> connect(userGameCommand,ctx.session);
                     case LEAVE -> leave(userGameCommand,ctx.session);
-                    case MAKE_MOVE -> makeMove(userGameCommand,ctx.session);
+                    case MAKE_MOVE -> makeMove(moveCommand,ctx.session);
                 }
             } catch (Exception e) {
                 System.out.println("WEBSOCKET ERROR:");
@@ -80,8 +84,33 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(userGameCommand.getGameID(),session,notification);
         }
 
-        public void makeMove(UserGameCommand userGameCommand,Session session){
+        public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException {
+            ChessMove move = moveCommand.getMove();
+            String username = authDAO.getUserByToken(moveCommand.getAuthToken());
+            String message = makeMoveNotification(move, username);
 
+            GameData game = gameDAO.getGameByID(moveCommand.getGameID());
+            String playerType = moveCommand.getPlayerType();
+
+            var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game,playerType);
+            session.getRemote().sendString(Serializer.toJson(loadGameMsg));
+
+
+            var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
+            connections.broadcast(moveCommand.getGameID(),session,notification);
         }
+
+    @NotNull
+    private static String makeMoveNotification(ChessMove move, String username) {
+        ChessPosition startPos = move.getStartPosition();
+        int startPosRow = startPos.getRow();
+        int startPosCol = startPos.getColumn();
+        char startPosColLetter = (char)('A'+startPosCol-1);
+        ChessPosition endPos = move.getEndPosition();
+        int endPosRow = endPos.getRow();
+        int endPosCol = endPos.getColumn();
+        char endPosColLetter = (char)('A'+endPosCol-1);
+        return String.format("   %s has moved from %s%d to %s%d", username,startPosColLetter,startPosRow,endPosColLetter,endPosRow);
+    }
 
 }
