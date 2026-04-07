@@ -84,23 +84,35 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = currentBoard.getPiece(startPosition);
-        if (piece != null && piece.getTeamColor() == currentTeam) {
-            Collection<ChessMove> possibleMoves = validMoves(startPosition);
-            boolean canMove = possibleMoves.contains(move);
-            if (canMove) {
-                currentBoard.movePiece(startPosition, endPosition, move.getPromotionPiece());
-            } else {
-                throw new InvalidMoveException("Error: Move not valid");
-            }
-            currentTeam = (currentTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-            boardCopy = new ChessBoard(currentBoard);
-        } else if (piece == null) {
-            throw new InvalidMoveException("Error: Move not valid.");
-        }else if(piece!= null && piece.getTeamColor()!= currentTeam){
-            throw new InvalidMoveException("Error: You can't move your opponent's pieces");
-        } else {
-            throw new InvalidMoveException("Error: Please wait for your turn.");
+        TeamColor oppTeam = (currentTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        //if game over
+        if (ifNoValidMoves(currentTeam) || ifNoValidMoves(oppTeam)){
+            throw new InvalidMoveException("Game Over. No more moves can be made. Please leave the game to exit.");
         }
+        //if no piece in starting position
+        if (piece == null){
+            throw  new InvalidMoveException("Error: No piece at that position");
+        }
+        //wrong player's piece
+        if (piece.getTeamColor() != currentTeam){
+            throw new InvalidMoveException("Error: You can't move opponent's pieces");
+        }
+
+        Collection<ChessMove> possibleMoves = validMoves(startPosition);
+
+        boolean canMove = possibleMoves.contains(move);
+        if (canMove) {
+            currentBoard.movePiece(startPosition, endPosition, move.getPromotionPiece());
+        } else {
+            throw new InvalidMoveException("Error: Move not valid");
+        }
+        currentTeam = (currentTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        boardCopy = new ChessBoard(currentBoard);
+//        } else if (piece == null) {
+//            throw new InvalidMoveException("Error: Move not valid.");
+//        }else if(piece.getTeamColor() != currentTeam){
+//            throw new InvalidMoveException("Error: You can't move your opponent's pieces");
+//        }
     }
 
     /**
@@ -199,7 +211,7 @@ public class ChessGame {
      * @param teamColor the team who wants to see if in checkmate or stalemate
      * @return whether a team has any valid moves for any of their pieces
      */
-    private boolean ifNoValidMoves(TeamColor teamColor) {
+    public boolean ifNoValidMoves(TeamColor teamColor) {
         Collection<ChessMove> possibleMoves = new ArrayList<>();
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {

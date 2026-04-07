@@ -370,13 +370,20 @@ public class Client implements NotificationHandler {
         }
     }
 
+
+
     private void makeMovePrompt(int gameID) throws ResponseException {
         System.out.println("What move would you like to make?");
         String inputMove = SCANNER.nextLine().toUpperCase();
         ChessMove move = translateToChessMove(inputMove);
-        System.out.println(move);
+//        System.out.println(move);
         ws.sendMoveMsg(authToken,gameID,move);
         //TODO: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
+        //TODO: fix UI so the menu doesn't print before board and mess things up
+        //TODO: highlight legal moves (for player and observer)
+        //TODO: resign & end game so no more moves can be made
+        //TODO: revise help menu
+        //TODO: if move results in check, checkmate or stalemate the server sends a notification to all clients
     }
 
     private ChessMove translateToChessMove(String inputMove) {

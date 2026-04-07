@@ -12,4 +12,12 @@ public record GameData(int gameId, String whiteUsername, String blackUsername, S
     public String toString(){
         return new Gson().toJson(this);
     }
+
+    public String getBlackUsername() {
+        return blackUsername;
+    }
+
+    public String getWhiteUsername() {
+        return whiteUsername;
+    }
 }

@@ -66,4 +66,12 @@ public class ConnectionManager {
             session.getRemote().sendString(Serializer.toJson(msg));
         }
     }
+
+    public PlayerInfo getPlayer(int gameID, Session session) {
+        var gameConnections = connections.get(gameID);
+        if (gameConnections == null){
+            return null;
+        }
+        return gameConnections.get(session);
+    }
 }
