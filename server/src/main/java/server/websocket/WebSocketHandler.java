@@ -61,7 +61,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         public void connect(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
             //I need some way to validate the auth token and get the username, so I can send a notification
             String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
-            connections.add(userGameCommand.getGameID(), session, username);
+            PlayerInfo playerInfo = new PlayerInfo(username, userGameCommand.getGameID(), userGameCommand.getPlayerType());
+            connections.add(userGameCommand.getGameID(), session, playerInfo);
             GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
             String playerType = userGameCommand.getPlayerType();
 
@@ -91,7 +92,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String message = makeMoveNotification(move, username);
 
             GameData game = gameDAO.getGameByID(moveCommand.getGameID());
-            String playerType = moveCommand.getPlayerType();
 
             try {
                 game.game().makeMove(move);
@@ -104,11 +104,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new ResponseException(ResponseException.Code.ServerError,e.getMessage());
             }
 
-            var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game,playerType);
-            System.out.println(game);
-            System.out.println(loadGameMsg);
-            session.getRemote().sendString(Serializer.toJson(loadGameMsg));
-
+            connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
 
             var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
             connections.broadcast(moveCommand.getGameID(),session,notification);

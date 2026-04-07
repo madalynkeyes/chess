@@ -1,17 +1,19 @@
 package server.websocket;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import server.Serializer;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    ConcurrentHashMap<Integer, ConcurrentHashMap<Session, String>> connections = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Integer, ConcurrentHashMap<Session, PlayerInfo>> connections = new ConcurrentHashMap<>();
 
-    public void add(int gameID, Session session, String username) {
+    public void add(int gameID, Session session, PlayerInfo playerInfo) {
         connections.putIfAbsent(gameID, new ConcurrentHashMap<>());
-        connections.get(gameID).put(session, username);
+        connections.get(gameID).put(session, playerInfo);
     }
 
     public void remove(int gameID, Session session) {
@@ -35,17 +37,33 @@ public class ConnectionManager {
         //--> goes to WebSocketFacade.addMessageHandler
     }
 
-    public void broadcastToAll(int gameID, ServerMessage message) throws IOException {
+    public void broadcastToAll(int gameID, LoadGameMessage message) throws IOException {
         var gameConnections = connections.get(gameID);
         System.out.println("The game connections is:" + gameConnections);
         for (Session c : gameConnections.keySet()) {
-            System.out.println("key:"+gameConnections.keySet());
-            System.out.println("c"+c);
+            System.out.println("key:" + gameConnections.keySet());
+            System.out.println("c" + c);
             System.out.println(message.toString());
             System.out.println(Serializer.toJson(message));
             if (c.isOpen()) {
                 c.getRemote().sendString(Serializer.toJson(message));
             }
+        }
+    }
+
+    public void broadcastUpdateToAll(Integer gameID, GameData game) throws IOException {
+        var gameConnections = connections.get(gameID);
+        for (var entry : gameConnections.entrySet()) {
+            Session session = entry.getKey();
+            PlayerInfo player = entry.getValue();
+
+            var msg = new LoadGameMessage(
+                    ServerMessage.ServerMessageType.LOAD_GAME,
+                    game,
+                    player.getPlayerType()
+            );
+
+            session.getRemote().sendString(Serializer.toJson(msg));
         }
     }
 }
