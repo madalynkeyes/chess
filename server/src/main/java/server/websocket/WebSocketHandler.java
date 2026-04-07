@@ -14,6 +14,7 @@ import server.Serializer;
 import service.GameService;
 import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -98,11 +99,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 game = gameDAO.updateGameData(game);
 
             } catch (InvalidMoveException e) {
+                var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
+                session.getRemote().sendString(Serializer.toJson(errorMsg));
                 throw new InvalidMoveException(e.getMessage());
-                //put error message her with the e.getMessage()
             } catch (ResponseException e) {
+                var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
+                session.getRemote().sendString(Serializer.toJson(errorMsg));
                 throw new ResponseException(ResponseException.Code.ServerError,e.getMessage());
             }
+
 
             connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
 

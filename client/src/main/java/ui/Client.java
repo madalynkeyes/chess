@@ -376,7 +376,7 @@ public class Client implements NotificationHandler {
         ChessMove move = translateToChessMove(inputMove);
         System.out.println(move);
         ws.sendMoveMsg(authToken,gameID,move);
-        //TODO: make sure it is their turn, create makeMoveCommand that will send the message, then access the game data & change it to make the move
+        //TODO: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
     }
 
     private ChessMove translateToChessMove(String inputMove) {

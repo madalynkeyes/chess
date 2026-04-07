@@ -94,8 +94,10 @@ public class ChessGame {
             }
             currentTeam = (currentTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
             boardCopy = new ChessBoard(currentBoard);
-        } else if (piece == null){
+        } else if (piece == null) {
             throw new InvalidMoveException("Error: Move not valid.");
+        }else if(piece!= null && piece.getTeamColor()!= currentTeam){
+            throw new InvalidMoveException("Error: You can't move your opponent's pieces");
         } else {
             throw new InvalidMoveException("Error: Please wait for your turn.");
         }

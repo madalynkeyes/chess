@@ -8,6 +8,7 @@ import server.Serializer;
 import ui.ClientChessBoard;
 import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -46,6 +47,9 @@ public class WebSocketFacade extends Endpoint {
                         playerType = loadGameMessage.getPlayerType();
                         currentBoard = loadGameMessage.getGameData().game().getBoard();
                         drawBoard(currentBoard, playerType);
+                    } else{
+                        ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
+                        System.out.println(errorMessage.getMessage());
                     }
                 }
             });
