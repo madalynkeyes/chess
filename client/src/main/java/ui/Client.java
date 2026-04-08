@@ -394,10 +394,7 @@ public class Client implements NotificationHandler {
                         ws.sendLeaveMsg(authToken,gameID,playerType);
                         return;
                     }
-                    case 5 -> {
-                        ws.sendResignMsg(authToken,gameID,playerType);
-                        return;
-                    }
+                    case 5 -> resignPrompt(authToken,gameID,playerType);
                     case 6 -> helpPlayPrompt();
                     default -> System.out.println("Please enter an number 1-6: ");
                 }
@@ -412,6 +409,14 @@ public class Client implements NotificationHandler {
             } catch (ResponseException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void resignPrompt(String authToken, int gameID, String playerType) throws ResponseException {
+        System.out.println("Are you sure you want to resign? Please type 'yes' or 'no'");
+        String input = SCANNER.nextLine();
+        if(input.equalsIgnoreCase("yes")) {
+            ws.sendResignMsg(authToken, gameID, playerType);
         }
     }
 
@@ -474,6 +479,8 @@ public class Client implements NotificationHandler {
         //done: if move results in check, checkmate or stalemate the server sends a notification to all clients
         //TODO: check for anything else in spec and check for bugs
         //TODO: run websocket tests
+        //TODO: implement pawn promotions
+        //done: resigning should require a confirmation and does not kick players from the game
     }
 
     private ChessMove translateToChessMove(String inputMove) {
