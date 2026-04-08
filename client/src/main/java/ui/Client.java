@@ -313,7 +313,7 @@ public class Client implements NotificationHandler {
             try {
                 int option = Integer.parseInt(input);
                 switch (option) {
-                    case 1 -> System.out.println("highlighhtht");
+                    case 1 -> highlightPrompt("WHITE");
                     case 2 -> WebSocketFacade.drawBoard(null,null);
                     case 3 -> {
                         ws.sendLeaveMsg(authToken,gameID,playerType);
@@ -375,9 +375,13 @@ public class Client implements NotificationHandler {
 
     private void highlightPrompt(String playerType) {
         System.out.println("What piece would you like to see the legal moves for?");
-        String pieceLocation = SCANNER.nextLine().toUpperCase();
-        ChessPosition startPos = translateToChessPos(pieceLocation);
-        ws.highlightMoves(startPos,playerType);
+        try {
+            String pieceLocation = SCANNER.nextLine().toUpperCase();
+            ChessPosition startPos = translateToChessPos(pieceLocation);
+            ws.highlightMoves(startPos, playerType);
+        } catch (Exception e){
+            System.out.println("Error: Please enter valid piece location (i.e. 'e6')");
+        }
 
     }
 
@@ -400,10 +404,14 @@ public class Client implements NotificationHandler {
 
     private void makeMovePrompt(int gameID) throws ResponseException {
         System.out.println("What move would you like to make?");
+        try{
         String inputMove = SCANNER.nextLine().toUpperCase();
         ChessMove move = translateToChessMove(inputMove);
 //        System.out.println(move);
-        ws.sendMoveMsg(authToken,gameID,move);
+        ws.sendMoveMsg(authToken,gameID,move);}
+        catch (Exception e) {
+            System.out.println("Error: Please enter valid move (i.e. 'a2a3')");
+        }
         //done: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
         //TODO: fix UI so the menu doesn't print before board and mess things up
         //TODO: highlight legal moves (for player and observer)
