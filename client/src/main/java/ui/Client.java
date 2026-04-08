@@ -24,7 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static ui.EscapeSequences.ERASE_SCREEN;
+import static ui.EscapeSequences.*;
 
 public class Client implements NotificationHandler {
     private static final Scanner SCANNER = new Scanner(System.in);
@@ -74,7 +74,9 @@ public class Client implements NotificationHandler {
                     default ->  System.out.println("Please enter an number 1-4: ");
                 }
             } catch (Exception e) {
-                System.out.println("Please enter a number or type 'quit' to exit.");
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("Error: Please enter a number or type 'quit' to exit.");
+                System.out.print(RESET_TEXT_COLOR);
             }
         }
     }
@@ -109,7 +111,9 @@ public class Client implements NotificationHandler {
             System.out.printf("Welcome %s! Please choose an option:%n", username);
             return true;
         } catch (ResponseException | URISyntaxException | IOException | InterruptedException e) {
-            System.out.println("Username or Password incorrect. Please try again or register an account.");
+            System.out.print(SET_TEXT_COLOR_RED);
+            System.out.println("Error: Username or Password incorrect. Please try again or register an account.");
+            System.out.print(RESET_TEXT_COLOR);
             return false;
         }
     }
@@ -136,13 +140,19 @@ public class Client implements NotificationHandler {
             System.out.printf("Account for %s has been created.%n",username);
             return true;
         } catch (AlreadyTakenException e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: username already taken. Please login or choose a different username.");
+            System.out.print(RESET_TEXT_COLOR);
             return false;
         } catch (BadRequestException e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: invalid input.");
+            System.out.print(RESET_TEXT_COLOR);
             return false;
         } catch (Exception e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: " + e.getMessage());
+            System.out.print(RESET_TEXT_COLOR);
             return false;
         }
 
@@ -177,9 +187,13 @@ public class Client implements NotificationHandler {
                     default -> System.out.println("Please enter an number 1-6: ");
                 }
             } catch (NumberFormatException e) {
+                System.out.print(SET_TEXT_COLOR_RED);
                 System.out.println("Please enter a number or type 'quit' to exit.");
+                System.out.print(RESET_TEXT_COLOR);
             } catch (AlreadyTakenException e){
+                System.out.print(SET_TEXT_COLOR_RED);
                 System.out.println("Please choose different username");
+                System.out.print(RESET_TEXT_COLOR);
             }
         }
     }
@@ -190,7 +204,9 @@ public class Client implements NotificationHandler {
             serverFacade.logout();
             System.out.println("You have logged out.");
         } catch(Exception e){
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Log out failed.");
+            System.out.print(RESET_TEXT_COLOR);
         }
 
     }
@@ -207,7 +223,9 @@ public class Client implements NotificationHandler {
             serverFacade.createGame(createGameRequest);
             System.out.printf("Game Created: %s%n",gameName);
         } catch (AlreadyTakenException | URISyntaxException | IOException | InterruptedException | ResponseException e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Game name already exists. Please join game or create different game name.");
+            System.out.print(RESET_TEXT_COLOR);
         }
     }
 
@@ -219,7 +237,9 @@ public class Client implements NotificationHandler {
             }
             printGamesList(gamesList);
         } catch (Exception e){
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println(e.getMessage());
+            System.out.print(RESET_TEXT_COLOR);
         }
     }
 
@@ -269,12 +289,18 @@ public class Client implements NotificationHandler {
             ws.sendConnectMsg(authToken,gameID,playerColor);
             gamePlayPrompt(authToken,gameID,playerColor);
         } catch (AlreadyTakenException e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: Player Color Unavailable. Please Choose Different Color.");
+            System.out.print(RESET_TEXT_COLOR);
         }catch (BadRequestException e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: Please Specify Player Color. Enter 'WHITE' or 'BLACK'.");
+            System.out.print(RESET_TEXT_COLOR);
         }catch (Exception e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
+            System.out.print(RESET_TEXT_COLOR);
         }
     }
 
@@ -296,8 +322,10 @@ public class Client implements NotificationHandler {
             ws.sendConnectMsg(authToken,gameID,"OBSERVER");
             observeGamePlayPrompt(authToken,gameID,"OBSERVER");
         } catch (Exception e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: Game Not Found. Please Enter Number of Existing Game.");
             System.out.println("Tip: To see existing games, choose 'List Games' option.");
+            System.out.print(RESET_TEXT_COLOR);
         }
     }
 
@@ -323,9 +351,13 @@ public class Client implements NotificationHandler {
                     default -> System.out.println("Please enter an number 1-4: ");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Please enter a number or type 'quit' to exit.");
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("Error: Please enter a number or type 'quit' to exit.");
+                System.out.print(RESET_TEXT_COLOR);
             } catch (AlreadyTakenException e){
-                System.out.println("Please choose diff username");
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("Error: Please choose different username");
+                System.out.print(RESET_TEXT_COLOR);
             } catch (ResponseException e) {
                 throw new RuntimeException(e);
             }
@@ -364,9 +396,13 @@ public class Client implements NotificationHandler {
                     default -> System.out.println("Please enter an number 1-6: ");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Please enter a number or type 'quit' to exit.");
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("Error: Please enter a number or type 'quit' to exit.");
+                System.out.print(RESET_TEXT_COLOR);
             } catch (AlreadyTakenException e){
-                System.out.println("Please choose diff username");
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("Error: Please choose different username");
+                System.out.print(RESET_TEXT_COLOR);
             } catch (ResponseException e) {
                 throw new RuntimeException(e);
             }
@@ -380,7 +416,9 @@ public class Client implements NotificationHandler {
             ChessPosition startPos = translateToChessPos(pieceLocation);
             ws.highlightMoves(startPos, playerType);
         } catch (Exception e){
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: Please enter valid piece location (i.e. 'e6')");
+            System.out.print(RESET_TEXT_COLOR);
         }
 
     }
@@ -410,7 +448,9 @@ public class Client implements NotificationHandler {
 //        System.out.println(move);
         ws.sendMoveMsg(authToken,gameID,move);}
         catch (Exception e) {
+            System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: Please enter valid move (i.e. 'a2a3')");
+            System.out.print(RESET_TEXT_COLOR);
         }
         //done: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
         //TODO: fix UI so the menu doesn't print before board and mess things up

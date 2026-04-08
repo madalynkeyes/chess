@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Set;
+import static ui.EscapeSequences.*;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
@@ -51,7 +52,9 @@ public class WebSocketFacade extends Endpoint {
                         drawBoard(currentBoard, playerType);
                     } else{
                         ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
+                        System.out.print(SET_TEXT_COLOR_RED);
                         System.out.println(errorMessage.getMessage());
+                        System.out.print(RESET_TEXT_COLOR);
                     }
                 }
             });

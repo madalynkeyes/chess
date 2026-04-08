@@ -98,7 +98,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
             GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
             if (game.game().getIsGameOver()){
-                String message = "Game is already over.";
+                String message = "Error: Game is already over.";
                 var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,message);
                 session.getRemote().sendString(Serializer.toJson(error));
             } else {
@@ -123,12 +123,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessGame.TeamColor currentTeam = game.game().getTeamTurn();
             ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK: ChessGame.TeamColor.WHITE;
             if (game.game().getIsGameOver()){
-                String eMessage = "Game is already over.";
+                String eMessage = "Error: Game is already over.";
                 var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,eMessage);
                 session.getRemote().sendString(Serializer.toJson(error));
             }
             else if (playerColor != currentTeam){
-                    String error = "    Error: Please Wait For Your Turn";
+                    String error = "Error: Please Wait For Your Turn";
                     var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, error);
                     session.getRemote().sendString(Serializer.toJson(errorMsg));
                     return;
