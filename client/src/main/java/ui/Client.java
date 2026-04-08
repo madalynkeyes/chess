@@ -356,7 +356,10 @@ public class Client implements NotificationHandler {
                         ws.sendLeaveMsg(authToken,gameID,playerType);
                         return;
                     }
-                    case 5 -> System.out.println("Resigning is worse");
+                    case 5 -> {
+                        ws.sendResignMsg(authToken,gameID,playerType);
+                        return;
+                    }
                     case 6 -> helpPrompt();
                     default -> System.out.println("Please enter an number 1-6: ");
                 }

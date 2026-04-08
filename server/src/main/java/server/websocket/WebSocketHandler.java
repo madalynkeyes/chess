@@ -48,6 +48,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     case CONNECT -> connect(userGameCommand,ctx.session);
                     case LEAVE -> leave(userGameCommand,ctx.session);
                     case MAKE_MOVE -> makeMove(moveCommand,ctx.session);
+                    case RESIGN -> resign(userGameCommand,ctx.session);
                 }
             } catch (Exception e) {
                 System.out.println("WEBSOCKET ERROR:");
@@ -88,7 +89,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(userGameCommand.getGameID(),session,notification);
         }
 
-        public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException, InvalidMoveException {
+        public void resign(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
+
+            PlayerInfo player = connections.getPlayer(userGameCommand.getGameID(),session);
+            String playerType = player.getPlayerType();
+            ChessGame.TeamColor playerColor = getPlayerColor(playerType);
+            ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK: ChessGame.TeamColor.WHITE;
+            String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
+            GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
+            if (game.game().getIsGameOver()){
+                String message = "Game is already over.";
+                var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,message);
+                session.getRemote().sendString(Serializer.toJson(error));
+            } else {
+                game.game().setGameOver();
+                gameDAO.updateGameData(game);
+                String message = String.format("   %s has resigned. %s wins!", username, opponentColor);
+                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcastToAll(userGameCommand.getGameID(), notification);
+            }
+            connections.remove(userGameCommand.getGameID(), session);
+        }
+
+        public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException{
             ChessMove move = moveCommand.getMove();
             String username = authDAO.getUserByToken(moveCommand.getAuthToken());
             String message = makeMoveNotification(move, username);
@@ -99,7 +122,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessGame.TeamColor playerColor = getPlayerColor(playerType);
             ChessGame.TeamColor currentTeam = game.game().getTeamTurn();
             ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK: ChessGame.TeamColor.WHITE;
-            if (playerColor != currentTeam){
+            if (game.game().getIsGameOver()){
+                String eMessage = "Game is already over.";
+                var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,eMessage);
+                session.getRemote().sendString(Serializer.toJson(error));
+            }
+            else if (playerColor != currentTeam){
                     String error = "    Error: Please Wait For Your Turn";
                     var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, error);
                     session.getRemote().sendString(Serializer.toJson(errorMsg));
@@ -140,10 +168,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 session.getRemote().sendString(Serializer.toJson(errorMsg));
 //                throw new ResponseException(ResponseException.Code.ServerError,e.getMessage());
             }
-
-
-
-
 
         }
 

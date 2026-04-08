@@ -14,6 +14,7 @@ public class ChessGame {
     TeamColor currentTeam;
     ChessBoard currentBoard;
     ChessBoard boardCopy;
+    boolean isGameOver = false;
 
     public ChessGame() {
         currentTeam = TeamColor.WHITE;
@@ -81,6 +82,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (isGameOver){
+            throw new InvalidMoveException("Game Over. No more moves can be made. Please leave the game to exit.");
+        }
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = currentBoard.getPiece(startPosition);
@@ -108,11 +112,6 @@ public class ChessGame {
         }
         currentTeam = (currentTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         boardCopy = new ChessBoard(currentBoard);
-//        } else if (piece == null) {
-//            throw new InvalidMoveException("Error: Move not valid.");
-//        }else if(piece.getTeamColor() != currentTeam){
-//            throw new InvalidMoveException("Error: You can't move your opponent's pieces");
-//        }
     }
 
     /**
@@ -243,6 +242,14 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return currentBoard;
+    }
+
+    public void setGameOver() {
+        isGameOver = true;
+    }
+
+    public boolean getIsGameOver() {
+        return isGameOver;
     }
 
     @Override

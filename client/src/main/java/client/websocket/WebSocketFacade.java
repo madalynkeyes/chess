@@ -93,6 +93,15 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void sendResignMsg(String authToken, int gameID, String playerType) throws ResponseException {
+        try {
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN,authToken,gameID,playerType);
+            this.session.getBasicRemote().sendText(Serializer.toJson(action));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
     public void sendMoveMsg(String authToken, int gameID, ChessMove move) throws ResponseException {
         try {
             var action = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,gameID,playerType,move);

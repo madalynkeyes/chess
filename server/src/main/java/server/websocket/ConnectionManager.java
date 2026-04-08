@@ -3,6 +3,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import server.Serializer;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class ConnectionManager {
         //--> goes to WebSocketFacade.addMessageHandler
     }
 
-    public void broadcastToAll(int gameID, LoadGameMessage message) throws IOException {
+    public void broadcastToAll(int gameID, NotificationMessage message) throws IOException {
         var gameConnections = connections.get(gameID);
         System.out.println("The game connections is:" + gameConnections);
         for (Session c : gameConnections.keySet()) {
