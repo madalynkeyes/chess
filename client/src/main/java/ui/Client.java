@@ -347,7 +347,7 @@ public class Client implements NotificationHandler {
                         ws.sendLeaveMsg(authToken,gameID,playerType);
                         return;
                     }
-                    case 4 -> helpPrompt();
+                    case 4 -> helpObservePrompt();
                     default -> System.out.println("Please enter an number 1-4: ");
                 }
             } catch (NumberFormatException e) {
@@ -362,6 +362,12 @@ public class Client implements NotificationHandler {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void helpObservePrompt() {
+        System.out.println("Tips: Please enter a number for the option you would like to choose.");
+        System.out.println("Type the number and then press the 'enter' key on your keyboard.");
+        System.out.println("To view legal moves of a piece, choose '2' and then type location of piece (i.e. 'a4')");
     }
 
     public void gamePlayPrompt(String authToken, int gameID, String playerType) {
@@ -392,7 +398,7 @@ public class Client implements NotificationHandler {
                         ws.sendResignMsg(authToken,gameID,playerType);
                         return;
                     }
-                    case 6 -> helpPrompt();
+                    case 6 -> helpPlayPrompt();
                     default -> System.out.println("Please enter an number 1-6: ");
                 }
             } catch (NumberFormatException e) {
@@ -407,6 +413,13 @@ public class Client implements NotificationHandler {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void helpPlayPrompt() {
+        System.out.println("Tips: Please enter a number for the option you would like to choose.");
+        System.out.println("Type the number and then press the 'enter' key on your keyboard.");
+        System.out.println("To make a move, choose '1' and then type start and end position of the piece (i.e. 'a2b3')");
+        System.out.println("To view legal moves of a piece, choose '2' and then type location of piece (i.e. 'a4')");
     }
 
     private void highlightPrompt(String playerType) {
@@ -454,11 +467,13 @@ public class Client implements NotificationHandler {
         }
         //done: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
         //TODO: fix UI so the menu doesn't print before board and mess things up
-        //TODO: highlight legal moves (for player and observer)
+        //done: highlight legal moves (for player and observer)
         //done: resign & end game so no more moves can be made
-        //TODO: revise help menu
+        //done: revise help menu
         //TODO: when in check, it should say player's name
         //done: if move results in check, checkmate or stalemate the server sends a notification to all clients
+        //TODO: check for anything else in spec and check for bugs
+        //TODO: run websocket tests
     }
 
     private ChessMove translateToChessMove(String inputMove) {
