@@ -46,6 +46,8 @@ public class WebSocketFacade extends Endpoint {
                         notificationHandler.notify(notification);
                     } else if (serverMessage.getServerMessageType()== ServerMessage.ServerMessageType.LOAD_GAME) {
                         LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
+                        System.out.println(loadGameMessage);
+                        System.out.println("Game" + loadGameMessage.getGameData());
                         playerType = loadGameMessage.getPlayerType();
                         currentBoard = loadGameMessage.getGameData().game().getBoard();
                         currentGame = loadGameMessage.getGameData().game();

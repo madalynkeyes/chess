@@ -68,6 +68,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             PlayerInfo playerInfo = new PlayerInfo(username, userGameCommand.getGameID(), userGameCommand.getPlayerType());
             connections.add(userGameCommand.getGameID(), session, playerInfo);
             GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
+//            System.out.println(game);
             String playerType = userGameCommand.getPlayerType();
 
             var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game,playerType);

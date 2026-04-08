@@ -471,7 +471,7 @@ public class Client implements NotificationHandler {
             System.out.print(RESET_TEXT_COLOR);
         }
         //done: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
-        //TODO: fix UI so the menu doesn't print before board and mess things up
+        //done-ish: fix UI so the menu doesn't print before board and mess things up
         //done: highlight legal moves (for player and observer)
         //done: resign & end game so no more moves can be made
         //done: revise help menu
@@ -507,7 +507,7 @@ public class Client implements NotificationHandler {
 
     @Override
     public void notify(NotificationMessage notificationMessage) {
-        System.out.println(notificationMessage);
+        System.out.println(notificationMessage.getMessage());
     }
 
 
