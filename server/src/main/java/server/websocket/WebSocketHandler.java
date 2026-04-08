@@ -21,6 +21,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -90,12 +91,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         public void resign(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
+            PlayerInfo player = connections.getPlayer(userGameCommand.getGameID(),session);
+            String playerColor = player.getPlayerType();
+            String opponentColor = (Objects.equals(playerColor, "WHITE")) ? "BLACK": "WHITE";
+            String opponentName = getOpponentName(userGameCommand, opponentColor);
 
-                PlayerInfo player = connections.getPlayer(userGameCommand.getGameID(),session);
-                String playerType = player.getPlayerType();
-                ChessGame.TeamColor playerColor = getPlayerColor(playerType);
-                ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK: ChessGame.TeamColor.WHITE;
-                String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
+
+            String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
                 GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
                 if (game.game().getIsGameOver()){
                     String message = "Error: Game is already over. Please leave the game to exit.";
@@ -104,7 +106,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else {
                     game.game().setGameOver();
                     gameDAO.updateGameData(game);
-                    String message = String.format("   %s has resigned. %s wins!", username, opponentColor);
+                    String message = String.format("   %s has resigned. %s wins!", username, opponentName);
                     var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     connections.broadcastToAll(userGameCommand.getGameID(), notification);
                 }
@@ -112,7 +114,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         }
 
-        public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException{
+    private String getOpponentName(UserGameCommand userGameCommand, String opponentColor) {
+        String opponentName = opponentColor;
+        Collection<PlayerInfo> allPlayers = connections.getAllPlayers(userGameCommand.getGameID());
+        for (PlayerInfo selectedPlayer : allPlayers){
+            if (Objects.equals(selectedPlayer.getPlayerType(), opponentColor)){
+                      opponentName = selectedPlayer.getUsername();
+            }
+        }
+        return opponentName;
+    }
+
+    public void makeMove(MoveCommand moveCommand,Session session) throws ResponseException, IOException{
             ChessMove move = moveCommand.getMove();
             String username = authDAO.getUserByToken(moveCommand.getAuthToken());
             String message = makeMoveNotification(move, username);
@@ -125,10 +138,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 session.getRemote().sendString(Serializer.toJson(nullErrorMsg));
             }
             else {
-                String playerType = player.getPlayerType();
-                ChessGame.TeamColor playerColor = getPlayerColor(playerType);
-                ChessGame.TeamColor currentTeam = game.game().getTeamTurn();
-                ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+                String playerType = player.getPlayerType(); //"WHITE"
+                ChessGame.TeamColor playerColor = getTeamColor(playerType); //.WHITE
+                ChessGame.TeamColor currentTeam = game.game().getTeamTurn(); //.WHITE
+                ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE; //.BLACK
+                String opponentColorString = (Objects.equals(playerType, "WHITE")) ? "BLACK": "WHITE"; // "BLACK"
+                String currentTeamString = getPlayerColor(currentTeam);
+                String opponentName = getOpponentName(moveCommand,opponentColorString);
+
                 if (!game.game().getIsGameOver()) {
                     if (playerColor != currentTeam) {
                     String error = "Error: Please Wait For Your Turn";
@@ -142,19 +159,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     game = gameDAO.updateGameData(game);
 //                String opponentName = getOpponentName(opponentColor, game);
                     if (game.game().isInCheckmate(opponentColor)) {
-                        String checkMessage = String.format("    Checkmate! %s wins!", username);
+                        String checkMessage = String.format("   Checkmate! %s wins!", username);
                         var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
                         connections.broadcast(game.gameId(), null, checkNotification);
                     } else if (game.game().isInStalemate(opponentColor)) {
-                        String checkMessage = "    Stalemate! Game is a draw.";
+                        String checkMessage = "   Stalemate! Game is a draw.";
                         var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
                         connections.broadcast(game.gameId(), null, checkNotification);
                     } else if (game.game().isInCheck(opponentColor)) {
-                        String checkMessage = String.format("    %s player is in check", opponentColor);
+                        String checkMessage = String.format("   %s is in check", opponentName);
                         var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                        connections.broadcast(game.gameId(), null, checkNotification);
-                        connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
                         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                        connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
+                        connections.broadcast(game.gameId(), null, checkNotification);
                         connections.broadcast(moveCommand.getGameID(), session, notification);
                     } else {
                         connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
@@ -175,7 +192,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         }
 
-    private static ChessGame.TeamColor getPlayerColor(String playerType) {
+    private static ChessGame.TeamColor getTeamColor(String playerType) {
         ChessGame.TeamColor playerColor;
         if (Objects.equals(playerType, "WHITE")){
             playerColor = ChessGame.TeamColor.WHITE;
@@ -185,15 +202,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return playerColor;
     }
 
-    private static String getOpponentName(ChessGame.TeamColor opponentColor, GameData game) {
-        String opponentName;
-        if (opponentColor == ChessGame.TeamColor.WHITE){
-            opponentName = game.getBlackUsername();
+    private static String getPlayerColor(ChessGame.TeamColor playerType) {
+        String playerColor;
+        if (playerType == ChessGame.TeamColor.WHITE){
+            playerColor = "WHITE";
         } else {
-            opponentName = game.getWhiteUsername();
+            playerColor = "BLACK";
         }
-        return opponentName;
+        return playerColor;
     }
+
 
     @NotNull
     private static String makeMoveNotification(ChessMove move, String username) {

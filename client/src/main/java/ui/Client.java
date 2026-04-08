@@ -475,7 +475,7 @@ public class Client implements NotificationHandler {
         //done: highlight legal moves (for player and observer)
         //done: resign & end game so no more moves can be made
         //done: revise help menu
-        //TODO: when in check, it should say player's name
+        //done: when in check or resigned, it should say player's name
         //done: if move results in check, checkmate or stalemate the server sends a notification to all clients
         //TODO: check for anything else in spec and check for bugs
         //TODO: run websocket tests
@@ -506,9 +506,9 @@ public class Client implements NotificationHandler {
 
 
     @Override
-    public void notify(NotificationMessage message) {
-        System.out.println(message.getMessage());
-
+    public void notify(NotificationMessage notificationMessage) {
+        System.out.println(notificationMessage);
     }
+
 
 }

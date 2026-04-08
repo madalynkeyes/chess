@@ -7,6 +7,8 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -69,5 +71,13 @@ public class ConnectionManager {
             return null;
         }
         return gameConnections.get(session);
+    }
+
+    public Collection<PlayerInfo> getAllPlayers(int gameID){
+        var gameConnections = connections.get(gameID);
+        if (gameConnections == null){
+            return List.of();
+        }
+        return gameConnections.values();
     }
 }

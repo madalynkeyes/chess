@@ -56,6 +56,7 @@ public class WebSocketFacade extends Endpoint {
                         System.out.println(errorMessage.getMessage());
                         System.out.print(RESET_TEXT_COLOR);
                     }
+//                    Client.gamePlayPrompt()
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
