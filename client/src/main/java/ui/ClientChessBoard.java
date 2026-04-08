@@ -1,13 +1,13 @@
 package ui;
 
-import chess.ChessBoard;
-
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static ui.EscapeSequences.*;
 
@@ -182,6 +182,21 @@ public class ClientChessBoard {
         out.print(SET_TEXT_COLOR_LIGHT_BLUE);
     }
 
+    private static void setRed(PrintStream out){
+        out.print(SET_BG_COLOR_RED);
+        out.print(SET_TEXT_COLOR_RED);
+    }
+
+    private static void setGreen(PrintStream out){
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_GREEN);
+    }
+
+    private static void setDarkGreen(PrintStream out){
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_DARK_GREEN);
+    }
+
     private static void setColorOdd(PrintStream out, int boardCol) {
         if(boardCol %2==0){
             setLightYellow(out);
@@ -211,6 +226,133 @@ public class ClientChessBoard {
 
     private static void printPiece(PrintStream out, String piece){
         out.print(piece);
+    }
+
+    public static Set<ChessPosition> getHighlightSquare(Collection<ChessMove> moves) {
+        Set<ChessPosition> highlightSquares = new HashSet<>();
+
+        for (ChessMove move : moves) {
+            highlightSquares.add(move.getEndPosition());
+        }
+        return highlightSquares;
+
+    }
+
+    public static void drawHighlightBoard(ChessBoard loadGameBoard, ChessPosition position, Set<ChessPosition> highlightSquares, String playerColor) {
+        board = loadGameBoard;
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        System.setProperty("file.encoding", "UTF-8");
+        color = playerColor;
+        out.print(ERASE_SCREEN);
+        if(Objects.equals(playerColor, "WHITE") || Objects.equals(playerColor,"OBSERVER")) {
+            highlightChessboardWhite(out,position,highlightSquares);
+        } else {
+            highlightChessboardBlack(out,position,highlightSquares);
+        }
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
+
+    }
+
+    private static void highlightChessboardBlack(PrintStream out, ChessPosition position, Set<ChessPosition> highlightSquares) {
+        drawChessHeadersBlack(out);
+        highlightChessBoardBlack(out,position,highlightSquares);
+        drawChessHeadersBlack(out);
+    }
+
+    private static void highlightChessBoardBlack(PrintStream out, ChessPosition position, Set<ChessPosition> highlightSquares) {
+        for (int boardRow = 0; boardRow <8; boardRow++){
+            setBorderSquare(out, String.valueOf(boardRow+1));
+            highlightRowOfChessSquaresBlack(out,boardRow,position,highlightSquares);
+
+        }
+    }
+
+    private static void highlightRowOfChessSquaresBlack(PrintStream out, int boardRow, ChessPosition position, Set<ChessPosition> highlightSquares) {
+        for (int boardCol = 7; boardCol >-1; boardCol--){
+            ChessPosition square = new ChessPosition(boardRow+1,boardCol+1);
+            if (square.equals(position)){
+                setRed(out);
+            }
+            else if(highlightSquares.contains(square)){
+                printMoveOptionSquareBlack(out,boardRow,boardCol);
+            } else {
+                setSquareColorBlack(out, boardRow, boardCol);
+            }
+            String pieceCode = BLACK_PAWN;
+            pieceCode = getPieceCode(out, boardRow + 1, boardCol, pieceCode);
+            printPiece(out, pieceCode);
+        }
+        setBorderSquare(out, String.valueOf(boardRow+1));
+        setDarkGrey(out);
+        out.println();
+    }
+
+    private static void printMoveOptionSquareBlack(PrintStream out, int boardRow, int boardCol) {
+        if(boardRow %2 != 0){ //odd row 1,3,5,7
+            if(boardCol %2==0){
+                setDarkGreen(out);
+            } else{
+                setGreen(out);
+            }
+        } else{
+            if(boardCol %2==0){
+                setGreen(out);
+            } else {
+                setDarkGreen(out);
+            }
+        }
+    }
+
+    private static void highlightChessboardWhite(PrintStream out, ChessPosition position, Set<ChessPosition> highlightSquares) {
+        drawChessHeadersWhite(out);
+        highlightChessBoardWhite(out,position,highlightSquares);
+        drawChessHeadersWhite(out);
+    }
+
+    private static void highlightChessBoardWhite(PrintStream out, ChessPosition position, Set<ChessPosition> highlightSquares) {
+        for (int boardRow = 8; boardRow > 0; boardRow--){
+            setBorderSquare(out, String.valueOf(boardRow));
+            highlightRowOfChessSquaresWhite(out,boardRow,position,highlightSquares);
+
+        }
+    }
+
+    private static void highlightRowOfChessSquaresWhite(PrintStream out, int boardRow, ChessPosition position,Set<ChessPosition> highlightSquares) {
+        for (int boardCol = 0; boardCol <CHESS_SQUARES_NUM; boardCol++){
+            ChessPosition square = new ChessPosition(boardRow,boardCol+1);
+            if (square.equals(position)){
+                setRed(out);
+            }
+            else if(highlightSquares.contains(square)){
+                printMoveOptionSquareWhite(out,boardRow,boardCol);
+            }
+            else {
+                setSquareColorWhite(out, boardRow, boardCol);
+            }
+                String pieceCode = WHITE_PAWN;
+                pieceCode = getPieceCode(out, boardRow, boardCol, pieceCode);
+                printPiece(out, pieceCode);
+        }
+        setBorderSquare(out, String.valueOf(boardRow));
+        setDarkGrey(out);
+        out.println();
+    }
+
+    private static void printMoveOptionSquareWhite(PrintStream out, int boardRow, int boardCol) {
+        if(boardRow %2 != 0){ //odd row 1,3,5,7
+            if(boardCol %2==0){
+                setGreen(out);
+            } else{
+                setDarkGreen(out);
+            }
+        } else{
+            if(boardCol %2==0){
+                setDarkGreen(out);
+            } else {
+                setGreen(out);
+            }
+        }
     }
 
 //    private static ChessBoard defaultBoard(){

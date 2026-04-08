@@ -1,7 +1,6 @@
 package client.websocket;
 
-import chess.ChessBoard;
-import chess.ChessMove;
+import chess.*;
 import dataaccess.exceptions.ResponseException;
 import jakarta.websocket.*;
 import server.Serializer;
@@ -16,13 +15,15 @@ import websocket.messages.ServerMessage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Set;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
     NotificationHandler notificationHandler;
     static ChessBoard currentBoard;
     static String playerType;
-
+    ChessGame currentGame;
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
@@ -46,6 +47,7 @@ public class WebSocketFacade extends Endpoint {
                         LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
                         playerType = loadGameMessage.getPlayerType();
                         currentBoard = loadGameMessage.getGameData().game().getBoard();
+                        currentGame = loadGameMessage.getGameData().game();
                         drawBoard(currentBoard, playerType);
                     } else{
                         ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
@@ -109,5 +111,11 @@ public class WebSocketFacade extends Endpoint {
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
+    }
+
+    public void highlightMoves(ChessPosition position,String playerType){
+        Collection<ChessMove> moves = currentGame.validMoves(position);
+        Set<ChessPosition> highlightSquares = ClientChessBoard.getHighlightSquare(moves);
+        ClientChessBoard.drawHighlightBoard(currentBoard,position,highlightSquares,playerType);
     }
 }

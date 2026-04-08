@@ -40,12 +40,7 @@ public class ConnectionManager {
 
     public void broadcastToAll(int gameID, NotificationMessage message) throws IOException {
         var gameConnections = connections.get(gameID);
-        System.out.println("The game connections is:" + gameConnections);
         for (Session c : gameConnections.keySet()) {
-            System.out.println("key:" + gameConnections.keySet());
-            System.out.println("c" + c);
-            System.out.println(message.toString());
-            System.out.println(Serializer.toJson(message));
             if (c.isOpen()) {
                 c.getRemote().sendString(Serializer.toJson(message));
             }

@@ -350,7 +350,7 @@ public class Client implements NotificationHandler {
                 int option = Integer.parseInt(input);
                 switch (option) {
                     case 1 -> makeMovePrompt(gameID);
-                    case 2 -> System.out.println("Lets get the highlighter :)");
+                    case 2 -> highlightPrompt(playerType);
                     case 3 -> WebSocketFacade.drawBoard(null,null);
                     case 4 -> {
                         ws.sendLeaveMsg(authToken,gameID,playerType);
@@ -373,6 +373,29 @@ public class Client implements NotificationHandler {
         }
     }
 
+    private void highlightPrompt(String playerType) {
+        System.out.println("What piece would you like to see the legal moves for?");
+        String pieceLocation = SCANNER.nextLine().toUpperCase();
+        ChessPosition startPos = translateToChessPos(pieceLocation);
+        ws.highlightMoves(startPos,playerType);
+
+    }
+
+    private ChessPosition translateToChessPos(String pieceLocation) {
+        List<Integer>positions = new ArrayList<>();
+        for (char c: pieceLocation.toCharArray()) {
+            if (Character.isLetter(c)) {
+                int value = c - 'A' + 1;
+                positions.add(value);
+            } else if (Character.isDigit(c)) {
+                positions.add(Character.getNumericValue(c));
+            } else {
+                throw new BadRequestException("Error: that square doesn't have a piece.'");
+            }
+        }
+        return new ChessPosition(positions.get(1), positions.get(0));
+
+    }
 
 
     private void makeMovePrompt(int gameID) throws ResponseException {
@@ -381,12 +404,13 @@ public class Client implements NotificationHandler {
         ChessMove move = translateToChessMove(inputMove);
 //        System.out.println(move);
         ws.sendMoveMsg(authToken,gameID,move);
-        //TODO: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
+        //done: right now my error messages show that making a move out of turn / trying to move opponent piece produces the same error. Don't quite know how to fix lol.
         //TODO: fix UI so the menu doesn't print before board and mess things up
         //TODO: highlight legal moves (for player and observer)
-        //TODO: resign & end game so no more moves can be made
+        //done: resign & end game so no more moves can be made
         //TODO: revise help menu
-        //TODO: if move results in check, checkmate or stalemate the server sends a notification to all clients
+        //TODO: when in check, it should say player's name
+        //done: if move results in check, checkmate or stalemate the server sends a notification to all clients
     }
 
     private ChessMove translateToChessMove(String inputMove) {
