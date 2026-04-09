@@ -46,16 +46,14 @@ public class WebSocketFacade extends Endpoint {
                         notificationHandler.notify(notification);
                     } else if (serverMessage.getServerMessageType()== ServerMessage.ServerMessageType.LOAD_GAME) {
                         LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
-                        System.out.println(loadGameMessage);
-                        System.out.println("Game" + loadGameMessage.getGameData());
                         playerType = loadGameMessage.getPlayerType();
-                        currentBoard = loadGameMessage.getGameData().game().getBoard();
-                        currentGame = loadGameMessage.getGameData().game();
+                        currentBoard = loadGameMessage.getGameData().getBoard();
+                        currentGame = loadGameMessage.getGameData();
                         drawBoard(currentBoard, playerType);
                     } else{
                         ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
                         System.out.print(SET_TEXT_COLOR_RED);
-                        System.out.println(errorMessage.getMessage());
+                        System.out.println(errorMessage.getErrorMessage());
                         System.out.print(RESET_TEXT_COLOR);
                     }
 //                    Client.gamePlayPrompt()

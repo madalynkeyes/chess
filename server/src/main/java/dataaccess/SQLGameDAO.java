@@ -48,9 +48,9 @@ public class SQLGameDAO implements GameDAO{
     public void updatePlayerNames(GameData gameData, String username, String color) throws ResponseException {
         String statement;
         if (color.equals("WHITE")) {
-            statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
+            statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
         } else {
-            statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
+            statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
         }
         try {
             executeUpdate(statement, username, gameData.gameId());

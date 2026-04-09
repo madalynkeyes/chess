@@ -20,4 +20,5 @@ public record GameData(int gameId, String whiteUsername, String blackUsername, S
     public String getWhiteUsername() {
         return whiteUsername;
     }
+
 }

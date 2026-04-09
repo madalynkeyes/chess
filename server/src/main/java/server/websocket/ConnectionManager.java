@@ -57,7 +57,7 @@ public class ConnectionManager {
 
             var msg = new LoadGameMessage(
                     ServerMessage.ServerMessageType.LOAD_GAME,
-                    game,
+                    game.game(),
                     player.getPlayerType()
             );
 
