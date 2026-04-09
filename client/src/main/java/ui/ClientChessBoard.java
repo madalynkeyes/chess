@@ -354,11 +354,5 @@ public class ClientChessBoard {
             }
         }
     }
-
-//    private static ChessBoard defaultBoard(){
-//        ChessGame defaultGame = new ChessGame();
-//        return defaultGame.getBoard();
-//    }
-
 }
 

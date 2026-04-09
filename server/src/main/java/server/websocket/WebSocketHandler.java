@@ -28,6 +28,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final ConnectionManager connections = new ConnectionManager();
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
+    private static ChessGame.TeamColor playerColor;
+    private static ChessGame.TeamColor currentTeam;
+    private ChessGame.TeamColor opponentColor;
+    private String opponentName;
+    private String username;
+    private static GameData game;
+    private String playerType;
 
     public WebSocketHandler(AuthDAO authDAO, GameDAO gameDAO) {
         this.authDAO = authDAO;
@@ -182,7 +189,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void makeMove(MoveCommand moveCommand, Session session) throws ResponseException, IOException {
         ChessMove move = moveCommand.getMove();
-        String username = authDAO.getUserByToken(moveCommand.getAuthToken());
+        username = authDAO.getUserByToken(moveCommand.getAuthToken());
         if (username == null) {
             String message = "Error: Not Authorized.";
             var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, message);
@@ -190,75 +197,85 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             String message = makeMoveNotification(move, username);
 
-            GameData game = gameDAO.getGameByID(moveCommand.getGameID());
+            game = gameDAO.getGameByID(moveCommand.getGameID());
             PlayerInfo player = connections.getPlayer(game.gameId(), session);
             if (player == null) {
                 String nullError = "Error: Game is over. No more moves can be made. Please leave the game to exit.";
                 var nullErrorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, nullError);
                 session.getRemote().sendString(Serializer.toJson(nullErrorMsg));
             } else {
-                String playerType = player.getPlayerType(); //"WHITE"
+                //"WHITE"
+                playerType = player.getPlayerType();
                 if (Objects.equals(playerType, "OBSERVER")) {
                     String nullError = "Error: Observers can't make moves.";
                     var nullErrorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, nullError);
                     session.getRemote().sendString(Serializer.toJson(nullErrorMsg));
                 } else {
-                    ChessGame.TeamColor playerColor = getTeamColor(playerType); //.WHITE
-                    ChessGame.TeamColor currentTeam = game.game().getTeamTurn(); //.WHITE
-                    ChessGame.TeamColor opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE; //.BLACK
-                    String opponentColorString = (Objects.equals(playerType, "WHITE")) ? "BLACK" : "WHITE"; // "BLACK"
-                    String opponentName = getOpponentName(moveCommand, opponentColorString);
-                    if (!game.game().getIsGameOver()) {
-                        if (playerColor != null && playerColor != currentTeam) {
-                            String error = "Error: Please Wait For Your Turn";
-                            var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, error);
-                            session.getRemote().sendString(Serializer.toJson(errorMsg));
-                            return;
-                        }
+                    //.WHITE
+                    playerColor = getTeamColor(playerType);
+                    //.WHITE
+                    currentTeam = game.game().getTeamTurn();
+                    //.BLACK
+                    opponentColor = (playerColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+                    // "BLACK"
+                    String opponentColorString = (Objects.equals(playerType, "WHITE")) ? "BLACK" : "WHITE";
+                    opponentName = getOpponentName(moveCommand, opponentColorString);
+                    if (notYourTurn(session)) {
+                        return;
                     }
 
-                    try {
-                        game.game().makeMove(move);
-                        game = gameDAO.updateGameData(game);
-//                String opponentName = getOpponentName(opponentColor, game);
-                        if (game.game().isInCheckmate(opponentColor)) {
-                            String checkMessage = String.format("   Checkmate! %s wins!", username);
-                            var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                            var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game(), playerType);
-                            connections.broadcast(game.gameId(), null, loadGameMsg);
-                            connections.broadcast(game.gameId(), null, checkNotification);
-                            var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                            connections.broadcast(moveCommand.getGameID(), session, notification);
-                        } else if (game.game().isInStalemate(opponentColor)) {
-                            String checkMessage = "   Stalemate! Game is a draw.";
-                            var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                            connections.broadcast(game.gameId(), null, checkNotification);
-                        } else if (game.game().isInCheck(opponentColor)) {
-                            String checkMessage = String.format("   %s is in check", opponentName);
-                            var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                            var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                            connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
-                            connections.broadcast(game.gameId(), null, checkNotification);
-                            connections.broadcast(moveCommand.getGameID(), session, notification);
-                        } else {
-                            connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
-                            var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                            connections.broadcast(moveCommand.getGameID(), session, notification);
-                        }
-
-                    } catch (InvalidMoveException e) {
-                        var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
-                        session.getRemote().sendString(Serializer.toJson(errorMsg));
-//                throw new InvalidMoveException(e.getMessage());
-                    } catch (ResponseException e) {
-                        var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
-                        session.getRemote().sendString(Serializer.toJson(errorMsg));
-//                throw new ResponseException(ResponseException.Code.ServerError,e.getMessage());
-                    }
+                    tryMakeMove(moveCommand, session, move,message);
                 }
             }
         }
 
+    }
+
+    private void tryMakeMove(MoveCommand moveCommand, Session session,  ChessMove move,String message) throws IOException {
+        try {
+            game.game().makeMove(move);
+            game = gameDAO.updateGameData(game);
+            if (game.game().isInCheckmate(opponentColor)) {
+                String checkMessage = String.format("   Checkmate! %s wins!", username);
+                var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+                var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game(), playerType);
+                connections.broadcast(game.gameId(), null, loadGameMsg);
+                connections.broadcast(game.gameId(), null, checkNotification);
+                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcast(moveCommand.getGameID(), session, notification);
+            } else if (game.game().isInStalemate(opponentColor)) {
+                String checkMessage = "   Stalemate! Game is a draw.";
+                var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+                connections.broadcast(game.gameId(), null, checkNotification);
+            } else if (game.game().isInCheck(opponentColor)) {
+                String checkMessage = String.format("   %s is in check", opponentName);
+                var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
+                connections.broadcast(game.gameId(), null, checkNotification);
+                connections.broadcast(moveCommand.getGameID(), session, notification);
+            } else {
+                connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
+                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcast(moveCommand.getGameID(), session, notification);
+            }
+
+        } catch (InvalidMoveException | ResponseException e) {
+            var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
+            session.getRemote().sendString(Serializer.toJson(errorMsg));
+        }
+    }
+
+    private static boolean notYourTurn(Session session) throws IOException {
+        if (!game.game().getIsGameOver()) {
+            if (playerColor != null && playerColor != currentTeam) {
+                String error = "Error: Please Wait For Your Turn";
+                var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, error);
+                session.getRemote().sendString(Serializer.toJson(errorMsg));
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ChessGame.TeamColor getTeamColor(String playerType) {
@@ -272,16 +289,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         return playerColor;
     }
-
-//    private static String getPlayerColor(ChessGame.TeamColor playerType) {
-//        String playerColor;
-//        if (playerType == ChessGame.TeamColor.WHITE) {
-//            playerColor = "WHITE";
-//        } else {
-//            playerColor = "BLACK";
-//        }
-//        return playerColor;
-//    }
 
 
     @NotNull
