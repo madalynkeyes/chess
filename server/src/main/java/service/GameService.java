@@ -106,8 +106,28 @@ public class GameService extends Service {
     }
 
     public static void leaveGame(int gameID, String username, String color) throws ResponseException{
-        GameData game = gameDAO.getGameByID(gameID);
-        gameDAO.leaveUpdateGame(game,username,color);
+        GameData gameData = gameDAO.getGameByID(gameID);
+        GameData updatedGame;
+        if(Objects.equals(color, "WHITE")){
+            updatedGame = new GameData(
+                    gameData.gameId(),
+                    null,
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    gameData.game()
+
+            );
+        }
+        else{
+            updatedGame = new GameData(
+                    gameData.gameId(),
+                    gameData.whiteUsername(),
+                    null,
+                    gameData.gameName(),
+                    gameData.game()
+            );
+        }
+        gameDAO.leaveUpdateGame(updatedGame,username,color);
     }
 
     /**

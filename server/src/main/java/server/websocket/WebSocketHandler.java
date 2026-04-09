@@ -123,28 +123,55 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return new GameData(game.gameId(), whiteUsername, blackUsername, game.gameName(), game.game());
     }
 
+
     public void leave(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
         connections.remove(userGameCommand.getGameID(), session);
         String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
+        GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
+        GameData updatedGame = setColorToNull(username, game);
         if (Objects.equals(userGameCommand.getPlayerType(), "WHITE") || Objects.equals(userGameCommand.getPlayerType(), "BLACK")) {
             GameService.leaveGame(userGameCommand.getGameID(), username, userGameCommand.getPlayerType());
-        } else if (userGameCommand.getPlayerType()==null) {
-            GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
+        }
+            else if (userGameCommand.getPlayerType()==null) {
             String playerType;
             if (username.equals(game.getWhiteUsername())) {
                 playerType = "WHITE";
-                GameService.leaveGame(userGameCommand.getGameID(), username,playerType);
+                GameService.leaveGame(userGameCommand.getGameID(), username, playerType);
             } else if (username.equals(game.getBlackUsername())) {
                 playerType = "BLACK";
-                GameService.leaveGame(userGameCommand.getGameID(), username,playerType);
+                GameService.leaveGame(userGameCommand.getGameID(), username, playerType);
             }
-            gameDAO.updateGameData(game);
-//            GameData updated = gameDAO.getGameByID(game.gameId());
-
         }
+        gameDAO.updateGameData(updatedGame);
         String message = String.format("   %s has left the game", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(userGameCommand.getGameID(), session, notification);
+    }
+
+    @NotNull
+    private static GameData setColorToNull(String username, GameData game) {
+        GameData updatedGame;
+
+        if (username.equals(game.getWhiteUsername())) {
+            updatedGame = new GameData(
+                    game.gameId(),
+                    null,
+                    game.getBlackUsername(),
+                    game.gameName(),
+                    game.game()
+            );
+        } else if (username.equals(game.getBlackUsername())) {
+            updatedGame = new GameData(
+                    game.gameId(),
+                    game.getWhiteUsername(),
+                    null,
+                    game.gameName(),
+                    game.game()
+            );
+        } else {
+            updatedGame = game; // observer, no change
+        }
+        return updatedGame;
     }
 
     public void resign(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
@@ -237,23 +264,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             game = gameDAO.updateGameData(game);
             if (game.game().isInCheckmate(opponentColor)) {
                 String checkMessage = String.format("   Checkmate! %s wins!", username);
-                var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game(), playerType);
-                connections.broadcast(game.gameId(), null, loadGameMsg);
-                connections.broadcast(game.gameId(), null, checkNotification);
-                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(moveCommand.getGameID(), session, notification);
+                endGameNotifications(moveCommand, session, message, checkMessage);
             } else if (game.game().isInStalemate(opponentColor)) {
                 String checkMessage = "   Stalemate! Game is a draw.";
-                var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                connections.broadcast(game.gameId(), null, checkNotification);
+                endGameNotifications(moveCommand, session, message, checkMessage);
             } else if (game.game().isInCheck(opponentColor)) {
                 String checkMessage = String.format("   %s is in check", opponentName);
-                var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
-                connections.broadcast(game.gameId(), null, checkNotification);
-                connections.broadcast(moveCommand.getGameID(), session, notification);
+                endGameNotifications(moveCommand, session, message, checkMessage);
             } else {
                 connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
                 var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
@@ -264,6 +281,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
             session.getRemote().sendString(Serializer.toJson(errorMsg));
         }
+    }
+
+    private void endGameNotifications(MoveCommand moveCommand, Session session, String message, String checkMessage) throws IOException {
+        var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcastUpdateToAll(moveCommand.getGameID(), game);
+        connections.broadcast(game.gameId(), null, checkNotification);
+        connections.broadcast(moveCommand.getGameID(), session, notification);
     }
 
     private static boolean notYourTurn(Session session) throws IOException {
