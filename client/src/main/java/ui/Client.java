@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
@@ -462,7 +463,10 @@ public class Client implements NotificationHandler {
         System.out.println("What move would you like to make?");
         try{
         String inputMove = SCANNER.nextLine().toUpperCase();
-        ChessMove move = translateToChessMove(inputMove);
+        System.out.println("If able to, what would you like to promote this piece to? Press enter to skip.");
+        String inputPromo = SCANNER.nextLine().toLowerCase();
+        ChessPiece.PieceType promoPiece = translateToChessPiece(inputPromo);
+        ChessMove move = translateToChessMove(inputMove,promoPiece);
 //        System.out.println(move);
         ws.sendMoveMsg(authToken,gameID,move);}
         catch (Exception e) {
@@ -483,7 +487,24 @@ public class Client implements NotificationHandler {
         //done: resigning should require a confirmation and does not kick players from the game
     }
 
-    private ChessMove translateToChessMove(String inputMove) {
+    private ChessPiece.PieceType translateToChessPiece(String inputPromo) {
+        ChessPiece.PieceType piece = ChessPiece.PieceType.PAWN;
+        switch (inputPromo){
+            case "rook" -> piece = ChessPiece.PieceType.ROOK;
+            case "queen" -> piece = ChessPiece.PieceType.QUEEN;
+            case "knight" -> piece = ChessPiece.PieceType.KNIGHT;
+            case "bishop" -> piece = ChessPiece.PieceType.BISHOP;
+            case "" -> piece = null;
+            default -> {
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("Error: Please enter valid promotion piece (rook, queen, knight or bishop).");
+                System.out.print(RESET_TEXT_COLOR);
+            }
+        }
+        return piece;
+    }
+
+    private ChessMove translateToChessMove(String inputMove,ChessPiece.PieceType promoPiece) {
         List<Integer>positions = new ArrayList<>();
         for (char c: inputMove.toCharArray()){
             if (Character.isLetter(c)){
@@ -497,7 +518,7 @@ public class Client implements NotificationHandler {
         }
         ChessPosition startPos = new ChessPosition(positions.get(1), positions.get(0));
         ChessPosition endPos = new ChessPosition(positions.get(3),positions.get(2));
-        return new ChessMove(startPos,endPos,null);
+        return new ChessMove(startPos,endPos,promoPiece);
     }
 
     public boolean isBackOrQuit(String input){

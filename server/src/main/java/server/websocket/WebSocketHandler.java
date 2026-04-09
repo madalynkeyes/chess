@@ -63,46 +63,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    //        public void connect(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
-//            String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
-//
-//            if (username == null){
-//                String message = "Error: Not Authorized.";
-//                var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,message);
-//                session.getRemote().sendString(Serializer.toJson(errorMsg));
-//            } else {
-//                GameData game = gameDAO.getGameByID(userGameCommand.getGameID());
-//                if (game == null) {
-//                    String message = "Error: Game not found.";
-//                    var errorMsg = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, message);
-//                    session.getRemote().sendString(Serializer.toJson(errorMsg));
-//                } else {
-//                    GameData updatedGame = getUpdatedGame(game, username);
-//                    gameDAO.updateGameData(updatedGame);
-//                    game = updatedGame;
-//                    String playerType = userGameCommand.getPlayerType();
-//                    if (playerType==null) {
-//                        if (username.equals(game.getWhiteUsername())) {
-//                            playerType = "WHITE";
-//                        } else if (username.equals(game.getBlackUsername())) {
-//                            playerType = "BLACK";
-//                        } else {
-//                            playerType = "OBSERVER";
-//                        }
-//                    }
-//                    PlayerInfo playerInfo = new PlayerInfo(username, userGameCommand.getGameID(), playerType);
-//                    connections.add(userGameCommand.getGameID(), session, playerInfo);
-//                    var loadGameMsg = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game(), playerType);
-//                    session.getRemote().sendString(Serializer.toJson(loadGameMsg));
-//
-//                    String message = String.format("   %s has joined the game as %s", username, playerType);
-//                    var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-//                    connections.broadcast(userGameCommand.getGameID(), session, notification);
-//                }
-//            }
-//        }
     public void connect(UserGameCommand userGameCommand, Session session) throws ResponseException, IOException {
-        //I need some way to validate the auth token and get the username, so I can send a notification
         String username = authDAO.getUserByToken(userGameCommand.getAuthToken());
         if (username == null) {
             String message = "Error: Not Authorized.";

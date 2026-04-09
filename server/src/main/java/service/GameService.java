@@ -107,10 +107,7 @@ public class GameService extends Service {
 
     public static void leaveGame(int gameID, String username, String color) throws ResponseException{
         GameData game = gameDAO.getGameByID(gameID);
-        System.out.println("GAME BEFORE" + game);
-        System.out.println("GMAMME WHITE" + game.getWhiteUsername());
         gameDAO.leaveUpdateGame(game,username,color);
-        System.out.println("GAME AFTER: "+game);
     }
 
     /**

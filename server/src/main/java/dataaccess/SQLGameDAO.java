@@ -48,9 +48,9 @@ public class SQLGameDAO implements GameDAO{
     public void updatePlayerNames(GameData gameData, String username, String color) throws ResponseException {
         String statement;
         if (color.equals("WHITE")) {
-            statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
+            statement = "UPDATE games SET whiteUsername=? WHERE gameID=? AND whiteUsername IS NULL";
         } else {
-            statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
+            statement = "UPDATE games SET blackUsername=? WHERE gameID=? AND blackUsername IS NULL";
         }
         try {
             executeUpdate(statement, username, gameData.gameId());
@@ -153,7 +153,7 @@ public class SQLGameDAO implements GameDAO{
     private GameData readGame(ResultSet rs) throws SQLException{
         var gameID = rs.getInt("gameID");
         var json = rs.getString("json");
-        GameData gameData = new Gson().fromJson(json, GameData.class);
+        GameData gameData = Serializer.fromJson(json, GameData.class);
         return gameData.setId(gameID);
     }
 
